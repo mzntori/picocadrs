@@ -179,7 +179,7 @@ impl From<Table> for PicoFace {
             match key.as_str() {
                 "c" => {
                     builder.color(match value {
-                        Value::Integer(i) => { PicoColor::from(i) }
+                        Value::Integer(i) => { PicoColor::from(i as i32) }
                         _ => { PicoColor::Black }
                     });
                 }
