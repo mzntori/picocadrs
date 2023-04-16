@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use rlua::{Lua, RegistryKey, Table, Value};
 use rlua::prelude::LuaError;
 
+#[derive(Debug)]
 pub struct Vector {
     pub x: f32,
     pub y: f32,
@@ -15,8 +16,8 @@ impl Default for Vector {
     }
 }
 
-impl From<Table> for Vector {
-    fn from(_: Table) -> Self {
+impl From<Table<'_>> for Vector {
+    fn from(t: Table) -> Self {
         let vector_values: Vec<Result<f32, LuaError>> = t.sequence_values::<f32>().collect();
 
         Self {
@@ -27,6 +28,7 @@ impl From<Table> for Vector {
     }
 }
 
+#[derive(Debug)]
 pub enum PicoColor {
     None = -1,
     Black = 0,
@@ -71,6 +73,7 @@ impl From<i32> for PicoColor {
     }
 }
 
+#[derive(Debug)]
 pub struct PicoFaceBuilder {
     vertices_index: Vec<i32>,
     color: PicoColor,
@@ -143,6 +146,7 @@ impl PicoFaceBuilder {
     }
 }
 
+#[derive(Debug)]
 pub struct PicoFace {
     pub vertices_index: Vec<i32>,
     pub color: PicoColor,
@@ -167,7 +171,7 @@ impl Default for PicoFace {
     }
 }
 
-impl From<Table> for PicoFace {
+impl From<Table<'_>> for PicoFace {
     fn from(t: Table) -> Self {
         let builder = PicoFaceBuilder::new();
 
@@ -234,6 +238,7 @@ impl From<Table> for PicoFace {
     }
 }
 
+#[derive(Debug)]
 pub struct PicoObjectBuilder {
     name: String,
     pos: Vector,
@@ -290,6 +295,7 @@ impl PicoObjectBuilder {
     }
 }
 
+#[derive(Debug)]
 pub struct PicoObject {
     pub name: String,
     pub pos: Vector,
@@ -325,7 +331,7 @@ impl From<String> for PicoObject {
     }
 }
 
-impl From<Table> for PicoObject {
+impl From<Table<'_>> for PicoObject {
     fn from(table: Table) -> Self {
         let builder = PicoObjectBuilder::new();
 
@@ -387,6 +393,7 @@ impl From<Table> for PicoObject {
     }
 }
 
+#[derive(Debug)]
 pub struct PicoHeader {
     pub identifier: String,
     pub name: String,
