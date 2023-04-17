@@ -1,6 +1,3 @@
-use std::fmt::format;
-use std::fs::OpenOptions;
-use std::sync::Mutex;
 use rlua::{Lua, RegistryKey, Table, Value};
 use rlua::prelude::LuaError;
 
@@ -12,7 +9,7 @@ pub struct Vector {
 }
 
 impl Vector {
-    pub fn as_lua_string(&self) -> String {
+    pub fn serialize(&self) -> String {
         format!("{}{},{},{}{}", "{", &self.x, &self.y, &self.z, "}")
     }
 }
@@ -213,7 +210,7 @@ pub struct PicoFace {
 }
 
 impl PicoFace {
-    pub fn as_lua_string(&self) -> String {
+    pub fn serialize(&self) -> String {
         let mut s: String = String::new();
 
         // start
@@ -412,16 +409,16 @@ pub struct PicoObject {
 }
 
 impl PicoObject {
-    pub fn as_lua_string(&self) -> String {
+    pub fn serialize(&self) -> String {
         let mut s: String = String::new();
 
         s.push_str("{\n");
-        s.push_str(format!(" name='{}', pos={}, rot={},\n", &self.name, &self.pos.as_lua_string(), &self.rot.as_lua_string()).as_str());
+        s.push_str(format!(" name='{}', pos={}, rot={},\n", &self.name, &self.pos.serialize(), &self.rot.serialize()).as_str());
 
         // vertices
         s.push_str(" v={");
         for vertex in &self.vertices {
-            s.push_str(format!("\n  {},", vertex.as_lua_string()).as_str())
+            s.push_str(format!("\n  {},", vertex.serialize()).as_str())
         }
         s = match s.strip_suffix(',') {
             Some(str) => { str }
@@ -431,7 +428,7 @@ impl PicoObject {
 
         // faces
         for face in &self.faces {
-            s.push_str(format!("\n  {},", face.as_lua_string()).as_str())
+            s.push_str(format!("\n  {},", face.serialize()).as_str())
         }
         s = match s.strip_suffix(',') {
             Some(str) => { str }

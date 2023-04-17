@@ -1,4 +1,3 @@
-use std::sync::Mutex;
 use crate::assets::{PicoColor, PicoObject, PicoHeader};
 use rlua::{Lua, RegistryKey, Table};
 
@@ -33,7 +32,7 @@ impl PicoSave {
         // objects
         s.push_str("{\n");
         for object in &self.objects {
-            s.push_str(object.as_lua_string().as_str());
+            s.push_str(object.serialize().as_str());
             s.push(',');
         }
         s = match s.strip_suffix(',') {
