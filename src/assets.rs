@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::fs::OpenOptions;
 use std::sync::Mutex;
 use rlua::{Lua, RegistryKey, Table, Value};
@@ -8,6 +9,12 @@ pub struct Vector {
     pub x: f32,
     pub y: f32,
     pub z: f32,
+}
+
+impl Vector {
+    pub fn as_lua_string(&self) -> String {
+        format!("{}{},{},{}{}", "{", &self.x, &self.y, &self.z, "}")
+    }
 }
 
 impl Default for Vector {
@@ -28,7 +35,7 @@ impl From<Table<'_>> for Vector {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum PicoColor {
     None = -1,
     Black = 0,
@@ -47,6 +54,30 @@ pub enum PicoColor {
     Lavender = 13,
     Pink = 14,
     LightPeach = 15,
+}
+
+impl PicoColor {
+    pub fn as_i32(&self) -> i32 {
+        return match self {
+            Self::Black => 0,
+            Self::DarkBlue => 1,
+            Self::DarkPurple => 2,
+            Self::DarkGreen => 3,
+            Self::Brown => 4,
+            Self::DarkGrey => 5,
+            Self::LightGrey => 6,
+            Self::White => 7,
+            Self::Red => 8,
+            Self::Orange => 9,
+            Self::Yellow => 10,
+            Self::Green => 11,
+            Self::Blue => 12,
+            Self::Lavender => 13,
+            Self::Pink => 14,
+            Self::LightPeach => 15,
+            _ => -1
+        };
+    }
 }
 
 impl From<i32> for PicoColor {
@@ -68,6 +99,30 @@ impl From<i32> for PicoColor {
             13 => Self::Lavender,
             14 => Self::Pink,
             15 => Self::LightPeach,
+            _ => Self::None
+        };
+    }
+}
+
+impl From<char> for PicoColor {
+    fn from(c: char) -> Self {
+        return match c {
+            '0' => Self::Black,
+            '1' => Self::DarkBlue,
+            '2' => Self::DarkPurple,
+            '3' => Self::DarkGreen,
+            '4' => Self::Brown,
+            '5' => Self::DarkGrey,
+            '6' => Self::LightGrey,
+            '7' => Self::White,
+            '8' => Self::Red,
+            '9' => Self::Orange,
+            'a' => Self::Yellow,
+            'b' => Self::Green,
+            'c' => Self::Blue,
+            'd' => Self::Lavender,
+            'e' => Self::Pink,
+            'f' => Self::LightPeach,
             _ => Self::None
         };
     }
@@ -157,6 +212,41 @@ pub struct PicoFace {
     pub no_texture: bool,
 }
 
+impl PicoFace {
+    pub fn as_lua_string(&self) -> String {
+        let mut s: String = String::new();
+
+        // start
+        s.push('{');
+
+        // vertices
+        for index in &self.vertices_index {
+            s.push_str(format!("{},", index).as_str());
+        }
+        // color
+        s.push_str(format!(" c={},", self.color.as_i32()).as_str());
+
+        // bools
+        if self.double_sided { s.push_str(" dbl=1,") }
+        if self.no_shading { s.push_str(" noshade=1,") }
+        if self.no_texture { s.push_str(" notex=1,") }
+        if self.render_priority { s.push_str(" prio=1,") }
+
+        // uvs
+        s.push_str(" uv={");
+        for uv_vector in &self.uvs {
+            s.push_str(format!("{},{},", uv_vector.x, uv_vector.y).as_str());
+        }
+        s = match s.strip_suffix(',') {
+            Some(str) => { str }
+            None => { "" }
+        }.to_string();
+        s.push_str("} }");
+
+        s
+    }
+}
+
 impl Default for PicoFace {
     fn default() -> Self {
         Self {
@@ -173,30 +263,40 @@ impl Default for PicoFace {
 
 impl From<Table<'_>> for PicoFace {
     fn from(t: Table) -> Self {
-        let builder = PicoFaceBuilder::new();
+        let mut builder = PicoFaceBuilder::new();
 
-        builder.vertices_index(t.sequence_values::<i32>().collect());
+        let mut c: PicoColor = PicoColor::Black;
+        let mut uv: Vec<Vector> = vec![];
+        let mut dbl: bool = false;
+        let mut noshade: bool = false;
+        let mut notex: bool = false;
+        let mut prio: bool = false;
+
+        let mut vertices_indexes: Vec<i32> = vec![];
+        for v in t.clone().sequence_values::<i32>() {
+            vertices_indexes.push(v.expect("Failed to parse Vertex Index"))
+        }
 
         for pair in t.pairs::<String, Value>() {
             let (key, value) = pair.unwrap();
 
             match key.as_str() {
                 "c" => {
-                    builder.color(match value {
+                    c = match value {
                         Value::Integer(i) => { PicoColor::from(i as i32) }
                         _ => { PicoColor::Black }
-                    });
+                    };
                 }
                 "uv" => {
-                    builder.uvs(match value {
+                    uv = match value {
                         Value::Table(t) => {
                             let mut uvs: Vec<Vector> = vec![];
-                            let raw_uvs: Vec<f32> = t.sequence_values::<f32>().collect();
+                            let raw_uvs: Vec<Result<f32, LuaError>> = t.sequence_values::<f32>().collect();
 
                             for uv_index in 0..(raw_uvs.len() as f32 / 2f32).floor() as usize {
                                 uvs.push(Vector {
-                                    x: raw_uvs.get(2 * uv_index).unwrap().clone(),
-                                    y: raw_uvs.get(2 * uv_index + 1).unwrap().clone(),
+                                    x: raw_uvs.get(2 * uv_index).unwrap().clone().expect("Failed to read UV Coordinates"),
+                                    y: raw_uvs.get(2 * uv_index + 1).unwrap().clone().expect("Failed to read UV Coordinates"),
                                     z: 0f32,
                                 })
                             }
@@ -204,37 +304,44 @@ impl From<Table<'_>> for PicoFace {
                             uvs
                         }
                         _ => { vec![] }
-                    });
+                    };
                 }
                 "dbl" => {
-                    builder.double_sided(match value {
+                    dbl = match value {
                         Value::Integer(i) => { if i == 1 { true } else { false } }
                         _ => { false }
-                    });
+                    };
                 }
                 "noshade" => {
-                    builder.no_shading(match value {
+                    noshade = match value {
                         Value::Integer(i) => { if i == 1 { true } else { false } }
                         _ => { false }
-                    });
+                    };
                 }
                 "notex" => {
-                    builder.no_texture(match value {
+                    notex = match value {
                         Value::Integer(i) => { if i == 1 { true } else { false } }
                         _ => { false }
-                    });
+                    };
                 }
                 "prio" => {
-                    builder.render_priority(match value {
+                    prio = match value {
                         Value::Integer(i) => { if i == 1 { true } else { false } }
                         _ => { false }
-                    });
+                    };
                 }
                 _ => {}
             }
         }
 
-        builder.build()
+        builder.vertices_index(vertices_indexes)
+            .color(c)
+            .uvs(uv)
+            .double_sided(dbl)
+            .no_shading(noshade)
+            .no_texture(notex)
+            .render_priority(prio)
+            .build()
     }
 }
 
@@ -304,6 +411,38 @@ pub struct PicoObject {
     pub faces: Vec<PicoFace>,
 }
 
+impl PicoObject {
+    pub fn as_lua_string(&self) -> String {
+        let mut s: String = String::new();
+
+        s.push_str("{\n");
+        s.push_str(format!(" name='{}', pos={}, rot={},\n", &self.name, &self.pos.as_lua_string(), &self.rot.as_lua_string()).as_str());
+
+        // vertices
+        s.push_str(" v={");
+        for vertex in &self.vertices {
+            s.push_str(format!("\n  {},", vertex.as_lua_string()).as_str())
+        }
+        s = match s.strip_suffix(',') {
+            Some(str) => { str }
+            None => { "" }
+        }.to_string();
+        s.push_str("\n },\n f={");
+
+        // faces
+        for face in &self.faces {
+            s.push_str(format!("\n  {},", face.as_lua_string()).as_str())
+        }
+        s = match s.strip_suffix(',') {
+            Some(str) => { str }
+            None => { "" }
+        }.to_string();
+        s.push_str("\n }\n}");
+
+        s
+    }
+}
+
 impl Default for PicoObject {
     fn default() -> Self {
         Self {
@@ -333,32 +472,36 @@ impl From<String> for PicoObject {
 
 impl From<Table<'_>> for PicoObject {
     fn from(table: Table) -> Self {
-        let builder = PicoObjectBuilder::new();
+        let mut name: String = String::new();
+        let mut pos: Vector = Vector::default();
+        let mut rot: Vector = Vector::default();
+        let mut v: Vec<Vector> = vec![];
+        let mut f: Vec<PicoFace> = vec![];
 
         for pair in table.pairs::<String, Value>() {
             let (key, value) = pair.unwrap();
 
             match key.as_str() {
                 "name" => {
-                    builder.name(match value {
+                    name = match value {
                         Value::String(s) => { s.to_str().unwrap().to_string() }
                         _ => { "object".to_string() }
-                    });
+                    };
                 }
                 "pos" => {
-                    builder.pos(match value {
+                    pos = match value {
                         Value::Table(t) => { Vector::from(t) }
                         _ => { Vector::default() }
-                    });
+                    };
                 }
                 "rot" => {
-                    builder.rot(match value {
+                    rot = match value {
                         Value::Table(t) => { Vector::from(t) }
                         _ => { Vector::default() }
-                    });
+                    };
                 }
                 "v" => {
-                    builder.vertices(match value {
+                    v = match value {
                         Value::Table(t) => {
                             let mut tempv = vec![];
 
@@ -369,10 +512,10 @@ impl From<Table<'_>> for PicoObject {
                             tempv
                         }
                         _ => { vec![] }
-                    });
+                    };
                 }
                 "f" => {
-                    builder.faces(match value {
+                    f = match value {
                         Value::Table(t) => {
                             let mut faces: Vec<PicoFace> = vec![];
 
@@ -383,13 +526,19 @@ impl From<Table<'_>> for PicoObject {
                             faces
                         }
                         _ => { vec![] }
-                    });
+                    };
                 }
                 _ => {}
             }
         }
 
-        builder.build()
+        PicoObjectBuilder::new()
+            .name(name)
+            .pos(pos)
+            .rot(rot)
+            .vertices(v)
+            .faces(f)
+            .build()
     }
 }
 
@@ -408,10 +557,10 @@ impl From<&str> for PicoHeader {
         let header_data: Vec<&str> = s.split(';').collect();
 
         Self {
-            identifier: header_data.get(0).cloned().unwrap().to_string(),
-            name: header_data.get(1).cloned().unwrap().to_string(),
-            zoom: header_data.get(2).cloned().unwrap().parse::<i32>().unwrap(),
-            bg_color: PicoColor::from(header_data.get(3).cloned().unwrap().parse::<i32>().unwrap()),
+            identifier: header_data.get(0).unwrap().to_string(),
+            name: header_data.get(1).unwrap().to_string(),
+            zoom: header_data.get(2).unwrap().parse::<i32>().unwrap(),
+            bg_color: PicoColor::from(header_data.get(3).unwrap().parse::<i32>().unwrap()),
             alpha_color: PicoColor::from(header_data.get(4).unwrap().parse::<i32>().unwrap()),
         }
     }
