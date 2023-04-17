@@ -1,23 +1,16 @@
 pub mod assets;
 pub mod save;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::assets::PicoObject;
+    use crate::assets::{PicoColor, PicoObject};
+    use crate::save::PicoSave;
     use super::*;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+    use std::fs;
 
     #[test]
-    fn main() {
+    fn object_parsing() {
         let obj = PicoObject::from(r#"
             {
              name='cube', pos={0,0,0}, rot={0,0,0},
@@ -42,8 +35,22 @@ mod tests {
             }
         "#.to_string());
 
-        print!("{:#?}", obj);
+        // print!("{:#?}", obj);
 
         assert_eq!(true, true)
+    }
+
+    #[test]
+    fn parse_pico_save() {
+        let save = PicoSave::from(fs::read_to_string("C:/Users/Jacob/AppData/Roaming/pico-8/appdata/picocad/torii_toffee_backup.txt").expect("Failed to load File"));
+
+        // print!("{:#?}", save);
+    }
+
+    #[test]
+    fn serialize_pico_save() {
+        let save = PicoSave::from(fs::read_to_string("C:/Users/Jacob/AppData/Roaming/pico-8/appdata/picocad/torii_toffee_backup.txt").expect("Failed to load File"));
+
+        println!("{}", save.serialize())
     }
 }
