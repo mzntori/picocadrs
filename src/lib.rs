@@ -43,15 +43,15 @@ mod tests {
 
     #[test]
     fn parse_pico_save() {
-        let save = PicoSave::from(fs::read_to_string("C:/Users/Jacob/AppData/Roaming/pico-8/appdata/picocad/torii_toffee_backup.txt").expect("Failed to load File"));
+        let save = PicoSave::from(fs::read_to_string("C:/Users/Jacob/AppData/Roaming/pico-8/appdata/picocad/plane.txt").expect("Failed to load File"));
 
-        // print!("{:#?}", save);
+        println!("{:#?}", save);
     }
 
     #[test]
     fn serialize_pico_save() {
-        let save = PicoSave::from(fs::read_to_string("C:/Users/Jacob/AppData/Roaming/pico-8/appdata/picocad/torii_toffee_backup.txt").expect("Failed to load File"));
+        let save = PicoSave::from(fs::read_to_string("C:/Users/Jacob/AppData/Roaming/pico-8/appdata/picocad/plane.txt").expect("Failed to load File"));
 
-        println!("{}", save.serialize())
+        // println!("{}", save.serialize());
     }
 }
