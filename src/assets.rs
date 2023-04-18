@@ -10,6 +10,7 @@ pub struct Vector {
 }
 
 impl Vector {
+    /// Serializes the Vector into a String representing that Vector as a lua table
     pub fn serialize(&self) -> String {
         format!("{}{},{},{}{}", "{", &self.x, &self.y, &self.z, "}")
     }
@@ -33,6 +34,8 @@ impl From<Table<'_>> for Vector {
     }
 }
 
+
+/// Enum that represents colors in the pico-8 color palette.
 #[derive(Debug, Clone, Copy)]
 pub enum PicoColor {
     None = -1,
@@ -55,6 +58,8 @@ pub enum PicoColor {
 }
 
 impl PicoColor {
+    /// Returns the Color represented as an integer between 0 and 15.
+    /// Returns -1 if its not a valid color.
     pub fn to_i32(&self) -> i32 {
         return match self {
             Self::Black => 0,
@@ -126,6 +131,7 @@ impl From<char> for PicoColor {
     }
 }
 
+/// Builder for `PicoFace`.
 #[derive(Debug)]
 pub struct PicoFaceBuilder {
     vertices_index: Vec<i32>,
@@ -138,6 +144,7 @@ pub struct PicoFaceBuilder {
 }
 
 impl PicoFaceBuilder {
+    /// Returns a new builder containing the `PicoFace::default()` values.
     pub fn new() -> Self {
         let obj = PicoFace::default();
         Self {
@@ -151,41 +158,49 @@ impl PicoFaceBuilder {
         }
     }
 
+    /// Sets the faces vertices indexes to the ones provided as a parameter in the provided order.
     pub fn vertices_index(mut self, vertices_index: Vec<i32>) -> Self {
         self.vertices_index = vertices_index;
         self
     }
 
+    /// Sets the faces color to the provided color.
     pub fn color(mut self, color: PicoColor) -> Self {
         self.color = color;
         self
     }
 
+    /// Sets the uv coordinates to the ones provided as a parameter in the provided order.
     pub fn uvs(mut self, uvs: Vec<Vector>) -> Self {
         self.uvs = uvs;
         self
     }
 
+    /// Sets the face's property to render textures on both sides to the provided value.
     pub fn double_sided(mut self, double_sided: bool) -> Self {
         self.double_sided = double_sided;
         self
     }
 
+    /// Sets the face's property to not have shadows to the provided value.
     pub fn no_shading(mut self, no_shading: bool) -> Self {
         self.no_shading = no_shading;
         self
     }
 
+    /// Sets the face's property to render first to the provided value.
     pub fn render_priority(mut self, render_priority: bool) -> Self {
         self.render_priority = render_priority;
         self
     }
 
+    /// Sets the face's property to have no texture to the provided value.
     pub fn no_texture(mut self, texture_disabled: bool) -> Self {
         self.no_texture = texture_disabled;
         self
     }
 
+    /// Builds the `PicoFace` instance.
     pub fn build(self) -> PicoFace {
         PicoFace {
             vertices_index: self.vertices_index,
@@ -199,6 +214,7 @@ impl PicoFaceBuilder {
     }
 }
 
+/// Represents a Face as stored by picoCAD
 #[derive(Debug)]
 pub struct PicoFace {
     pub vertices_index: Vec<i32>,
@@ -211,6 +227,7 @@ pub struct PicoFace {
 }
 
 impl PicoFace {
+    /// Serializes the face into a string in form ofa lua table, that picoCAD can read.
     pub fn serialize(&self) -> String {
         let mut s: String = String::new();
 
@@ -343,6 +360,7 @@ impl From<Table<'_>> for PicoFace {
     }
 }
 
+/// Builder for `PicoObject`
 #[derive(Debug)]
 pub struct PicoObjectBuilder {
     name: String,
@@ -353,6 +371,7 @@ pub struct PicoObjectBuilder {
 }
 
 impl PicoObjectBuilder {
+    /// Returns a new builder containing the `PicoFace::default()` values.
     pub fn new() -> Self {
         let obj = PicoObject::default();
         Self {
@@ -364,31 +383,37 @@ impl PicoObjectBuilder {
         }
     }
 
+    /// Sets the objects name to the provided value.
     pub fn name(mut self, name: String) -> Self {
         self.name = name;
         self
     }
 
+    /// Sets the objects origin to the provided coordinates.
     pub fn pos(mut self, pos: Vector) -> Self {
         self.pos = pos;
         self
     }
 
+    /// Sets the objects lightsource rotation to the provided value.
     pub fn rot(mut self, rot: Vector) -> Self {
         self.rot = rot;
         self
     }
 
+    /// Sets the objects vertices to the provided positions in the provided order.
     pub fn vertices(mut self, vertices: Vec<Vector>) -> Self {
         self.vertices = vertices;
         self
     }
 
+    /// Sets the objects faces to the provided values in the provided order.
     pub fn faces(mut self, faces: Vec<PicoFace>) -> Self {
         self.faces = faces;
         self
     }
 
+    /// Builds the `PicoObject` instance.
     pub fn build(self) -> PicoObject {
         PicoObject {
             name: self.name,
@@ -400,6 +425,7 @@ impl PicoObjectBuilder {
     }
 }
 
+/// Represents an object as stored by picoCAD
 #[derive(Debug)]
 pub struct PicoObject {
     pub name: String,
@@ -410,6 +436,7 @@ pub struct PicoObject {
 }
 
 impl PicoObject {
+    /// Serializes the face into a string in form ofa lua table, that picoCAD can read.
     pub fn serialize(&self) -> String {
         let mut s: String = String::new();
 
@@ -540,6 +567,7 @@ impl From<Table<'_>> for PicoObject {
     }
 }
 
+/// Represents the header of a picoCAD savefile.
 #[derive(Debug)]
 pub struct PicoHeader {
     pub identifier: String,

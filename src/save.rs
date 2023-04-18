@@ -1,6 +1,7 @@
 use crate::assets::{PicoColor, PicoObject, PicoHeader};
 use rlua::{Lua, RegistryKey, Table};
 
+/// Represents a picoCAD savefile and all its contents.
 #[derive(Debug)]
 pub struct PicoSave {
     pub header: PicoHeader,
@@ -9,6 +10,7 @@ pub struct PicoSave {
 }
 
 impl PicoSave {
+    /// Splits a savefile represented as a string into header, objects and footer.
     fn split_save_string(s: &str) -> (&str, &str, &str) {
         let split_parts: Vec<&str> = s.splitn(2, '\n').collect();
         let (header, objects_and_footer): (&str, &str) = (split_parts.get(0).cloned().unwrap(), split_parts.get(1).cloned().unwrap());
@@ -17,6 +19,7 @@ impl PicoSave {
         (header.trim(), objects.trim(), footer.trim())
     }
 
+    /// Serializes the save into a string that, when stored in a `.txt` file can be read by picoCAD.
     pub fn serialize(&self) -> String {
         let mut s: String = String::new();
 
