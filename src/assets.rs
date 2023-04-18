@@ -54,7 +54,7 @@ pub enum PicoColor {
 }
 
 impl PicoColor {
-    pub fn as_i32(&self) -> i32 {
+    pub fn to_i32(&self) -> i32 {
         return match self {
             Self::Black => 0,
             Self::DarkBlue => 1,
@@ -221,7 +221,7 @@ impl PicoFace {
             s.push_str(format!("{},", index).as_str());
         }
         // color
-        s.push_str(format!(" c={},", self.color.as_i32()).as_str());
+        s.push_str(format!(" c={},", self.color.to_i32()).as_str());
 
         // bools
         if self.double_sided { s.push_str(" dbl=1,") }

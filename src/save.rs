@@ -25,8 +25,8 @@ impl PicoSave {
                            &self.header.identifier,
                            &self.header.name,
                            &self.header.zoom,
-                           &self.header.bg_color.as_i32(),
-                           &self.header.alpha_color.as_i32()
+                           &self.header.bg_color.to_i32(),
+                           &self.header.alpha_color.to_i32()
         ).as_str());
 
         // objects
