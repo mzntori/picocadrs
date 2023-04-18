@@ -9,6 +9,7 @@ repository = "https://github.com/ElektroEnte/picocadrs"
 license = "MIT"
 keywords = ["picoCAD", "pico8"]
 categories = ["data-structures", "graphics", "parsing"]
+exclude = ["src/test.rs"]
 
 [dependencies]
 rlua = "0.19.4"
