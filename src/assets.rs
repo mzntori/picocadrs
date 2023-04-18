@@ -1,6 +1,7 @@
 use rlua::{Lua, RegistryKey, Table, Value};
 use rlua::prelude::LuaError;
 
+/// A vector containing 3 float values representing x, y and z
 #[derive(Debug)]
 pub struct Vector {
     pub x: f32,
