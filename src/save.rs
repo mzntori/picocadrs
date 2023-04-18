@@ -79,3 +79,21 @@ impl From<String> for PicoSave {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{fs, env};
+
+    #[test]
+    fn parse_pico_save() {
+        let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
+        println!("{:#?}", save);
+    }
+
+    #[test]
+    fn serialize_pico_save() {
+        let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
+        println!("{}", save.serialize());
+    }
+}
