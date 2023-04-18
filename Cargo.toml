@@ -7,7 +7,6 @@ readme = "README.md"
 homepage = "https://github.com/ElektroEnte/picocadrs"
 repository = "https://github.com/ElektroEnte/picocadrs"
 license = "MIT"
-license-file = "LICENSE"
 keywords = ["picoCAD", "pico8"]
 categories = ["data-structures", "graphics", "parsing"]
 

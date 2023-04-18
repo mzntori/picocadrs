@@ -1,4 +1,4 @@
-use rlua::{Lua, RegistryKey, Table, Value};
+use rlua::{Lua, Table, Value};
 use rlua::prelude::LuaError;
 
 /// A vector containing 3 float values representing x, y and z
@@ -278,7 +278,7 @@ impl Default for PicoFace {
 
 impl From<Table<'_>> for PicoFace {
     fn from(t: Table) -> Self {
-        let mut builder = PicoFaceBuilder::new();
+        let builder = PicoFaceBuilder::new();
 
         let mut c: PicoColor = PicoColor::Black;
         let mut uv: Vec<Vector> = vec![];

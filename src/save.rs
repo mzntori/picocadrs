@@ -1,5 +1,5 @@
-use crate::assets::{PicoColor, PicoObject, PicoHeader};
-use rlua::{Lua, RegistryKey, Table};
+use crate::assets::{PicoObject, PicoHeader};
+use rlua::{Lua, Table};
 
 /// Represents a picoCAD savefile and all its contents.
 #[derive(Debug)]
