@@ -1,4 +1,4 @@
-use crate::assets::{PicoObject, PicoHeader};
+use crate::assets::{PicoObject, PicoHeader, Serialize};
 use rlua::{Lua, Table};
 
 /// Represents a picoCAD savefile and all its contents.
@@ -20,7 +20,7 @@ impl PicoSave {
     }
 
     /// Serializes the save into a string that, when stored in a `.txt` file can be read by picoCAD.
-    pub fn serialize(&self) -> String {
+    pub fn to_string(&self) -> String {
         let mut s: String = String::new();
 
         // header
@@ -96,6 +96,6 @@ mod tests {
     #[ignore]
     fn serialize_pico_save() {
         let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
-        println!("{}", save.serialize());
+        println!("{}", save.to_string());
     }
 }
