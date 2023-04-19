@@ -2,9 +2,9 @@ use rlua::{Lua, Table, Value};
 use rlua::prelude::LuaError;
 
 pub trait Serialize {
-    fn serialize(&self) -> &str;
-    fn serialize_to_string(&self) -> String {
-        self.serialize().to_string()
+    fn serialize(&self) -> String;
+    fn serialize_to_str(&self) -> &str {
+        self.serialize().as_str()
     }
 }
 
