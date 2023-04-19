@@ -81,6 +81,28 @@ impl PicoColor {
             _ => -1
         };
     }
+
+    pub fn to_char(&self) -> char {
+        return match self {
+            Self::Black => '0',
+            Self::DarkBlue =>'1',
+            Self::DarkPurple => '2',
+            Self::DarkGreen => '3',
+            Self::Brown => '4',
+            Self::DarkGrey => '5',
+            Self::LightGrey => '6',
+            Self::White => '7',
+            Self::Red => '8',
+            Self::Orange => '9',
+            Self::Yellow => 'a',
+            Self::Green => 'b',
+            Self::Blue => 'c',
+            Self::Lavender => 'd',
+            Self::Pink => 'e',
+            Self::LightPeach => 'f',
+            _ => ' '
+        };
+    }
 }
 
 impl From<i32> for PicoColor {
@@ -622,5 +644,10 @@ mod tests {
             }
         "#.to_string());
         print!("{:#?}", obj);
+    }
+
+    #[test]
+    fn color_conversion(){
+        println!("{}", PicoColor::Red.to_char())
     }
 }
