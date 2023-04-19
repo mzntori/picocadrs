@@ -411,7 +411,7 @@ impl Serialize for PicoFace {
         }
         s = match s.strip_suffix(',') {
             Some(str) => { str }
-            None => { "" }
+            None => { s.as_str() }
         }.to_string();
         s.push_str("} }");
 
@@ -613,7 +613,7 @@ impl Serialize for PicoObject {
         }
         s = match s.strip_suffix(',') {
             Some(str) => { str }
-            None => { "" }
+            None => { s.as_str() }
         }.to_string();
         s.push_str("\n },\n f={");
 
@@ -623,7 +623,7 @@ impl Serialize for PicoObject {
         }
         s = match s.strip_suffix(',') {
             Some(str) => { str }
-            None => { "" }
+            None => { s.as_str() }
         }.to_string();
         s.push_str("\n }\n}");
 
@@ -656,7 +656,7 @@ impl Default for PicoHeader {
 impl From<&str> for PicoHeader {
     fn from(s: &str) -> Self {
         // split header into important data
-        let header_data: Vec<&str> = s.split(';').collect();
+        let header_data: Vec<&str> = s.trim().split(';').collect();
 
         Self {
             identifier: header_data.get(0).unwrap().to_string(),
