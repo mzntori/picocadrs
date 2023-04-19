@@ -2,7 +2,7 @@ use crate::assets::{PicoObject, PicoHeader, Serialize};
 use rlua::{Lua, Table};
 
 /// Represents a picoCAD savefile and all its contents.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PicoSave {
     pub header: PicoHeader,
     pub objects: Vec<PicoObject>,

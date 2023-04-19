@@ -6,7 +6,7 @@ pub trait Serialize {
 }
 
 /// A vector containing 3 float values representing x, y and z
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Vector {
     pub x: f32,
     pub y: f32,
@@ -38,7 +38,7 @@ impl Serialize for Vector {
 }
 
 /// Enum that represents colors in the pico-8 color palette.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PicoColor {
     None = -1,
     Black = 0,
@@ -156,7 +156,7 @@ impl From<char> for PicoColor {
 }
 
 /// Builder for `PicoFace`.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PicoFaceBuilder {
     vertices_index: Vec<i32>,
     color: PicoColor,
@@ -239,7 +239,7 @@ impl PicoFaceBuilder {
 }
 
 /// Represents a Face as stored by picoCAD
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PicoFace {
     pub vertices_index: Vec<i32>,
     pub color: PicoColor,
@@ -384,7 +384,7 @@ impl Serialize for PicoFace {
 }
 
 /// Builder for `PicoObject`
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PicoObjectBuilder {
     name: String,
     pos: Vector,
@@ -449,7 +449,7 @@ impl PicoObjectBuilder {
 }
 
 /// Represents an object as stored by picoCAD
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PicoObject {
     pub name: String,
     pub pos: Vector,
@@ -590,7 +590,7 @@ impl Serialize for PicoObject {
 }
 
 /// Represents the header of a picoCAD savefile.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PicoHeader {
     pub identifier: String,
     pub name: String,
