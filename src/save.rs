@@ -86,12 +86,14 @@ mod tests {
     use std::{fs, env};
 
     #[test]
+    #[ignore]
     fn parse_pico_save() {
         let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
         println!("{:#?}", save);
     }
 
     #[test]
+    #[ignore]
     fn serialize_pico_save() {
         let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
         println!("{}", save.serialize());
