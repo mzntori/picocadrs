@@ -648,6 +648,6 @@ mod tests {
 
     #[test]
     fn color_conversion(){
-        println!("{}", PicoColor::Red.to_char())
+        assert_eq!('8', PicoColor::Red.to_char());
     }
 }
