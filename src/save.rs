@@ -80,6 +80,12 @@ impl From<String> for PicoSave {
     }
 }
 
+impl From<&str> for PicoSave {
+    fn from(s: &str) -> Self {
+        PicoSave::from(s.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

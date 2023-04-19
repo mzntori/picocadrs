@@ -31,6 +31,24 @@ impl From<Table<'_>> for Vector {
     }
 }
 
+impl From<String> for Vector {
+    fn from(s: String) -> Self {
+        let mut v: Vector = Vector::default();
+        let lua = Lua::new();
+        lua.context(|ctx| {
+            let table: Table = ctx.load(s.as_str()).eval().expect("Failed to parse Vector");
+            v = Vector::from(table);
+        });
+        v
+    }
+}
+
+impl From<&str> for Vector {
+    fn from(s: &str) -> Self {
+        Vector::from(s.to_string())
+    }
+}
+
 impl Serialize for Vector {
     fn serialize(&self) -> String {
         format!("{}{},{},{}{}", "{", &self.x, &self.y, &self.z, "}")
@@ -348,6 +366,24 @@ impl From<Table<'_>> for PicoFace {
     }
 }
 
+impl From<String> for PicoFace {
+    fn from(s: String) -> Self {
+        let mut v: PicoFace = PicoFace::default();
+        let lua = Lua::new();
+        lua.context(|ctx| {
+            let table: Table = ctx.load(s.as_str()).eval().expect("Failed to parse Face");
+            v = PicoFace::from(table);
+        });
+        v
+    }
+}
+
+impl From<&str> for PicoFace {
+    fn from(s: &str) -> Self {
+        PicoFace::from(s.to_string())
+    }
+}
+
 impl Serialize for PicoFace {
     fn serialize(&self) -> String {
         let mut s: String = String::new();
@@ -482,6 +518,12 @@ impl From<String> for PicoObject {
         });
 
         obj
+    }
+}
+
+impl From<&str> for PicoObject {
+    fn from(s: &str) -> Self {
+        PicoObject::from(s.to_string())
     }
 }
 
@@ -623,6 +665,12 @@ impl From<&str> for PicoHeader {
             bg_color: PicoColor::from(header_data.get(3).unwrap().parse::<i32>().unwrap()),
             alpha_color: PicoColor::from(header_data.get(4).unwrap().parse::<i32>().unwrap()),
         }
+    }
+}
+
+impl From<String> for PicoHeader {
+    fn from(s: String) -> Self {
+        PicoHeader::from(s.as_str())
     }
 }
 
