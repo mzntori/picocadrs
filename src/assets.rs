@@ -105,7 +105,7 @@ impl PicoColor {
     pub fn to_char(&self) -> char {
         return match self {
             Self::Black => '0',
-            Self::DarkBlue =>'1',
+            Self::DarkBlue => '1',
             Self::DarkPurple => '2',
             Self::DarkGreen => '3',
             Self::Brown => '4',
@@ -721,7 +721,7 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn color_conversion(){
+    fn color_conversion() {
         assert_eq!('8', PicoColor::Red.to_char());
     }
 
@@ -732,5 +732,35 @@ mod tests {
         println!("{}", Vector::default().serialize());
         println!("{}", PicoFace::default().serialize());
         println!("{}", PicoObject::default().serialize());
+    }
+
+    #[test]
+    #[ignore]
+    fn vector_deserialization() {
+        assert_eq!(Vector::from("{0.0,0.0,0,0}"), Vector::from("{0.0,0.0,0,0}".to_string()))
+    }
+
+    #[test]
+    #[ignore]
+    fn face_deserialization() {
+        let face = PicoFace::default().serialize();
+        assert_eq!(PicoFace::from(face.clone()), PicoFace::from(face.as_str()))
+    }
+
+    #[test]
+    #[ignore]
+    fn obj_deserialization() {
+        let obj = PicoObject::default().serialize();
+        assert_eq!(PicoObject::from(obj.clone()), PicoObject::from(obj.as_str()))
+    }
+
+    #[test]
+    #[ignore]
+    fn header_deserialization() {
+        let obj = PicoHeader::default().serialize();
+        assert_eq!(
+            PicoHeader::from(obj.clone()),
+            PicoHeader::from(obj.as_str())
+        )
     }
 }

@@ -91,6 +91,8 @@ mod tests {
     use super::*;
     use std::{fs, env};
 
+    // This test requires you to set a env variable called 'picocad_path' as the path to the folder
+    // where picoCAD saves file on your system and have a project file called 'plane.txt' there.
     #[test]
     #[ignore]
     fn parse_pico_save() {
@@ -101,7 +103,9 @@ mod tests {
     #[test]
     #[ignore]
     fn serialize_pico_save() {
-        let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
-        println!("{}", save.to_string());
+        assert_eq!(
+            PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File")),
+            PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File").as_str()),
+        )
     }
 }
