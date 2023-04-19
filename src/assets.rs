@@ -3,7 +3,9 @@ use rlua::prelude::LuaError;
 
 pub trait Serialize {
     fn serialize(&self) -> &str;
-    fn serialize_to_string(&self) -> String;
+    fn serialize_to_string(&self) -> String {
+        self.serialize().to_string()
+    }
 }
 
 /// A vector containing 3 float values representing x, y and z
