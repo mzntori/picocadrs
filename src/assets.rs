@@ -13,13 +13,6 @@ pub struct Vector {
     pub z: f32,
 }
 
-impl Vector {
-    /// Serializes the Vector into a String representing that Vector as a lua table
-    pub fn serialize(&self) -> String {
-        format!("{}{},{},{}{}", "{", &self.x, &self.y, &self.z, "}")
-    }
-}
-
 impl Default for Vector {
     fn default() -> Self {
         Self { x: 0f32, y: 0f32, z: 0f32 }
@@ -38,6 +31,11 @@ impl From<Table<'_>> for Vector {
     }
 }
 
+impl Serialize for Vector {
+    fn serialize(&self) -> String {
+        format!("{}{},{},{}{}", "{", &self.x, &self.y, &self.z, "}")
+    }
+}
 
 /// Enum that represents colors in the pico-8 color palette.
 #[derive(Debug, Clone, Copy)]
@@ -252,42 +250,6 @@ pub struct PicoFace {
     pub no_texture: bool,
 }
 
-impl PicoFace {
-    /// Serializes the face into a string in form ofa lua table, that picoCAD can read.
-    pub fn serialize(&self) -> String {
-        let mut s: String = String::new();
-
-        // start
-        s.push('{');
-
-        // vertices
-        for index in &self.vertices_index {
-            s.push_str(format!("{},", index).as_str());
-        }
-        // color
-        s.push_str(format!(" c={},", self.color.to_i32()).as_str());
-
-        // bools
-        if self.double_sided { s.push_str(" dbl=1,") }
-        if self.no_shading { s.push_str(" noshade=1,") }
-        if self.no_texture { s.push_str(" notex=1,") }
-        if self.render_priority { s.push_str(" prio=1,") }
-
-        // uvs
-        s.push_str(" uv={");
-        for uv_vector in &self.uvs {
-            s.push_str(format!("{},{},", uv_vector.x, uv_vector.y).as_str());
-        }
-        s = match s.strip_suffix(',') {
-            Some(str) => { str }
-            None => { "" }
-        }.to_string();
-        s.push_str("} }");
-
-        s
-    }
-}
-
 impl Default for PicoFace {
     fn default() -> Self {
         Self {
@@ -386,6 +348,41 @@ impl From<Table<'_>> for PicoFace {
     }
 }
 
+impl Serialize for PicoFace {
+    fn serialize(&self) -> String {
+        let mut s: String = String::new();
+
+        // start
+        s.push('{');
+
+        // vertices
+        for index in &self.vertices_index {
+            s.push_str(format!("{},", index).as_str());
+        }
+        // color
+        s.push_str(format!(" c={},", self.color.to_i32()).as_str());
+
+        // bools
+        if self.double_sided { s.push_str(" dbl=1,") }
+        if self.no_shading { s.push_str(" noshade=1,") }
+        if self.no_texture { s.push_str(" notex=1,") }
+        if self.render_priority { s.push_str(" prio=1,") }
+
+        // uvs
+        s.push_str(" uv={");
+        for uv_vector in &self.uvs {
+            s.push_str(format!("{},{},", uv_vector.x, uv_vector.y).as_str());
+        }
+        s = match s.strip_suffix(',') {
+            Some(str) => { str }
+            None => { "" }
+        }.to_string();
+        s.push_str("} }");
+
+        s
+    }
+}
+
 /// Builder for `PicoObject`
 #[derive(Debug)]
 pub struct PicoObjectBuilder {
@@ -459,39 +456,6 @@ pub struct PicoObject {
     pub rot: Vector,
     pub vertices: Vec<Vector>,
     pub faces: Vec<PicoFace>,
-}
-
-impl PicoObject {
-    /// Serializes the face into a string in form ofa lua table, that picoCAD can read.
-    pub fn serialize(&self) -> String {
-        let mut s: String = String::new();
-
-        s.push_str("{\n");
-        s.push_str(format!(" name='{}', pos={}, rot={},\n", &self.name, &self.pos.serialize(), &self.rot.serialize()).as_str());
-
-        // vertices
-        s.push_str(" v={");
-        for vertex in &self.vertices {
-            s.push_str(format!("\n  {},", vertex.serialize()).as_str())
-        }
-        s = match s.strip_suffix(',') {
-            Some(str) => { str }
-            None => { "" }
-        }.to_string();
-        s.push_str("\n },\n f={");
-
-        // faces
-        for face in &self.faces {
-            s.push_str(format!("\n  {},", face.serialize()).as_str())
-        }
-        s = match s.strip_suffix(',') {
-            Some(str) => { str }
-            None => { "" }
-        }.to_string();
-        s.push_str("\n }\n}");
-
-        s
-    }
 }
 
 impl Default for PicoObject {
@@ -593,6 +557,38 @@ impl From<Table<'_>> for PicoObject {
     }
 }
 
+impl Serialize for PicoObject {
+    fn serialize(&self) -> String {
+        let mut s: String = String::new();
+
+        s.push_str("{\n");
+        s.push_str(format!(" name='{}', pos={}, rot={},\n", &self.name, &self.pos.serialize(), &self.rot.serialize()).as_str());
+
+        // vertices
+        s.push_str(" v={");
+        for vertex in &self.vertices {
+            s.push_str(format!("\n  {},", vertex.serialize()).as_str())
+        }
+        s = match s.strip_suffix(',') {
+            Some(str) => { str }
+            None => { "" }
+        }.to_string();
+        s.push_str("\n },\n f={");
+
+        // faces
+        for face in &self.faces {
+            s.push_str(format!("\n  {},", face.serialize()).as_str())
+        }
+        s = match s.strip_suffix(',') {
+            Some(str) => { str }
+            None => { "" }
+        }.to_string();
+        s.push_str("\n }\n}");
+
+        s
+    }
+}
+
 /// Represents the header of a picoCAD savefile.
 #[derive(Debug)]
 pub struct PicoHeader {
@@ -601,6 +597,18 @@ pub struct PicoHeader {
     pub zoom: i32,
     pub bg_color: PicoColor,
     pub alpha_color: PicoColor,
+}
+
+impl Default for PicoHeader {
+    fn default() -> Self {
+        PicoHeader {
+            identifier: "picocad".to_string(),
+            name: "unnamed_save".to_string(),
+            zoom: 16,
+            bg_color: PicoColor::Black,
+            alpha_color: PicoColor::DarkBlue,
+        }
+    }
 }
 
 impl From<&str> for PicoHeader {
@@ -615,6 +623,18 @@ impl From<&str> for PicoHeader {
             bg_color: PicoColor::from(header_data.get(3).unwrap().parse::<i32>().unwrap()),
             alpha_color: PicoColor::from(header_data.get(4).unwrap().parse::<i32>().unwrap()),
         }
+    }
+}
+
+impl Serialize for PicoHeader {
+    fn serialize(&self) -> String {
+        format!("{};{};{};{};{}\n",
+                &self.identifier,
+                &self.name,
+                &self.zoom,
+                &self.bg_color.to_i32(),
+                &self.alpha_color.to_i32()
+        )
     }
 }
 
@@ -658,7 +678,11 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn serialization() {
-        println!("{}", Vector::default().serialize())
+        println!("{}", PicoHeader::default().serialize());
+        println!("{}", Vector::default().serialize());
+        println!("{}", PicoFace::default().serialize());
+        println!("{}", PicoObject::default().serialize());
     }
 }
