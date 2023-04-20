@@ -799,8 +799,7 @@ mod tests {
     #[test]
     #[ignore]
     fn footer_deserialization() {
-        let footer =  PicoFooter::default().serialize();
+        let footer = PicoFooter::default().serialize();
         assert_eq!(PicoFooter::from(footer.clone()), PicoFooter::from(footer.as_str()))
-
     }
 }

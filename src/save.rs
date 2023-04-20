@@ -19,6 +19,16 @@ impl PicoSave {
         (header.trim(), meshes.trim(), footer.trim())
     }
 
+    /// Creates a new PicoSave.
+    /// Note that the Save created from this has no meshes and thus can't be loaded by picoCAD.
+    pub fn new() -> Self {
+        Self {
+            header: PicoHeader::default(),
+            meshes: vec![],
+            footer: PicoFooter::default()
+        }
+    }
+
     /// Serializes the save into a string that, when stored in a `.txt` file can be read by picoCAD.
     pub fn to_string(&self) -> String {
         let mut s: String = String::new();
@@ -94,16 +104,23 @@ mod tests {
     // This test requires you to set a env variable called 'picocad_path' as the path to the folder
     // where picoCAD saves file on your system and have a project file called 'plane.txt' there.
     #[test]
+    #[ignore]
     fn parse_pico_save() {
         let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
         println!("{:#?}", save);
     }
 
     #[test]
+    #[ignore]
     fn serialize_pico_save() {
         assert_eq!(
             PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File")),
             PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File").as_str()),
         )
+    }
+
+    #[test]
+    fn default_save() {
+        println!("{}", PicoSave::new().to_string())
     }
 }
