@@ -1,6 +1,6 @@
 # picocadrs
 
-A libary to deserialize and serialize picoCAD files.
+A library to deserialize and serialize picoCAD files.
 As of now there aren't many features that help with manipulating the file, however these features are planned.
 
 ## Example
