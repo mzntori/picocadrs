@@ -13,6 +13,12 @@ pub struct Vector {
     pub z: f32,
 }
 
+impl Vector {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self { x, y, z }
+    }
+}
+
 impl Default for Vector {
     fn default() -> Self {
         Self { x: 0f32, y: 0f32, z: 0f32 }
