@@ -686,6 +686,41 @@ impl Serialize for PicoHeader {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct PicoFooter {
+    raw: String,
+}
+
+impl Default for PicoFooter {
+    fn default() -> Self {
+        let mut raw = String::new();
+
+        for row in 0..120 {
+            raw.push_str("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n")
+        }
+
+        Self { raw }
+    }
+}
+
+impl Serialize for PicoFooter {
+    fn serialize(&self) -> String {
+        self.raw.to_string()
+    }
+}
+
+impl From<String> for PicoFooter {
+    fn from(s: String) -> Self {
+        Self { raw: s }
+    }
+}
+
+impl From<&str> for PicoFooter {
+    fn from(s: &str) -> Self {
+        PicoFooter::from(s.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -758,9 +793,14 @@ mod tests {
     #[ignore]
     fn header_deserialization() {
         let obj = PicoHeader::default().serialize();
-        assert_eq!(
-            PicoHeader::from(obj.clone()),
-            PicoHeader::from(obj.as_str())
-        )
+        assert_eq!(PicoHeader::from(obj.clone()), PicoHeader::from(obj.as_str()))
+    }
+
+    #[test]
+    #[ignore]
+    fn footer_deserialization() {
+        let footer =  PicoFooter::default().serialize();
+        assert_eq!(PicoFooter::from(footer.clone()), PicoFooter::from(footer.as_str()))
+
     }
 }
