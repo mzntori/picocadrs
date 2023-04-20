@@ -419,9 +419,9 @@ impl Serialize for PicoFace {
     }
 }
 
-/// Builder for `PicoObject`
+/// Builder for `PicoMesh`
 #[derive(Debug, PartialEq)]
-pub struct PicoObjectBuilder {
+pub struct PicoMeshBuilder {
     name: String,
     pos: Vector,
     rot: Vector,
@@ -429,10 +429,10 @@ pub struct PicoObjectBuilder {
     faces: Vec<PicoFace>,
 }
 
-impl PicoObjectBuilder {
+impl PicoMeshBuilder {
     /// Returns a new builder containing the `PicoFace::default()` values.
     pub fn new() -> Self {
-        let obj = PicoObject::default();
+        let obj = PicoMesh::default();
         Self {
             name: obj.name,
             pos: obj.pos,
@@ -473,8 +473,8 @@ impl PicoObjectBuilder {
     }
 
     /// Builds the `PicoObject` instance.
-    pub fn build(self) -> PicoObject {
-        PicoObject {
+    pub fn build(self) -> PicoMesh {
+        PicoMesh {
             name: self.name,
             pos: self.pos,
             rot: self.rot,
@@ -484,9 +484,9 @@ impl PicoObjectBuilder {
     }
 }
 
-/// Represents an object as stored by picoCAD
+/// Represents a mesh as stored by picoCAD
 #[derive(Debug, PartialEq)]
-pub struct PicoObject {
+pub struct PicoMesh {
     pub name: String,
     pub pos: Vector,
     pub rot: Vector,
@@ -494,7 +494,7 @@ pub struct PicoObject {
     pub faces: Vec<PicoFace>,
 }
 
-impl Default for PicoObject {
+impl Default for PicoMesh {
     fn default() -> Self {
         Self {
             name: "object".to_string(),
@@ -506,28 +506,28 @@ impl Default for PicoObject {
     }
 }
 
-impl From<String> for PicoObject {
+impl From<String> for PicoMesh {
     fn from(s: String) -> Self {
-        let mut obj: PicoObject = PicoObject::default();
+        let mut obj: PicoMesh = PicoMesh::default();
 
         let lua = Lua::new();
         lua.context(|ctx| {
             let table: Table = ctx.load(s.as_str()).eval().expect("Failed loading lua table");
 
-            obj = PicoObject::from(table);
+            obj = PicoMesh::from(table);
         });
 
         obj
     }
 }
 
-impl From<&str> for PicoObject {
+impl From<&str> for PicoMesh {
     fn from(s: &str) -> Self {
-        PicoObject::from(s.to_string())
+        PicoMesh::from(s.to_string())
     }
 }
 
-impl From<Table<'_>> for PicoObject {
+impl From<Table<'_>> for PicoMesh {
     fn from(table: Table) -> Self {
         let mut name: String = String::new();
         let mut pos: Vector = Vector::default();
@@ -589,7 +589,7 @@ impl From<Table<'_>> for PicoObject {
             }
         }
 
-        PicoObjectBuilder::new()
+        PicoMeshBuilder::new()
             .name(name)
             .pos(pos)
             .rot(rot)
@@ -599,7 +599,7 @@ impl From<Table<'_>> for PicoObject {
     }
 }
 
-impl Serialize for PicoObject {
+impl Serialize for PicoMesh {
     fn serialize(&self) -> String {
         let mut s: String = String::new();
 
@@ -727,8 +727,8 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn object_parsing_test() {
-        let obj = PicoObject::from(r#"
+    fn mesh_parsing_test() {
+        let mesh = PicoMesh::from(r#"
             {
              name='cube', pos={0,0,0}, rot={0,0,0},
              v={
@@ -751,7 +751,7 @@ mod tests {
              }
             }
         "#.to_string());
-        print!("{:#?}", obj);
+        print!("{:#?}", mesh);
     }
 
     #[test]
@@ -766,7 +766,7 @@ mod tests {
         println!("{}", PicoHeader::default().serialize());
         println!("{}", Vector::default().serialize());
         println!("{}", PicoFace::default().serialize());
-        println!("{}", PicoObject::default().serialize());
+        println!("{}", PicoMesh::default().serialize());
     }
 
     #[test]
@@ -785,8 +785,8 @@ mod tests {
     #[test]
     #[ignore]
     fn obj_deserialization() {
-        let obj = PicoObject::default().serialize();
-        assert_eq!(PicoObject::from(obj.clone()), PicoObject::from(obj.as_str()))
+        let obj = PicoMesh::default().serialize();
+        assert_eq!(PicoMesh::from(obj.clone()), PicoMesh::from(obj.as_str()))
     }
 
     #[test]
