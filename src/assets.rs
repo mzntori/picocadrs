@@ -695,7 +695,7 @@ impl Default for PicoFooter {
     fn default() -> Self {
         let mut raw = String::new();
 
-        for row in 0..120 {
+        for _ in 0..120 {
             raw.push_str("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\r\n")
         }
 
