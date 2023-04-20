@@ -34,13 +34,7 @@ impl PicoSave {
         let mut s: String = String::new();
 
         // header
-        s.push_str(format!("{};{};{};{};{}\n",
-                           &self.header.identifier,
-                           &self.header.name,
-                           &self.header.zoom,
-                           &self.header.bg_color.to_i32(),
-                           &self.header.alpha_color.to_i32()
-        ).as_str());
+        s.push_str(&self.header.serialize());
 
         // objects
         s.push_str("{\n");
@@ -50,7 +44,7 @@ impl PicoSave {
         }
         s = match s.strip_suffix(',') {
             Some(str) => { str }
-            None => { "" }
+            None => { s.as_str() }
         }.to_string();
         s.push_str("\n}");
 
