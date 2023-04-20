@@ -1,4 +1,4 @@
-use crate::assets::{PicoObject, PicoHeader, Serialize};
+use crate::assets::{PicoObject, PicoHeader, Serialize, PicoFooter};
 use rlua::{Lua, Table};
 
 /// Represents a picoCAD savefile and all its contents.
@@ -6,7 +6,7 @@ use rlua::{Lua, Table};
 pub struct PicoSave {
     pub header: PicoHeader,
     pub objects: Vec<PicoObject>,
-    pub footer: String,
+    pub footer: PicoFooter,
 }
 
 impl PicoSave {
@@ -46,7 +46,7 @@ impl PicoSave {
 
         // footer
         s.push_str("%\n");
-        s.push_str(&self.footer);
+        s.push_str(&self.footer.serialize());
 
         s
     }
@@ -56,7 +56,7 @@ impl From<String> for PicoSave {
     fn from(s: String) -> Self {
         let header: PicoHeader;
         let mut objects: Vec<PicoObject> = vec![];
-        let footer: String;
+        let footer: PicoFooter;
 
         let (header_string, objects_string, footer_string): (&str, &str, &str) = PicoSave::split_save_string(s.as_str());
 
@@ -70,7 +70,7 @@ impl From<String> for PicoSave {
             }
         });
 
-        footer = footer_string.to_string();
+        footer = PicoFooter::from(footer_string);
 
         PicoSave {
             header,
@@ -94,14 +94,12 @@ mod tests {
     // This test requires you to set a env variable called 'picocad_path' as the path to the folder
     // where picoCAD saves file on your system and have a project file called 'plane.txt' there.
     #[test]
-    #[ignore]
     fn parse_pico_save() {
         let save = PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File"));
         println!("{:#?}", save);
     }
 
     #[test]
-    #[ignore]
     fn serialize_pico_save() {
         assert_eq!(
             PicoSave::from(fs::read_to_string(format!("{}plane.txt", env::var("picocad_path").unwrap())).expect("Failed to load File")),
