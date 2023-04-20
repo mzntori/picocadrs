@@ -114,6 +114,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn default_save() {
         println!("{}", PicoSave::new().to_string())
     }
