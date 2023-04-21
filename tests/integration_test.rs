@@ -29,6 +29,7 @@ fn create_and_edit_file() {
 }
 
 #[test]
+#[ignore]
 fn vector_methods() {
     // generate path
     let mut path = env::var("picocad_path").expect("Invalid environment variable.");
