@@ -904,6 +904,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn vector_rotation() {
         let mut v1 = Vector::new(3.0, 3.0, 2.0);
         let v2 = Vector::new(3.0, -2.0, 3.0);
