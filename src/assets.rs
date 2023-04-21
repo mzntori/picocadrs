@@ -29,6 +29,12 @@ impl Vector {
         self.y += v.y;
         self.z += v.z;
     }
+
+    pub fn scale(&mut self, f: f32) {
+        self.x *= f;
+        self.y *= f;
+        self.z *= f;
+    }
 }
 
 impl Default for Vector {
@@ -830,5 +836,9 @@ mod tests {
         let mut vector = Vector::default();
         vector.add_vector(&Vector::new(0.0, 0.0, 2.3));
         assert_eq!(Vector::new(0.0, 0.0, 2.3), vector);
+
+        let mut vector = Vector::new(1.0, 1.0, 1.0);
+        vector.scale(2.0);
+        assert_eq!(Vector::new(2.0, 2.0, 2.0), vector);
     }
 }
