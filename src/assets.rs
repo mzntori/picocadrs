@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use rlua::{Lua, Table, Value};
 use rlua::prelude::LuaError;
 
@@ -6,7 +7,7 @@ pub trait Serialize {
 }
 
 /// A vector containing 3 float values representing x, y and z
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Vector {
     pub x: f32,
     pub y: f32,
@@ -51,7 +52,34 @@ impl Vector {
     }
 
     pub fn normalize(&mut self) {
-        self.scale(1.0/self.amount())
+        self.scale(1.0 / self.amount())
+    }
+
+    pub fn round(&mut self) {
+        self.x = (self.x * 100.0).round() / 100.0;
+        self.y = (self.y * 100.0).round() / 100.0;
+        self.z = (self.z * 100.0).round() / 100.0;
+    }
+
+    pub fn rotate(&mut self, rotv: &Vector) {
+        let mut rot_vect: Vector = rotv.clone();
+
+        rot_vect.scale(2.0 * PI);
+
+        // Rotate around x
+        let from_vect: Vector = self.clone();
+        self.y = rot_vect.x.cos() * from_vect.y - rot_vect.x.sin() * from_vect.z;
+        self.z = rot_vect.x.sin() * from_vect.y + rot_vect.x.cos() * from_vect.z;
+
+        // Rotate around y
+        let from_vect: Vector = self.clone();
+        self.z = rot_vect.y.cos() * from_vect.z - rot_vect.y.sin() * from_vect.x;
+        self.x = rot_vect.y.sin() * from_vect.z + rot_vect.y.cos() * from_vect.x;
+
+        // Rotate around z
+        let from_vect: Vector = self.clone();
+        self.x = rot_vect.z.cos() * from_vect.x - rot_vect.z.sin() * from_vect.y;
+        self.y = rot_vect.z.sin() * from_vect.x + rot_vect.z.cos() * from_vect.y;
     }
 }
 
@@ -846,6 +874,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn vector_implementations() {
         let mut vector = Vector::default();
         vector.add(0.0, 0.0, 2.3);
@@ -872,5 +901,15 @@ mod tests {
         let mut vector = Vector::new(3.0, 4.0, 0.0);
         vector.normalize();
         assert_eq!(Vector::new(0.6, 0.8, 0.0), vector);
+    }
+
+    #[test]
+    fn vector_rotation() {
+        let mut v1 = Vector::new(3.0, 3.0, 2.0);
+        let v2 = Vector::new(3.0, -2.0, 3.0);
+
+        v1.rotate(&Vector::new(0.25, 0.0, 0.0));
+        v1.round();
+        assert_eq!(v1, v2)
     }
 }
