@@ -45,6 +45,10 @@ impl Vector {
     pub fn flatten(&mut self) {
         self.z = 0.0;
     }
+
+    pub fn amount(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+    }
 }
 
 impl Default for Vector {
@@ -858,5 +862,7 @@ mod tests {
         let mut vector = Vector::new(1.0, 1.0, 1.0);
         vector.flatten();
         assert_eq!(Vector::new(1.0, 1.0, 0.0), vector);
+
+        assert_eq!(Vector::new(3.0, 4.0, 0.0).amount(), 5.0);
     }
 }
