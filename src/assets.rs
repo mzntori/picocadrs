@@ -17,6 +17,12 @@ impl Vector {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
+
+    pub fn add(&mut self, x: f32, y: f32, z: f32) {
+        self.x = x;
+        self.y = y;
+        self.z = z;
+    }
 }
 
 impl Default for Vector {
@@ -807,5 +813,12 @@ mod tests {
     fn footer_deserialization() {
         let footer = PicoFooter::default().serialize();
         assert_eq!(PicoFooter::from(footer.clone()), PicoFooter::from(footer.as_str()))
+    }
+
+    #[test]
+    fn vector_implementations() {
+        let mut vector = Vector::default();
+        vector.add(0.0, 0.0, 2.3);
+        assert_eq!(Vector::new(0.0, 0.0, 2.3), vector)
     }
 }
