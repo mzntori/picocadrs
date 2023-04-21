@@ -41,6 +41,10 @@ impl Vector {
         self.y *= v.y;
         self.z *= v.z;
     }
+
+    pub fn flatten(&mut self) {
+        self.z = 0.0;
+    }
 }
 
 impl Default for Vector {
@@ -850,5 +854,9 @@ mod tests {
         let mut vector = Vector::new(1.0, 1.5, 0.5);
         vector.scale_with(&Vector::new(2.0, 2.0, 8.0));
         assert_eq!(Vector::new(2.0, 3.0, 4.0), vector);
+
+        let mut vector = Vector::new(1.0, 1.0, 1.0);
+        vector.flatten();
+        assert_eq!(Vector::new(1.0, 1.0, 0.0), vector);
     }
 }
