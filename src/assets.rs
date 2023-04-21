@@ -49,6 +49,10 @@ impl Vector {
     pub fn amount(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
     }
+
+    pub fn normalize(&mut self) {
+        self.scale(1.0/self.amount())
+    }
 }
 
 impl Default for Vector {
@@ -864,5 +868,9 @@ mod tests {
         assert_eq!(Vector::new(1.0, 1.0, 0.0), vector);
 
         assert_eq!(Vector::new(3.0, 4.0, 0.0).amount(), 5.0);
+
+        let mut vector = Vector::new(3.0, 4.0, 0.0);
+        vector.normalize();
+        assert_eq!(Vector::new(0.6, 0.8, 0.0), vector);
     }
 }
