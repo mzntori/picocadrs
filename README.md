@@ -6,6 +6,8 @@ As of now there aren't many features that help with manipulating the file, howev
 ## Example
 
 This is a simple example of how to read a file, modify it and write the results to the same file.
+Note that an environment variable `picocad_path` containing the absolute path to your picoCAD folder and a picoCAD file called `plane.txt` is required, to run this example the way it is. 
+`plane.txt` might get changed in a way you dont want it to, so please be sure that it does not contain any project you wouldn't want to be changed.
 
 ```rust
 use std::{fs, env};
