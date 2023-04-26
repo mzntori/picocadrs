@@ -39,7 +39,7 @@ fn vector_methods() {
     let mut save = PicoSave::from(fs::read_to_string(path.clone()).expect("Couldn't read file."));
 
     let rot_vect = Vector::new(0.125, 0.125, 0.0);
-    let mut mesh = save.meshes.get_mut(0).unwrap();
+    let mesh = save.meshes.get_mut(0).unwrap();
     for v in mesh.vertices.iter_mut() { v.rotate(&rot_vect); }
 
     // write save to file
