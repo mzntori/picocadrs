@@ -193,3 +193,33 @@ impl Serialize for PicoFace {
         s
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::assets::{PicoColor, PicoFace, PicoFaceBuilder, PicoFaceTags};
+
+    #[test]
+    fn face_properties() {
+        let mut face = PicoFace::default();
+        face.set_tag(PicoFaceTags::DoubleSided);
+        face.set_tag(PicoFaceTags::NoShading);
+        face.set_tag(PicoFaceTags::NoTexture);
+        face.unset_tag(PicoFaceTags::NoTexture);
+
+        assert_eq!(
+            face,
+            PicoFaceBuilder::new()
+                .no_shading(true)
+                .double_sided(true)
+                .build()
+        );
+    }
+
+    #[test]
+    fn face_color() {
+        let mut face = PicoFace::default();
+        face.set_color(PicoColor::DarkBlue);
+
+        assert_eq!(face, PicoFaceBuilder::new().color(PicoColor::DarkBlue).build());
+    }
+}
