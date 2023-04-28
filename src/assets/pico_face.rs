@@ -47,6 +47,12 @@ impl PicoFace {
             uv.round();
         }
     }
+
+    pub fn move_uvs(&mut self, vector: Vector) {
+        for uv in self.uvs.iter_mut() {
+            uv.add_vector(&vector);
+        }
+    }
 }
 
 impl Default for PicoFace {
