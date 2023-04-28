@@ -19,19 +19,26 @@ pub struct PicoFace {
 impl PicoFace {
     pub fn set_tag(&mut self, tag: PicoFaceTags) {
         match tag {
-            PicoFaceTags::DoubleSided => {self.double_sided = true},
-            PicoFaceTags::NoShading => {self.no_shading = true},
-            PicoFaceTags::RenderPriority => {self.render_priority = true},
-            PicoFaceTags::NoTexture => {self.no_texture = true}
+            PicoFaceTags::DoubleSided => { self.double_sided = true }
+            PicoFaceTags::NoShading => { self.no_shading = true }
+            PicoFaceTags::RenderPriority => { self.render_priority = true }
+            PicoFaceTags::NoTexture => { self.no_texture = true }
         }
     }
 
     pub fn unset_tag(&mut self, tag: PicoFaceTags) {
         match tag {
-            PicoFaceTags::DoubleSided => {self.double_sided = false},
-            PicoFaceTags::NoShading => {self.no_shading = false},
-            PicoFaceTags::RenderPriority => {self.render_priority = false},
-            PicoFaceTags::NoTexture => {self.no_texture = false}
+            PicoFaceTags::DoubleSided => { self.double_sided = false }
+            PicoFaceTags::NoShading => { self.no_shading = false }
+            PicoFaceTags::RenderPriority => { self.render_priority = false }
+            PicoFaceTags::NoTexture => { self.no_texture = false }
+        };
+    }
+
+    pub fn set_color(&mut self, color: PicoColor) {
+        match color {
+            PicoColor::None => { self.color = PicoColor::Black; }
+            _ => { self.color = color; }
         }
     }
 }
