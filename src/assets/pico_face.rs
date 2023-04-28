@@ -59,8 +59,6 @@ impl PicoFace {
             uv.flatten();
         }
     }
-
-
 }
 
 impl Default for PicoFace {
