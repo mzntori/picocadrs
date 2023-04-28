@@ -1,4 +1,4 @@
-pub enum PicoFaceProperties {
+pub enum PicoFaceTags {
     DoubleSided,
     NoShading,
     RenderPriority,
