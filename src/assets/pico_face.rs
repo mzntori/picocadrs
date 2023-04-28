@@ -41,6 +41,12 @@ impl PicoFace {
             _ => { self.color = color; }
         }
     }
+
+    pub fn round_uvs(&mut self) {
+        for uv in self.uvs.iter_mut() {
+            uv.round();
+        }
+    }
 }
 
 impl Default for PicoFace {
