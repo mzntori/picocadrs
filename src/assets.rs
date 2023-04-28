@@ -1,6 +1,7 @@
 pub use pico_color::PicoColor;
 pub use pico_face::PicoFace;
 pub use pico_face_builder::PicoFaceBuilder;
+pub use pico_face_properties::PicoFaceProperties;
 pub use pico_footer::PicoFooter;
 pub use pico_header::PicoHeader;
 pub use pico_mesh::PicoMesh;
@@ -17,6 +18,7 @@ mod pico_mesh_builder;
 mod pico_header;
 mod pico_footer;
 mod serialize;
+mod pico_face_properties;
 
 
 #[cfg(test)]
