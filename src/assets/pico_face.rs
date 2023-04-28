@@ -53,6 +53,14 @@ impl PicoFace {
             uv.add_vector(&vector);
         }
     }
+
+    pub fn flatten_uvs(&mut self) {
+        for uv in self.uvs.iter_mut() {
+            uv.flatten();
+        }
+    }
+
+
 }
 
 impl Default for PicoFace {
