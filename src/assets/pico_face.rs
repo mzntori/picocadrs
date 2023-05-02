@@ -17,6 +17,7 @@ pub struct PicoFace {
 }
 
 impl PicoFace {
+    /// Sets the given tag true for the face.
     pub fn set_tag(&mut self, tag: PicoFaceTags) {
         match tag {
             PicoFaceTags::DoubleSided => { self.double_sided = true }
@@ -26,6 +27,7 @@ impl PicoFace {
         }
     }
 
+    /// Sets the given tag false for the face.
     pub fn unset_tag(&mut self, tag: PicoFaceTags) {
         match tag {
             PicoFaceTags::DoubleSided => { self.double_sided = false }
@@ -35,6 +37,7 @@ impl PicoFace {
         };
     }
 
+    /// Sets the color of the face to the given Color.
     pub fn set_color(&mut self, color: PicoColor) {
         match color {
             PicoColor::None => { self.color = PicoColor::Black; }
@@ -42,18 +45,21 @@ impl PicoFace {
         }
     }
 
+    /// Rounds all the uv Vectors using `Vector::round()`
     pub fn round_uvs(&mut self) {
         for uv in self.uvs.iter_mut() {
             uv.round();
         }
     }
 
+    /// Moves all uv coordinates by a given Vector.
     pub fn move_uvs(&mut self, vector: Vector) {
         for uv in self.uvs.iter_mut() {
             uv.add_vector(&vector);
         }
     }
 
+    /// Sets the z Value of all vectors representing uv coordinates to 0.
     pub fn flatten_uvs(&mut self) {
         for uv in self.uvs.iter_mut() {
             uv.flatten();
