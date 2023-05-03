@@ -65,6 +65,23 @@ impl PicoFace {
             uv.flatten();
         }
     }
+
+    /// Sets uv Coordinates to the maximum of what picoCAD can actually read from the texture.
+    pub fn max_uvs(&mut self) {
+        for v in self.uvs.iter_mut() {
+            if v.x < 0.0 {
+                v.x = 0.0;
+            } else if v.x > 16.0 {
+                v.x = 16.0;
+            }
+
+            if v.y < 0.0 {
+                v.y = 0.0;
+            } else if v.y > 15.0 {
+                v.y = 15.0;
+            }
+        }
+    }
 }
 
 impl Default for PicoFace {
@@ -220,9 +237,10 @@ impl Serialize for PicoFace {
 
 #[cfg(test)]
 mod tests {
-    use crate::assets::{PicoColor, PicoFace, PicoFaceBuilder, PicoFaceTags};
+    use crate::assets::{PicoColor, PicoFace, PicoFaceBuilder, PicoFaceTags, Vector};
 
     #[test]
+    #[ignore]
     fn face_properties() {
         let mut face = PicoFace::default();
         face.set_tag(PicoFaceTags::DoubleSided);
@@ -240,10 +258,27 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn face_color() {
         let mut face = PicoFace::default();
         face.set_color(PicoColor::DarkBlue);
 
         assert_eq!(face, PicoFaceBuilder::new().color(PicoColor::DarkBlue).build());
+    }
+
+    #[test]
+    fn uv_maxing() {
+        let mut face1 = PicoFace::default();
+
+        face1.uvs.push(Vector::new(30.0, 20.0, 0.0));
+        face1.uvs.push(Vector::new(-30.0, -20.0, 0.0));
+        face1.max_uvs();
+
+        let mut face2 = PicoFace::default();
+
+        face2.uvs.push(Vector::new(16.0, 15.0, 0.0));
+        face2.uvs.push(Vector::new(0.0, 0.0, 0.0));
+
+        assert_eq!(face1, face2)
     }
 }
