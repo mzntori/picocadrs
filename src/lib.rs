@@ -1,9 +1,9 @@
-//! # Features
-//! picocadrs is a libary for working with [picoCAD] files.
-//! For that it has features to serialize and deserialize files.
-//!
-//! [picoCAD]: https://johanpeitz.itch.io/picocad
+#[cfg(test)]
+pub mod tests {
+    use super::*;
 
-pub mod assets;
-pub mod save;
-pub mod files;
+    #[test]
+    fn test() {
+        assert!(true);
+    }
+}
