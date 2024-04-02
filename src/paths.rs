@@ -19,7 +19,7 @@ pub const LINUX: &str = "~/.lexaloffle/pico-8/appdata/picocad/";
 /// Returns the file path where picoCAD project files are located on the system as an `&OsStr`.
 /// If the system does not support picoCAD this returns `None`.
 ///
-/// I could only verify that this works on windows, but I don't see why it shouldn't on other systems.
+/// I could verify that this works on windows and linux, but I don't see why it shouldn't on macOS.
 ///
 /// # Examples
 /// ```
