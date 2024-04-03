@@ -27,7 +27,6 @@ pub enum Color {
     LightPeach,
 }
 
-
 impl Color {
     /// Returns the color as a `i32`.
     ///
@@ -85,24 +84,25 @@ impl Color {
     /// ```
     pub fn as_hex(&self) -> String {
         match self {
-            Color::Invalid => { "000000" }
-            Color::Black => { "000000" }
-            Color::DarkBlue => { "1D2B53" }
-            Color::DarkPurple => { "7E2553" }
-            Color::DarkGreen => { "008751" }
-            Color::Brown => { "AB5236" }
-            Color::DarkGrey => { "5F574F" }
-            Color::LightGrey => { "C2C3C7" }
-            Color::White => { "FFF1E8" }
-            Color::Red => { "FF004D" }
-            Color::Orange => { "FFA300" }
-            Color::Yellow => { "FFEC27" }
-            Color::Green => { "00E436" }
-            Color::Blue => { "29ADFF" }
-            Color::Lavender => { "83769C" }
-            Color::Pink => { "FF77A8" }
-            Color::LightPeach => { "FFCCAA" }
-        }.to_string()
+            Color::Invalid => "000000",
+            Color::Black => "000000",
+            Color::DarkBlue => "1D2B53",
+            Color::DarkPurple => "7E2553",
+            Color::DarkGreen => "008751",
+            Color::Brown => "AB5236",
+            Color::DarkGrey => "5F574F",
+            Color::LightGrey => "C2C3C7",
+            Color::White => "FFF1E8",
+            Color::Red => "FF004D",
+            Color::Orange => "FFA300",
+            Color::Yellow => "FFEC27",
+            Color::Green => "00E436",
+            Color::Blue => "29ADFF",
+            Color::Lavender => "83769C",
+            Color::Pink => "FF77A8",
+            Color::LightPeach => "FFCCAA",
+        }
+        .to_string()
     }
 
     /// Returns the color as a rgb triplet.
@@ -122,23 +122,23 @@ impl Color {
     /// ```
     pub fn as_rgb(&self) -> (u8, u8, u8) {
         match self {
-            Color::Invalid => { (0, 0, 0) }
-            Color::Black => { (0, 0, 0) }
-            Color::DarkBlue => { (29, 43, 83) }
-            Color::DarkPurple => { (126, 37, 83) }
-            Color::DarkGreen => { (0, 135, 81) }
-            Color::Brown => { (171, 82, 54) }
-            Color::DarkGrey => { (95, 87, 79) }
-            Color::LightGrey => { (194, 195, 199) }
-            Color::White => { (255, 241, 232) }
-            Color::Red => { (255, 0, 77) }
-            Color::Orange => { (255, 163, 0) }
-            Color::Yellow => { (255, 236, 39) }
-            Color::Green => { (0, 228, 54) }
-            Color::Blue => { (41, 173, 255) }
-            Color::Lavender => { (131, 118, 156) }
-            Color::Pink => { (255, 119, 168) }
-            Color::LightPeach => { (255, 204, 170) }
+            Color::Invalid => (0, 0, 0),
+            Color::Black => (0, 0, 0),
+            Color::DarkBlue => (29, 43, 83),
+            Color::DarkPurple => (126, 37, 83),
+            Color::DarkGreen => (0, 135, 81),
+            Color::Brown => (171, 82, 54),
+            Color::DarkGrey => (95, 87, 79),
+            Color::LightGrey => (194, 195, 199),
+            Color::White => (255, 241, 232),
+            Color::Red => (255, 0, 77),
+            Color::Orange => (255, 163, 0),
+            Color::Yellow => (255, 236, 39),
+            Color::Green => (0, 228, 54),
+            Color::Blue => (41, 173, 255),
+            Color::Lavender => (131, 118, 156),
+            Color::Pink => (255, 119, 168),
+            Color::LightPeach => (255, 204, 170),
         }
     }
 
@@ -161,26 +161,25 @@ impl Color {
     /// ```
     pub fn as_char(&self) -> char {
         match self {
-            Color::Invalid => { '0' }
-            Color::Black => { '0' }
-            Color::DarkBlue => { '1' }
-            Color::DarkPurple => { '2' }
-            Color::DarkGreen => { '3' }
-            Color::Brown => { '4' }
-            Color::DarkGrey => { '5' }
-            Color::LightGrey => { '6' }
-            Color::White => { '7' }
-            Color::Red => { '8' }
-            Color::Orange => { '9' }
-            Color::Yellow => { 'a' }
-            Color::Green => { 'b' }
-            Color::Blue => { 'c' }
-            Color::Lavender => { 'd' }
-            Color::Pink => { 'e' }
-            Color::LightPeach => { 'f' }
+            Color::Invalid => '0',
+            Color::Black => '0',
+            Color::DarkBlue => '1',
+            Color::DarkPurple => '2',
+            Color::DarkGreen => '3',
+            Color::Brown => '4',
+            Color::DarkGrey => '5',
+            Color::LightGrey => '6',
+            Color::White => '7',
+            Color::Red => '8',
+            Color::Orange => '9',
+            Color::Yellow => 'a',
+            Color::Green => 'b',
+            Color::Blue => 'c',
+            Color::Lavender => 'd',
+            Color::Pink => 'e',
+            Color::LightPeach => 'f',
         }
     }
-
 
     /// Returns the color picoCAD would use to replace `self` with if it was shadowed.
     ///
@@ -196,18 +195,17 @@ impl Color {
     /// ```
     pub fn shadow(&self) -> Self {
         match self {
-            Color::Invalid                                  => { Color::Invalid }
-            Color::Black | Color::DarkBlue |
-            Color::DarkPurple | Color::DarkGrey             => { Color::Black }
-            Color::DarkGreen | Color::Brown | Color::Red |
-            Color::Green | Color::Lavender                  => { Color::DarkBlue }
-            Color::LightGrey | Color::Blue                  => { Color::DarkGrey }
-            Color::Orange | Color::Pink                     => { Color::DarkPurple }
-            Color::Yellow | Color::LightPeach               => { Color::Brown }
-            Color::White                                    => { Color::Lavender }
+            Color::Invalid => Color::Invalid,
+            Color::Black | Color::DarkBlue | Color::DarkPurple | Color::DarkGrey => Color::Black,
+            Color::DarkGreen | Color::Brown | Color::Red | Color::Green | Color::Lavender => {
+                Color::DarkBlue
+            }
+            Color::LightGrey | Color::Blue => Color::DarkGrey,
+            Color::Orange | Color::Pink => Color::DarkPurple,
+            Color::Yellow | Color::LightPeach => Color::Brown,
+            Color::White => Color::Lavender,
         }
     }
-
 
     /// Returns the color picoCAD would replace `self` with while transitioning to being shadowed.
     ///
@@ -224,21 +222,20 @@ impl Color {
     /// ```
     pub fn shadow_transition(&self) -> Self {
         match self {
-            Color::Invalid                      => { Color::Invalid }
-            Color::Black | Color::DarkBlue      => { Color::Black }
-            Color::DarkPurple | Color::DarkGrey => { Color::DarkBlue }
-            Color::DarkGreen | Color::Lavender  => { Color::DarkGrey }
-            Color::Brown | Color::Red           => { Color::DarkPurple }
-            Color::LightGrey | Color::Blue      => { Color::Lavender }
-            Color::Yellow | Color::LightPeach   => { Color::Orange }
-            Color::White                        => { Color::LightGrey }
-            Color::Orange                       => { Color::Brown }
-            Color::Green                        => { Color::DarkGreen }
-            Color::Pink                         => { Color::Red }
+            Color::Invalid => Color::Invalid,
+            Color::Black | Color::DarkBlue => Color::Black,
+            Color::DarkPurple | Color::DarkGrey => Color::DarkBlue,
+            Color::DarkGreen | Color::Lavender => Color::DarkGrey,
+            Color::Brown | Color::Red => Color::DarkPurple,
+            Color::LightGrey | Color::Blue => Color::Lavender,
+            Color::Yellow | Color::LightPeach => Color::Orange,
+            Color::White => Color::LightGrey,
+            Color::Orange => Color::Brown,
+            Color::Green => Color::DarkGreen,
+            Color::Pink => Color::Red,
         }
     }
 }
-
 
 impl From<char> for Color {
     /// Converts `char` into `Color`.
@@ -272,11 +269,10 @@ impl From<char> for Color {
             'd' => Color::Lavender,
             'e' => Color::Pink,
             'f' => Color::LightPeach,
-            _ => Color::Invalid
+            _ => Color::Invalid,
         }
     }
 }
-
 
 impl From<i32> for Color {
     /// Converts `i32` into `Color`.
@@ -310,11 +306,10 @@ impl From<i32> for Color {
             13 => Color::Lavender,
             14 => Color::Pink,
             15 => Color::LightPeach,
-            _ => Color::Invalid
+            _ => Color::Invalid,
         }
     }
 }
-
 
 impl From<(u8, u8, u8)> for Color {
     /// Converts `(u8, u8, u8)` into `Color`.
@@ -349,11 +344,10 @@ impl From<(u8, u8, u8)> for Color {
             (131, 118, 156) => Color::Lavender,
             (255, 119, 168) => Color::Pink,
             (255, 204, 170) => Color::LightPeach,
-            _ => Color::Invalid
+            _ => Color::Invalid,
         }
     }
 }
-
 
 #[cfg(test)]
 pub mod tests {

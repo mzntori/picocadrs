@@ -2,11 +2,7 @@
 //!
 //! Mainly the paths of where picoCAD will store project files.
 
-use std::{
-    env::consts::OS,
-    ffi::OsStr,
-};
-
+use std::{env::consts::OS, ffi::OsStr};
 
 /// File path where a picoCAD project files are located on Windows systems.
 pub const WINDOWS: &str = "%appdata%/Roaming/pico-8/appdata/picocad/";
@@ -14,7 +10,6 @@ pub const WINDOWS: &str = "%appdata%/Roaming/pico-8/appdata/picocad/";
 pub const OSX: &str = "~/Library/Application Support/pico-8/appdata/picocad/";
 /// File path where a picoCAD project files are located on Linux systems.
 pub const LINUX: &str = "~/.lexaloffle/pico-8/appdata/picocad/";
-
 
 /// Returns the file path where picoCAD project files are located on the system as an `&OsStr`.
 /// If the system does not support picoCAD this returns `None`.
@@ -30,13 +25,12 @@ pub const LINUX: &str = "~/.lexaloffle/pico-8/appdata/picocad/";
 /// ```
 pub fn projects_path() -> Option<&'static OsStr> {
     match OS {
-        "windows" => { Some(OsStr::new(WINDOWS)) }
-        "macos" => { Some(OsStr::new(OSX)) }
-        "linux" => { Some(OsStr::new(LINUX)) }
-        &_ => { None }
+        "windows" => Some(OsStr::new(WINDOWS)),
+        "macos" => Some(OsStr::new(OSX)),
+        "linux" => Some(OsStr::new(LINUX)),
+        &_ => None,
     }
 }
-
 
 #[cfg(test)]
 pub mod tests {
