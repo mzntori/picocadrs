@@ -13,3 +13,4 @@ exclude = []
 
 [dependencies]
 rlua = "0.19.4"
+thiserror = "1.0.58"
