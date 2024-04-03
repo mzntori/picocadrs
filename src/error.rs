@@ -8,4 +8,6 @@ pub enum PicoParseError {
     HeaderField(String),
     #[error("found {0} header fields (expected 5)")]
     HeaderLength(usize),
+    #[error("footer with lenght {0} (expected 15360)")]
+    FooterLength(usize),
 }
