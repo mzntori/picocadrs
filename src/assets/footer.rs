@@ -15,8 +15,12 @@
 //! Any numbers above or below will still be mapped appropriately, but will not return good results
 //! in most cases but are not disallowed by picoCAD.
 
-use crate::{assets::color::Color, error::PicoParseError};
+use crate::{
+    assets::{color::Color, point::Point2D},
+    error::PicoParseError,
+};
 use std::fmt::{Display, Formatter};
+use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 
 /// Represents the bottom of a picoCAD file.
@@ -123,9 +127,58 @@ impl FromStr for Footer {
     }
 }
 
+impl Index<Point2D<usize>> for Footer {
+    type Output = Color;
+
+    /// Index should not be `u >= 128` or `v >= 120`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::{footer::Footer, color::Color, point::Point2D};
+    /// use picocadrs::uv;
+    ///
+    /// let footer = Footer::default();
+    ///
+    /// assert_eq!(footer[uv!(0, 0)], Color::Black);
+    /// assert_eq!(footer[uv!(127, 119)], Color::Black);
+    /// // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
+    /// // assert_eq!(footer[uv!(128, 119)], Color::Black);
+    /// ```
+    fn index(&self, index: Point2D<usize>) -> &Self::Output {
+        let data_index = index.u + index.v * 128;
+
+        self.data.get(data_index).unwrap()
+    }
+}
+
+impl IndexMut<Point2D<usize>> for Footer {
+    /// Index should not be `u >= 128` or `v >= 120`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::{footer::Footer, color::Color, point::Point2D};
+    /// use picocadrs::uv;
+    ///
+    /// let footer = Footer::default();
+    ///
+    /// assert_eq!(footer[uv!(0, 0)], Color::Black);
+    /// assert_eq!(footer[uv!(127, 119)], Color::Black);
+    /// // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
+    /// // assert_eq!(footer[uv!(128, 119)], Color::Black);
+    /// ```
+    fn index_mut(&mut self, index: Point2D<usize>) -> &mut Self::Output {
+        let data_index = index.u + index.v * 128;
+
+        self.data.get_mut(data_index).unwrap()
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::uv;
 
     #[test]
     fn footer_parse() {
@@ -156,6 +209,17 @@ pub mod tests {
         assert_ne!(footer1, footer2);
         assert!(footer2.is_solid());
         assert!(!footer1.is_solid());
+    }
+
+    #[test]
+    fn footer_index() {
+        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
+
+        assert_eq!(footer[uv!(0, 0)], Color::Black);
+        assert_eq!(footer[uv!(13, 4)], Color::from('e'));
+        assert_eq!(footer[uv!(127, 119)], Color::Black);
+        // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
+        // assert_eq!(footer[uv!(128, 119)], Color::Black);
     }
 
     const TEST_FOOTER: &str = r#"00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
