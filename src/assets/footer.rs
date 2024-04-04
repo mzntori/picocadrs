@@ -130,7 +130,7 @@ impl FromStr for Footer {
 impl Index<Point2D<usize>> for Footer {
     type Output = Color;
 
-    /// Index should not be `u >= 128` or `v >= 120`.
+    /// Panics if `u >= 128` or `v >= 120`.
     ///
     /// # Example
     ///
@@ -146,6 +146,10 @@ impl Index<Point2D<usize>> for Footer {
     /// // assert_eq!(footer[uv!(128, 119)], Color::Black);
     /// ```
     fn index(&self, index: Point2D<usize>) -> &Self::Output {
+        if index.u > 127 || index.v > 119 {
+            panic!("index out of range");
+        }
+
         let data_index = index.u + index.v * 128;
 
         self.data.get(data_index).unwrap()
@@ -153,7 +157,7 @@ impl Index<Point2D<usize>> for Footer {
 }
 
 impl IndexMut<Point2D<usize>> for Footer {
-    /// Index should not be `u >= 128` or `v >= 120`.
+    /// Panics if `u >= 128` or `v >= 120`.
     ///
     /// # Example
     ///
@@ -169,6 +173,10 @@ impl IndexMut<Point2D<usize>> for Footer {
     /// // assert_eq!(footer[uv!(128, 119)], Color::Black);
     /// ```
     fn index_mut(&mut self, index: Point2D<usize>) -> &mut Self::Output {
+        if index.u > 127 || index.v > 119 {
+            panic!("index out of range");
+        }
+
         let data_index = index.u + index.v * 128;
 
         self.data.get_mut(data_index).unwrap()
