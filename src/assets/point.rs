@@ -3,7 +3,7 @@
 //! This module houses the structs `Point2D` and `Point3D` that describe points in either 2- or
 //! 3-dimensional space.
 
-use std::ops::{Add, Mul, MulAssign, Sub};
+use std::ops::{Add, Sub};
 
 /// Represents a 2-dimensional point in space.
 /// In this crates context used for uv-mapping.

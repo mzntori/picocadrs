@@ -182,7 +182,7 @@ pub mod tests {
 
     #[test]
     fn footer_parse() {
-        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
+        let _footer = TEST_FOOTER.parse::<Footer>().unwrap();
     }
 
     #[test]
