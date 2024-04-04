@@ -3,6 +3,7 @@
 //! This module houses the structs `Point2D` and `Point3D` that describe points in either 2- or
 //! 3-dimensional space.
 
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 
 /// Represents a 2-dimensional point in space.
@@ -145,6 +146,12 @@ impl<T: Sub<Output = T>> Sub for Point2D<T> {
             u: self.u - rhs.u,
             v: self.v - rhs.v,
         }
+    }
+}
+
+impl<T: Display> Display for Point2D<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{},{}", self.u, self.v)
     }
 }
 
@@ -318,6 +325,12 @@ impl<T: Sub<Output = T>> Sub for Point3D<T> {
     }
 }
 
+impl<T: Display> Display for Point3D<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{},{},{}", self.x, self.y, self.z)
+    }
+}
+
 /// Easier way to create a `Point3D`.
 ///
 /// # Example
@@ -397,6 +410,13 @@ pub mod tests {
     }
 
     #[test]
+    fn test_uv_tostring() {
+        let p = Point2D::new(2, 4);
+
+        assert_eq!("2,4", p.to_string());
+    }
+
+    #[test]
     fn test_xyz_new() {
         let point = Point3D::new(2, 4, -1);
 
@@ -449,5 +469,12 @@ pub mod tests {
         assert_eq!(point, Point3D::new(2, 3, -1));
         point.map(|c| c * 2);
         assert_eq!(point, Point3D::new(4, 6, -2));
+    }
+
+    #[test]
+    fn test_xyz_tostring() {
+        let point = Point3D::new(2, 3, -1);
+
+        assert_eq!("2,3,-1", point.to_string());
     }
 }
