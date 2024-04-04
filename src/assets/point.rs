@@ -79,6 +79,27 @@ impl<T> Point2D<T> {
         self.u = u;
         self.v = v;
     }
+
+    /// Used to apply functions on every coordinate.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::point::Point2D;
+    ///
+    /// let mut point = Point2D::new(2, 3);
+    ///
+    /// assert_eq!(point, Point2D::new(2, 3));
+    /// point.map(|c| {
+    ///    c * 2
+    /// });
+    /// assert_eq!(point, Point2D::new(4, 6));
+    ///
+    /// ```
+    pub fn map(&mut self, f: fn(&T) -> T) {
+        self.u = f(&self.u);
+        self.v = f(&self.v);
+    }
 }
 
 impl<T: Add<Output = T>> Add for Point2D<T> {
@@ -225,6 +246,28 @@ impl<T> Point3D<T> {
         self.y = y;
         self.z = z;
     }
+
+    /// Used to apply functions on every coordinate.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::point::Point3D;
+    ///
+    /// let mut point = Point3D::new(2, 3, -1);
+    ///
+    /// assert_eq!(point, Point3D::new(2, 3, -1));
+    /// point.map(|c| {
+    ///    c * 2
+    /// });
+    /// assert_eq!(point, Point3D::new(4, 6, -2));
+    ///
+    /// ```
+    pub fn map(&mut self, f: fn(&T) -> T) {
+        self.x = f(&self.x);
+        self.y = f(&self.y);
+        self.z = f(&self.z);
+    }
 }
 
 impl<T: Add<Output = T>> Add for Point3D<T> {
@@ -345,6 +388,15 @@ pub mod tests {
     }
 
     #[test]
+    fn test_uv_map() {
+        let mut point = Point2D::new(2, 3);
+
+        assert_eq!(point, uv!(2, 3));
+        point.map(|v| v * 2);
+        assert_eq!(point, uv!(4, 6));
+    }
+
+    #[test]
     fn test_xyz_new() {
         let point = Point3D::new(2, 4, -1);
 
@@ -388,5 +440,14 @@ pub mod tests {
     fn test_xyz_macro() {
         assert_eq!(xyz!(2, 3, -1), Point3D::new(2, 3, -1));
         assert_eq!(xyz!(4, -3, 0), Point3D::new(4, -3, 0));
+    }
+
+    #[test]
+    fn test_xyz_map() {
+        let mut point = Point3D::new(2, 3, -1);
+
+        assert_eq!(point, Point3D::new(2, 3, -1));
+        point.map(|c| c * 2);
+        assert_eq!(point, Point3D::new(4, 6, -2));
     }
 }
