@@ -1,3 +1,4 @@
+use crate::assets::point::Point2D;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -10,4 +11,10 @@ pub enum PicoParseError {
     HeaderLength(usize),
     #[error("footer with lenght {0} (expected 15360)")]
     FooterLength(usize),
+}
+
+#[derive(Debug, Error)]
+pub enum PicoError {
+    #[error("index out of range: {0:?} (expected < {1:?})")]
+    IndexUSIZE(Point2D<usize>, Point2D<usize>),
 }

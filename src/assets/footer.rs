@@ -17,7 +17,8 @@
 
 use crate::{
     assets::{color::Color, point::Point2D},
-    error::PicoParseError,
+    error::{PicoError, PicoParseError},
+    uv,
 };
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
@@ -73,6 +74,125 @@ impl Footer {
         }
 
         return true;
+    }
+
+    /// Get a reference to the color at the given index in `usize`.
+    /// This uses the actual pixel position in the texture.
+    /// `0, 0` is located in the top left corner.
+    ///
+    /// Returns `None` if coordinates are out of bounds.
+    ///
+    /// `u` is out of bounds if `>= 128`.
+    ///
+    /// `v` is out of bounds if `>= 120`.
+    ///
+    /// <br/>
+    ///
+    /// Currently, no `get_mut` method as `Color` does not have any methods that take a mutable
+    /// reference of self.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
+    /// use picocadrs::uv;
+    ///
+    /// let mut footer = Footer::default();
+    ///
+    /// footer.set(uv!(3, 2), Color::Lavender).expect("uv index out of range");
+    ///
+    /// assert_eq!(
+    ///     footer.get(uv!(3, 2)).unwrap(),
+    ///     &Color::Lavender
+    /// );
+    /// ```
+    pub fn get(&self, coords: Point2D<usize>) -> Option<&Color> {
+        return if coords.u > 127 || coords.v > 119 {
+            None
+        } else {
+            Some(self.index(coords))
+        };
+    }
+
+    /// Sets the color at the given index in `usize`.
+    /// This uses the actual pixel position in the texture.
+    /// `0, 0` is located in the top left corner.
+    ///
+    /// Returns a `PicoError::IndexUSIZE` if index is out of bounds.
+    ///
+    /// `u` is out of bounds if `>= 128`.
+    ///
+    /// `v` is out of bounds if `>= 120`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
+    /// use picocadrs::uv;
+    ///
+    /// let mut footer = Footer::default();
+    ///
+    /// assert_eq!(
+    ///     footer.get(uv!(3, 2)).unwrap(),
+    ///     &Color::Black
+    /// );
+    ///
+    /// footer.set(uv!(3, 2), Color::Lavender).expect("uv index out of range");
+    ///
+    /// assert_eq!(
+    ///     footer.get(uv!(3, 2)).unwrap(),
+    ///     &Color::Lavender
+    /// );
+    /// ```
+    pub fn set(&mut self, coords: Point2D<usize>, value: Color) -> Result<(), PicoError> {
+        return if coords.u > 127 || coords.v > 119 {
+            Err(PicoError::IndexUSIZE(coords, uv!(128, 120)))
+        } else {
+            self[coords] = value;
+            Ok(())
+        };
+    }
+
+    /// Reads the color at the given uv coordinates and returns a copy of the color
+    /// at the given position.
+    /// If you want to index with whole numbers representing pixels consider using `get` instead.
+    ///
+    /// `0.0, 0.0` is located in the top left corner.
+    /// Returns `Color::Invalid` if coordinates are outside the texture.
+    ///
+    /// `u` is out of bounds if `-0.0625 > u` or `u >= 15.9375`.
+    ///
+    /// `v` is out of bounds if `-0.0625 > v` or `v >= 14.9375`.
+    ///
+    /// This means each pixel "owns" a region of `0.125 x 0.125`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
+    /// use picocadrs::uv;
+    ///
+    /// let mut footer = Footer::default();
+    ///
+    /// footer.set(uv!(6, 4), Color::Lavender).expect("uv index out of range");
+    ///
+    /// assert_eq!(footer.read(uv!(0.75, 0.5)), Color::Lavender);
+    /// assert_eq!(footer.read(uv!(-0.75, 0.5)), Color::Invalid);
+    /// assert_eq!(footer.read(uv!(15.95, 0.5)), Color::Invalid);
+    /// ```
+    pub fn read(&self, coords: Point2D<f64>) -> Color {
+        return if -0.0625 > coords.u
+            || coords.u >= 15.9375
+            || -0.0625 > coords.v
+            || coords.v >= 14.9375
+        {
+            Color::Invalid
+        } else {
+            self[uv!(
+                (coords.u * 8.0).round() as usize,
+                (coords.v * 8.0).round() as usize
+            )]
+        };
     }
 }
 
@@ -228,6 +348,39 @@ pub mod tests {
         assert_eq!(footer[uv!(127, 119)], Color::Black);
         // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
         // assert_eq!(footer[uv!(128, 119)], Color::Black);
+    }
+
+    #[test]
+    fn footer_get() {
+        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
+
+        assert_eq!(footer.get(uv!(13, 4)).unwrap(), &Color::from('e'));
+        assert_eq!(footer.get(uv!(0, 0)).unwrap(), &Color::Black);
+        assert_eq!(footer.get(uv!(128, 1)), None);
+        assert_eq!(footer.get(uv!(1, 120)), None);
+    }
+
+    #[test]
+    fn footer_set() {
+        let mut footer = TEST_FOOTER.parse::<Footer>().unwrap();
+
+        assert_eq!(footer.get(uv!(3, 2)).unwrap(), &Color::Black);
+
+        footer
+            .set(uv!(3, 2), Color::Lavender)
+            .expect("index out of range");
+        assert_eq!(footer.get(uv!(3, 2)).unwrap(), &Color::Lavender);
+
+        assert!(footer.set(uv!(128, 0), Color::Lavender).is_err());
+    }
+
+    #[test]
+    fn footer_read() {
+        let mut footer = TEST_FOOTER.parse::<Footer>().unwrap();
+
+        assert_eq!(footer.read(uv!(1.25, 0.75)), Color::from('8'));
+        assert_eq!(footer.read(uv!(-0.75, 0.5)), Color::Invalid);
+        assert_eq!(footer.read(uv!(15.95, 0.5)), Color::Invalid);
     }
 
     const TEST_FOOTER: &str = r#"00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
