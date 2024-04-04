@@ -29,7 +29,7 @@ use std::ops::{Add, Sub};
 /// assert_eq!(point + point, uv!(2, 4));
 /// assert_eq!(point - point, uv!(0, 0));
 /// ```
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Eq)]
 pub struct Point2D<T> {
     pub u: T,
     pub v: T,
