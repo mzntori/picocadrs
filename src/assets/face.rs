@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
 use crate::assets::color::Color;
 use crate::assets::point::Point2D;
+use std::fmt::{Display, Formatter};
 
 /// Represents uv-coordinates and the vertex they correspond to.
 ///
@@ -120,20 +120,22 @@ impl Display for Face {
         if self.render_priority {
             attributes.push_str("prio=1, ");
         }
-        // formats:   v     v    v       v
-        write!(f, "{{{ } c={ }, { }uv={{{ }}} }}",
-               vertex_indices,
-               self.color.as_i32(),
-               attributes,
-               uvs.trim_end_matches(',')
+
+        write!(
+            f,
+            "{{{ } c={ }, { }uv={{{ }}} }}",
+            vertex_indices,
+            self.color.as_i32(),
+            attributes,
+            uvs.trim_end_matches(',')
         )
     }
 }
 
 #[cfg(test)]
 pub mod tests {
-    use crate::uv;
     use super::*;
+    use crate::uv;
 
     #[test]
     fn test_uvmap_new() {
