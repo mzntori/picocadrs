@@ -3,8 +3,11 @@
 //! This module houses the structs `Point2D` and `Point3D` that describe points in either 2- or
 //! 3-dimensional space.
 
+use crate::error::PicoParseError;
+use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
+use std::str::FromStr;
 
 /// Represents a 2-dimensional point in space.
 /// In this crates context used for uv-mapping.
@@ -152,6 +155,62 @@ impl<T: Sub<Output = T>> Sub for Point2D<T> {
 impl<T: Display> Display for Point2D<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{},{}", self.u, self.v)
+    }
+}
+
+impl TryFrom<Table<'_>> for Point2D<f64> {
+    type Error = PicoParseError;
+
+    /// Tries to create a `Point2D` from a lua table.
+    /// Only succeeds if the table has 2 fields that can be parsed into a `f64`.
+    /// Partly used as a helper method to parse from a string.
+    fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
+        let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
+
+        if coords_result.len() != 2 {
+            return Err(PicoParseError::TableLength(coords_result.len(), 3));
+        }
+
+        let mut coords: Vec<f64> = vec![];
+
+        for coord_result in coords_result {
+            coords.push(coord_result?);
+        }
+
+        Ok(Point2D::new(coords[0], coords[1]))
+    }
+}
+
+impl FromStr for Point2D<f64> {
+    type Err = PicoParseError;
+
+    /// Parses a `Point2D` from a string representing a lua table with 2 float values.
+    /// Fails if table does not have 2 fields or they cant be parsed into `f64`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::point::Point2D;
+    ///
+    /// assert_eq!(
+    ///     "-1.5,2.2",
+    ///     "{-1.5,2.2}".parse::<Point2D<f64>>().unwrap().to_string()
+    /// )
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut point = Ok(Point2D::new(0.0, 0.0));
+
+        let lua = Lua::new();
+        lua.context(|ctx| {
+            let table_result: rlua::Result<Table> = ctx.load(s).eval();
+
+            point = match table_result {
+                Ok(table) => Point2D::try_from(table),
+                Err(err) => Err(PicoParseError::from(err)),
+            }
+        });
+
+        point
     }
 }
 
@@ -331,6 +390,62 @@ impl<T: Display> Display for Point3D<T> {
     }
 }
 
+impl TryFrom<Table<'_>> for Point3D<f64> {
+    type Error = PicoParseError;
+
+    /// Tries to create a `Point3D` from a lua table.
+    /// Only succeeds if the table has 3 fields that can be parsed into a `f64`.
+    /// Partly used as a helper method to parse from a string.
+    fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
+        let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
+
+        if coords_result.len() != 3 {
+            return Err(PicoParseError::TableLength(coords_result.len(), 3));
+        }
+
+        let mut coords: Vec<f64> = vec![];
+
+        for coord_result in coords_result {
+            coords.push(coord_result?);
+        }
+
+        Ok(Point3D::new(coords[0], coords[1], coords[2]))
+    }
+}
+
+impl FromStr for Point3D<f64> {
+    type Err = PicoParseError;
+
+    /// Parses a `Point3D` from a string representing a lua table with 3 float values.
+    /// Fails if table does not have 3 fields or they cant be parsed into `f64`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::point::Point3D;
+    ///
+    /// assert_eq!(
+    ///     "0,-1.5,2.2",
+    ///     "{0,-1.5,2.2}".parse::<Point3D<f64>>().unwrap().to_string()
+    /// )
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut point = Ok(Point3D::new(0.0, 0.0, 0.0));
+
+        let lua = Lua::new();
+        lua.context(|ctx| {
+            let table_result: rlua::Result<Table> = ctx.load(s).eval();
+
+            point = match table_result {
+                Ok(table) => Point3D::try_from(table),
+                Err(err) => Err(PicoParseError::from(err)),
+            }
+        });
+
+        point
+    }
+}
+
 /// Easier way to create a `Point3D`.
 ///
 /// # Example
@@ -417,6 +532,14 @@ pub mod tests {
     }
 
     #[test]
+    fn test_uv_parsing() {
+        assert_eq!(
+            "-1.5,2.2",
+            "{-1.5,2.2}".parse::<Point2D<f64>>().unwrap().to_string()
+        )
+    }
+
+    #[test]
     fn test_xyz_new() {
         let point = Point3D::new(2, 4, -1);
 
@@ -476,5 +599,13 @@ pub mod tests {
         let point = Point3D::new(2, 3, -1);
 
         assert_eq!("2,3,-1", point.to_string());
+    }
+
+    #[test]
+    fn test_xyz_parsing() {
+        assert_eq!(
+            "0,-1.5,2.2",
+            "{0,-1.5,2.2}".parse::<Point3D<f64>>().unwrap().to_string()
+        )
     }
 }
