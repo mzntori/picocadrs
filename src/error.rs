@@ -1,4 +1,5 @@
 use crate::assets::point::Point2D;
+use rlua::Error as LuaError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -11,6 +12,10 @@ pub enum PicoParseError {
     HeaderLength(usize),
     #[error("footer with lenght {0} (expected 15360)")]
     FooterLength(usize),
+    #[error("found {0} uv-coordinates (expected {1})")]
+    FaceUVMapLength(usize, usize),
+    #[error("invalid vertex index")]
+    Lua(#[from] LuaError),
 }
 
 #[derive(Debug, Error)]
