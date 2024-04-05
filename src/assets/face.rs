@@ -1,6 +1,9 @@
-use crate::assets::color::Color;
-use crate::assets::point::Point2D;
+use crate::assets::{color::Color, point::Point2D};
+use crate::error::PicoParseError;
+use crate::uv;
+use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 /// Represents uv-coordinates and the vertex they correspond to.
 ///
@@ -132,6 +135,115 @@ impl Display for Face {
     }
 }
 
+impl TryFrom<Table<'_>> for Face {
+    type Error = PicoParseError;
+
+    /// Tries to create a `Face` from a lua table.
+    ///
+    /// If you have a lua-table in form of a string try parsing from that string.
+    fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
+        let mut color = Color::Invalid;
+        let mut uv_maps: Vec<UVMap> = vec![];
+        let mut double_sided: bool = false;
+        let mut no_shading: bool = false;
+        let mut no_texture: bool = false;
+        let mut render_priority: bool = false;
+
+        for seq_value in value.clone().sequence_values::<usize>() {
+            uv_maps.push(UVMap::new(seq_value? - 1, uv!(0.0, 0.0)));
+        }
+
+        for pair in value.pairs::<String, Value>() {
+            let (key, value) = pair.unwrap();
+
+            match key.as_str() {
+                "dbl" => double_sided = true,
+                "noshade" => no_shading = true,
+                "notex" => no_texture = true,
+                "prio" => render_priority = true,
+                "c" => {
+                    color = match value {
+                        Value::Integer(int) => Color::from(int as i32),
+                        _ => Color::Invalid,
+                    }
+                }
+                "uv" => {
+                    if let Value::Table(table) = value {
+                        let uv_chunks = table
+                            .sequence_values::<f64>()
+                            .map_while(|v| v.ok())
+                            .collect::<Vec<f64>>();
+
+                        // return error if lengths don't match.
+                        if uv_chunks.len() != uv_maps.len() * 2 {
+                            return Err(PicoParseError::FaceUVMapLength(
+                                uv_maps.len(),
+                                uv_chunks.len(),
+                            ));
+                        }
+
+                        for (i, chunk) in uv_chunks.chunks_exact(2).enumerate() {
+                            uv_maps[i].coords = uv!(chunk[0], chunk[1]);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        Ok(Face {
+            double_sided,
+            no_texture,
+            no_shading,
+            render_priority,
+            uv_maps,
+            color,
+        })
+    }
+}
+
+impl FromStr for Face {
+    type Err = PicoParseError;
+
+    /// Parses a face from a string that contains a lua table with the right arguments.
+    ///
+    /// # Exmaple
+    ///
+    /// ```
+    /// use picocadrs::assets::{face::{Face, UVMap}, color::Color, point::Point2D};
+    /// use picocadrs::uv;
+    ///
+    /// assert_eq!(
+    ///     "{1,3,2, c=0, notex=1, uv={2,3.5,1,3.5,1.5,2} }",
+    ///     "{1,3,2, c=0, notex=1, uv={2,3.5,1,3.5,1.5,2} }".parse::<Face>().unwrap().to_string()
+    /// );
+    ///
+    /// let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, uv={16.25,0,1.25,0,15.5,2,-0.75,2} }".parse::<Face>().unwrap();
+    ///
+    /// assert_eq!(face.color, Color::from(10));
+    /// assert!(face.double_sided);
+    /// assert!(face.no_shading);
+    /// assert!(face.no_texture);
+    /// assert!(face.render_priority);
+    /// assert_eq!(face.uv_maps[1], UVMap::new(2, uv!(1.25, 0.0)));
+    /// ```
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut face = Ok(Face::default());
+
+        let lua = Lua::new();
+        lua.context(|ctx| {
+            let table_result: rlua::Result<Table> = ctx.load(s).eval();
+
+            face = match table_result {
+                Ok(table) => Face::try_from(table),
+                Err(err) => Err(PicoParseError::from(err)),
+            }
+        });
+
+        face
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -171,5 +283,28 @@ pub mod tests {
             face.to_string(),
             "{1,3,2, c=0, notex=1, uv={2,3.5,1,3.5,1.5,2} }"
         )
+    }
+
+    #[test]
+    fn test_face_parse() {
+        assert_eq!(
+            "{1,3,2, c=0, notex=1, uv={2,3.5,1,3.5,1.5,2} }",
+            "{1,3,2, c=0, notex=1, uv={2,3.5,1,3.5,1.5,2} }"
+                .parse::<Face>()
+                .unwrap()
+                .to_string()
+        );
+
+        let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
+        uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
+            .parse::<Face>()
+            .unwrap();
+
+        assert_eq!(face.color, Color::from(10));
+        assert!(face.double_sided);
+        assert!(face.no_shading);
+        assert!(face.no_texture);
+        assert!(face.render_priority);
+        assert_eq!(face.uv_maps[1], UVMap::new(2, uv!(1.25, 0.0)));
     }
 }
