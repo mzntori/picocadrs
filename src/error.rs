@@ -14,6 +14,8 @@ pub enum PicoParseError {
     FooterLength(usize),
     #[error("found {0} uv-coordinates (expected {1})")]
     FaceUVMapLength(usize, usize),
+    #[error("found {0} table elements (expected {1})")]
+    TableLength(usize, usize),
     #[error("invalid vertex index")]
     Lua(#[from] LuaError),
 }
