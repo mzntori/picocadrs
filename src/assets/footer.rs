@@ -18,7 +18,7 @@
 use crate::{
     assets::{color::Color, point::Point2D},
     error::{PicoError, PicoParseError},
-    uv,
+    point,
 };
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
@@ -95,14 +95,14 @@ impl Footer {
     ///
     /// ```
     /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
     ///
-    /// footer.set(uv!(3, 2), Color::Lavender).expect("uv index out of range");
+    /// footer.set(point!(3, 2), Color::Lavender).expect("uv index out of range");
     ///
     /// assert_eq!(
-    ///     footer.get(uv!(3, 2)).unwrap(),
+    ///     footer.get(point!(3, 2)).unwrap(),
     ///     &Color::Lavender
     /// );
     /// ```
@@ -128,25 +128,25 @@ impl Footer {
     ///
     /// ```
     /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
     ///
     /// assert_eq!(
-    ///     footer.get(uv!(3, 2)).unwrap(),
+    ///     footer.get(point!(3, 2)).unwrap(),
     ///     &Color::Black
     /// );
     ///
-    /// footer.set(uv!(3, 2), Color::Lavender).expect("uv index out of range");
+    /// footer.set(point!(3, 2), Color::Lavender).expect("uv index out of range");
     ///
     /// assert_eq!(
-    ///     footer.get(uv!(3, 2)).unwrap(),
+    ///     footer.get(point!(3, 2)).unwrap(),
     ///     &Color::Lavender
     /// );
     /// ```
     pub fn set(&mut self, coords: Point2D<usize>, value: Color) -> Result<(), PicoError> {
         return if coords.u > 127 || coords.v > 119 {
-            Err(PicoError::IndexUSIZE(coords, uv!(128, 120)))
+            Err(PicoError::IndexUSIZE(coords, point!(128, 120)))
         } else {
             self[coords] = value;
             Ok(())
@@ -170,15 +170,15 @@ impl Footer {
     ///
     /// ```
     /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
     ///
-    /// footer.set(uv!(6, 4), Color::Lavender).expect("uv index out of range");
+    /// footer.set(point!(6, 4), Color::Lavender).expect("uv index out of range");
     ///
-    /// assert_eq!(footer.read(uv!(0.75, 0.5)), Color::Lavender);
-    /// assert_eq!(footer.read(uv!(-0.75, 0.5)), Color::Invalid);
-    /// assert_eq!(footer.read(uv!(15.95, 0.5)), Color::Invalid);
+    /// assert_eq!(footer.read(point!(0.75, 0.5)), Color::Lavender);
+    /// assert_eq!(footer.read(point!(-0.75, 0.5)), Color::Invalid);
+    /// assert_eq!(footer.read(point!(15.95, 0.5)), Color::Invalid);
     /// ```
     pub fn read(&self, coords: Point2D<f64>) -> Color {
         return if -0.0625 > coords.u
@@ -188,7 +188,7 @@ impl Footer {
         {
             Color::Invalid
         } else {
-            self[uv!(
+            self[point!(
                 (coords.u * 8.0).round() as usize,
                 (coords.v * 8.0).round() as usize
             )]
@@ -256,14 +256,14 @@ impl Index<Point2D<usize>> for Footer {
     ///
     /// ```
     /// use picocadrs::assets::{footer::Footer, color::Color, point::Point2D};
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// let footer = Footer::default();
     ///
-    /// assert_eq!(footer[uv!(0, 0)], Color::Black);
-    /// assert_eq!(footer[uv!(127, 119)], Color::Black);
-    /// // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
-    /// // assert_eq!(footer[uv!(128, 119)], Color::Black);
+    /// assert_eq!(footer[point!(0, 0)], Color::Black);
+    /// assert_eq!(footer[point!(127, 119)], Color::Black);
+    /// // assert_eq!(footer[point!(127, 120)], Color::Black); These panic
+    /// // assert_eq!(footer[point!(128, 119)], Color::Black);
     /// ```
     fn index(&self, index: Point2D<usize>) -> &Self::Output {
         if index.u > 127 || index.v > 119 {
@@ -283,14 +283,14 @@ impl IndexMut<Point2D<usize>> for Footer {
     ///
     /// ```
     /// use picocadrs::assets::{footer::Footer, color::Color, point::Point2D};
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// let footer = Footer::default();
     ///
-    /// assert_eq!(footer[uv!(0, 0)], Color::Black);
-    /// assert_eq!(footer[uv!(127, 119)], Color::Black);
-    /// // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
-    /// // assert_eq!(footer[uv!(128, 119)], Color::Black);
+    /// assert_eq!(footer[point!(0, 0)], Color::Black);
+    /// assert_eq!(footer[point!(127, 119)], Color::Black);
+    /// // assert_eq!(footer[point!(127, 120)], Color::Black); These panic
+    /// // assert_eq!(footer[point!(128, 119)], Color::Black);
     /// ```
     fn index_mut(&mut self, index: Point2D<usize>) -> &mut Self::Output {
         if index.u > 127 || index.v > 119 {
@@ -306,7 +306,7 @@ impl IndexMut<Point2D<usize>> for Footer {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::uv;
+    use crate::point;
 
     #[test]
     fn footer_parse() {
@@ -343,44 +343,44 @@ pub mod tests {
     fn footer_index() {
         let footer = TEST_FOOTER.parse::<Footer>().unwrap();
 
-        assert_eq!(footer[uv!(0, 0)], Color::Black);
-        assert_eq!(footer[uv!(13, 4)], Color::from('e'));
-        assert_eq!(footer[uv!(127, 119)], Color::Black);
-        // assert_eq!(footer[uv!(127, 120)], Color::Black); These panic
-        // assert_eq!(footer[uv!(128, 119)], Color::Black);
+        assert_eq!(footer[point!(0, 0)], Color::Black);
+        assert_eq!(footer[point!(13, 4)], Color::from('e'));
+        assert_eq!(footer[point!(127, 119)], Color::Black);
+        // assert_eq!(footer[point!(127, 120)], Color::Black); These panic
+        // assert_eq!(footer[point!(128, 119)], Color::Black);
     }
 
     #[test]
     fn footer_get() {
         let footer = TEST_FOOTER.parse::<Footer>().unwrap();
 
-        assert_eq!(footer.get(uv!(13, 4)).unwrap(), &Color::from('e'));
-        assert_eq!(footer.get(uv!(0, 0)).unwrap(), &Color::Black);
-        assert_eq!(footer.get(uv!(128, 1)), None);
-        assert_eq!(footer.get(uv!(1, 120)), None);
+        assert_eq!(footer.get(point!(13, 4)).unwrap(), &Color::from('e'));
+        assert_eq!(footer.get(point!(0, 0)).unwrap(), &Color::Black);
+        assert_eq!(footer.get(point!(128, 1)), None);
+        assert_eq!(footer.get(point!(1, 120)), None);
     }
 
     #[test]
     fn footer_set() {
         let mut footer = TEST_FOOTER.parse::<Footer>().unwrap();
 
-        assert_eq!(footer.get(uv!(3, 2)).unwrap(), &Color::Black);
+        assert_eq!(footer.get(point!(3, 2)).unwrap(), &Color::Black);
 
         footer
-            .set(uv!(3, 2), Color::Lavender)
+            .set(point!(3, 2), Color::Lavender)
             .expect("index out of range");
-        assert_eq!(footer.get(uv!(3, 2)).unwrap(), &Color::Lavender);
+        assert_eq!(footer.get(point!(3, 2)).unwrap(), &Color::Lavender);
 
-        assert!(footer.set(uv!(128, 0), Color::Lavender).is_err());
+        assert!(footer.set(point!(128, 0), Color::Lavender).is_err());
     }
 
     #[test]
     fn footer_read() {
         let mut footer = TEST_FOOTER.parse::<Footer>().unwrap();
 
-        assert_eq!(footer.read(uv!(1.25, 0.75)), Color::from('8'));
-        assert_eq!(footer.read(uv!(-0.75, 0.5)), Color::Invalid);
-        assert_eq!(footer.read(uv!(15.95, 0.5)), Color::Invalid);
+        assert_eq!(footer.read(point!(1.25, 0.75)), Color::from('8'));
+        assert_eq!(footer.read(point!(-0.75, 0.5)), Color::Invalid);
+        assert_eq!(footer.read(point!(15.95, 0.5)), Color::Invalid);
     }
 
     const TEST_FOOTER: &str = r#"00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000

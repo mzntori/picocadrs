@@ -39,7 +39,7 @@
 
 use crate::assets::{color::Color, point::Point2D};
 use crate::error::PicoParseError;
-use crate::uv;
+use crate::point;
 use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -71,9 +71,9 @@ impl UVMap {
     ///
     /// ```
     /// use picocadrs::assets::face::UVMap;
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
-    /// let map = UVMap::new(2, uv!(2.0, 3.5));
+    /// let map = UVMap::new(2, point!(2.0, 3.5));
     ///
     /// assert_eq!(map.vertex_index, 2);
     /// assert_eq!(map.coords.u, 2.0);
@@ -189,7 +189,7 @@ impl TryFrom<Table<'_>> for Face {
         let mut render_priority: bool = false;
 
         for seq_value in value.clone().sequence_values::<usize>() {
-            uv_maps.push(UVMap::new(seq_value? - 1, uv!(0.0, 0.0)));
+            uv_maps.push(UVMap::new(seq_value? - 1, point!(0.0, 0.0)));
         }
 
         for pair in value.pairs::<String, Value>() {
@@ -222,7 +222,7 @@ impl TryFrom<Table<'_>> for Face {
                         }
 
                         for (i, chunk) in uv_chunks.chunks_exact(2).enumerate() {
-                            uv_maps[i].coords = uv!(chunk[0], chunk[1]);
+                            uv_maps[i].coords = point!(chunk[0], chunk[1]);
                         }
                     }
                 }
@@ -250,7 +250,7 @@ impl FromStr for Face {
     ///
     /// ```
     /// use picocadrs::assets::{face::{Face, UVMap}, color::Color, point::Point2D};
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// assert_eq!(
     ///     "{1,3,2, c=0, notex=1, uv={2,3.5,1,3.5,1.5,2} }",
@@ -264,7 +264,7 @@ impl FromStr for Face {
     /// assert!(face.no_shading);
     /// assert!(face.no_texture);
     /// assert!(face.render_priority);
-    /// assert_eq!(face.uv_maps[1], UVMap::new(2, uv!(1.25, 0.0)));
+    /// assert_eq!(face.uv_maps[1], UVMap::new(2, point!(1.25, 0.0)));
     /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut face = Ok(Face::default());
@@ -286,11 +286,11 @@ impl FromStr for Face {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::uv;
+    use crate::point;
 
     #[test]
     fn test_uvmap_new() {
-        let map = UVMap::new(2, uv!(2.0, 3.5));
+        let map = UVMap::new(2, point!(2.0, 3.5));
 
         assert_eq!(map.vertex_index, 2);
         assert_eq!(map.coords.u, 2.0);
@@ -313,9 +313,9 @@ pub mod tests {
     fn test_face_display() {
         let mut face = Face::default();
 
-        face.uv_maps.push(UVMap::new(0, uv!(2.0, 3.5)));
-        face.uv_maps.push(UVMap::new(2, uv!(1.0, 3.5)));
-        face.uv_maps.push(UVMap::new(1, uv!(1.5, 2.0)));
+        face.uv_maps.push(UVMap::new(0, point!(2.0, 3.5)));
+        face.uv_maps.push(UVMap::new(2, point!(1.0, 3.5)));
+        face.uv_maps.push(UVMap::new(1, point!(1.5, 2.0)));
         face.no_texture = true;
 
         assert_eq!(
@@ -344,6 +344,6 @@ pub mod tests {
         assert!(face.no_shading);
         assert!(face.no_texture);
         assert!(face.render_priority);
-        assert_eq!(face.uv_maps[1], UVMap::new(2, uv!(1.25, 0.0)));
+        assert_eq!(face.uv_maps[1], UVMap::new(2, point!(1.25, 0.0)));
     }
 }

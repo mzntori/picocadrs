@@ -12,26 +12,26 @@ use std::str::FromStr;
 /// Represents a 2-dimensional point in space.
 /// In this crates context used for uv-mapping.
 ///
-/// It can be either created by using the method `new` or by using the `uv!` macro.
+/// It can be either created by using the method `new` or by using the `point!` macro.
 ///
 /// # Example
 ///
 /// ```
 /// use picocadrs::assets::point::Point2D;
-/// use picocadrs::uv;
+/// use picocadrs::point;
 ///
 /// let mut point = Point2D::new(2, 4);
 ///
 /// assert_eq!(point.u, 2);
 /// assert_eq!(point.v, 4);
 ///
-/// assert_eq!(point, uv!(2, 4));
+/// assert_eq!(point, point!(2, 4));
 ///
 /// point.set(1, 2);
-/// assert_eq!(point, uv!(1, 2));
+/// assert_eq!(point, point!(1, 2));
 ///
-/// assert_eq!(point + point, uv!(2, 4));
-/// assert_eq!(point - point, uv!(0, 0));
+/// assert_eq!(point + point, point!(2, 4));
+/// assert_eq!(point - point, point!(0, 0));
 /// ```
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Point2D<T> {
@@ -43,20 +43,20 @@ impl<T> Point2D<T> {
     /// Used to create new points in a 2-dimensional space.
     /// Takes the points `u` and `v` coordinates as arguments.
     ///
-    /// A simpler way to create new `Point2D`s is to use the `uv!` macro.
+    /// A simpler way to create new `Point2D`s is to use the `point!` macro.
     ///
     /// # Example
     ///
     /// ```
     /// use picocadrs::assets::point::Point2D;
-    /// use picocadrs::uv;
+    /// use picocadrs::point;
     ///
     /// let point = Point2D::new(2, 4);
     ///
     /// assert_eq!(point.u, 2);
     /// assert_eq!(point.v, 4);
     ///
-    /// assert_eq!(point, uv!(2, 4))
+    /// assert_eq!(point, point!(2, 4))
     /// ```
     pub fn new(u: T, v: T) -> Point2D<T> {
         Point2D { u, v }
@@ -214,34 +214,16 @@ impl FromStr for Point2D<f64> {
     }
 }
 
-/// Easier way to create a `Point2D`.
-///
-/// # Example
-///
-/// ```
-/// use picocadrs::assets::point::Point2D;
-/// use picocadrs::uv;
-///
-/// assert_eq!(uv!(2, 3), Point2D::new(2, 3));
-/// assert_eq!(uv!(4, -3), Point2D::new(4, -3));
-/// ```
-#[macro_export]
-macro_rules! uv {
-    ($u:expr, $v:expr) => {
-        Point2D { u: $u, v: $v }
-    };
-}
-
 /// Represents a 3-dimensional point in space.
 /// In this crates context mostly used for displaying points of vertices.
 ///
-/// It can be either created by using the method `new` or by using the `xyz!` macro.
+/// It can be either created by using the method `new` or by using the `point!` macro.
 ///
 /// # Example
 ///
 /// ```
 /// use picocadrs::assets::point::Point3D;
-/// use picocadrs::xyz;
+/// use picocadrs::point;
 ///
 /// let mut point = Point3D::new(2, 4, -1);
 ///
@@ -249,13 +231,13 @@ macro_rules! uv {
 /// assert_eq!(point.y, 4);
 /// assert_eq!(point.z, -1);
 ///
-/// assert_eq!(point, xyz!(2, 4, -1));
+/// assert_eq!(point, point!(2, 4, -1));
 ///
 /// point.set(1, 2, 3);
-/// assert_eq!(point, xyz!(1, 2, 3));
+/// assert_eq!(point, point!(1, 2, 3));
 ///
-/// assert_eq!(point + point, xyz!(2, 4, 6));
-/// assert_eq!(point - point, xyz!(0, 0, 0));
+/// assert_eq!(point + point, point!(2, 4, 6));
+/// assert_eq!(point - point, point!(0, 0, 0));
 /// ```
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Point3D<T> {
@@ -268,13 +250,13 @@ impl<T> Point3D<T> {
     /// Used to create new points in a 3-dimensional space.
     /// Takes the points `x`, `y` and `z` coordinates as arguments.
     ///
-    /// A simpler way to create new `Point3D`s is to use the `xyz!` macro.
+    /// A simpler way to create new `Point3D`s is to use the `point!` macro.
     ///
     /// # Example
     ///
     /// ```
     /// use picocadrs::assets::point::Point3D;
-    /// use picocadrs::xyz;
+    /// use picocadrs::point;
     ///
     /// let point = Point3D::new(2, 4, -1);
     ///
@@ -282,7 +264,7 @@ impl<T> Point3D<T> {
     /// assert_eq!(point.y, 4);
     /// assert_eq!(point.z, -1);
     ///
-    /// assert_eq!(point, xyz!(2, 4, -1));
+    /// assert_eq!(point, point!(2, 4, -1));
     /// ```
     pub fn new(x: T, y: T, z: T) -> Point3D<T> {
         Point3D { x, y, z }
@@ -446,19 +428,25 @@ impl FromStr for Point3D<f64> {
     }
 }
 
-/// Easier way to create a `Point3D`.
+#[macro_export]
+/// Easier way to create a [`Point2D`] or [`Point3D`].
 ///
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::point::Point3D;
-/// use picocadrs::xyz;
+/// use picocadrs::assets::point::{Point2D, Point3D};
+/// use picocadrs::point;
 ///
-/// assert_eq!(xyz!(2, 3, -1), Point3D::new(2, 3, -1));
-/// assert_eq!(xyz!(4, -3, 0), Point3D::new(4, -3, 0));
+/// assert_eq!(point!(2, 3, -1), Point3D::new(2, 3, -1));
+/// assert_eq!(point!(4, -3, 0), Point3D::new(4, -3, 0));
+///
+/// assert_eq!(point!(2, 3), Point2D::new(2, 3));
+/// assert_eq!(point!(4, -3), Point2D::new(4, -3));
 /// ```
-#[macro_export]
-macro_rules! xyz {
+macro_rules! point {
+    ($u:expr, $v:expr) => {
+        Point2D { u: $u, v: $v }
+    };
     ($x:expr, $y:expr, $z:expr) => {
         Point3D {
             x: $x,
@@ -511,17 +499,17 @@ pub mod tests {
 
     #[test]
     fn test_uv_macro() {
-        assert_eq!(uv!(2, 3), Point2D::new(2, 3));
-        assert_eq!(uv!(4, -3), Point2D::new(4, -3));
+        assert_eq!(point!(2, 3), Point2D::new(2, 3));
+        assert_eq!(point!(4, -3), Point2D::new(4, -3));
     }
 
     #[test]
     fn test_uv_map() {
         let mut point = Point2D::new(2, 3);
 
-        assert_eq!(point, uv!(2, 3));
+        assert_eq!(point, point!(2, 3));
         point.map(|v| v * 2);
-        assert_eq!(point, uv!(4, 6));
+        assert_eq!(point, point!(4, 6));
     }
 
     #[test]
@@ -581,8 +569,8 @@ pub mod tests {
 
     #[test]
     fn test_xyz_macro() {
-        assert_eq!(xyz!(2, 3, -1), Point3D::new(2, 3, -1));
-        assert_eq!(xyz!(4, -3, 0), Point3D::new(4, -3, 0));
+        assert_eq!(point!(2, 3, -1), Point3D::new(2, 3, -1));
+        assert_eq!(point!(4, -3, 0), Point3D::new(4, -3, 0));
     }
 
     #[test]
