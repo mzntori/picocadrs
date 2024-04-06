@@ -1,3 +1,42 @@
+//! Module housing logic for faces.
+//! Faces are planes spanning between multiple vertices textures can be mapped onto.
+//!
+//! In a picoCAD File a face could look something like this:
+//!
+//! `f={{3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, uv={1.25,0,15.5,2,-0.75,2} }} `
+//!
+//! Which lies within a mesh.
+//!
+//! - _c (color):_ The color the mesh has if no texture is mapped onto it.
+//! Color index is given in decimal. For more information look at the [`color`](super::color) module or
+//! [this table](https://pico-8.fandom.com/wiki/Palette#0..15:_Official_base_colors).
+//! In this case `10` which represents yellow.
+//!
+//! - _dbl (double-sided):_ if existent* the face will be rendered from both sides.
+//!
+//! - _noshade (no shading):_ if existent* the face will not show any shadows on it.
+//!
+//! - _notex (no texture):_ if existent* the face will not have textures mapped onto it and will
+//! just be the color of the _c_ field.
+//!
+//! - _prio (render priority):_ if existent* the face will be rendered before any other face
+//! leading to it always being behind all other faces.
+//!
+//! - _table indices:_ In this case the values `3,2,1` at the start of the table.
+//! Indicate which vertices of the mesh this face lives within to use as corners.
+//! Indexing starts at 1, meaning this face uses the first three vertices of the mesh it is within.
+//! Order also matters as it tells picoCAD in which orders to draw edges.
+//! In the example of `3,2,1` it goes `3 -> 2 -> 1 -> 3`.
+//! This means that `4,3,2,1` is not the same face as `3,4,2,1`.
+//!
+//! - _uv:_ Represents the coordinates on the texture that are mapped to corners of the face.
+//! Always paired into 2 values.
+//! This is in relation to the _table indices_ as their positions determine which vertex gets which
+//! coordinates.
+//! In the example above the coordinates `1.25, 0` in the texture are mapped onto the corner that
+//! is at vertex with the index `3`.
+//! More information on how float coordinates work can be found in the docs of [`Footer`](super::footer::Footer).
+
 use crate::assets::{color::Color, point::Point2D};
 use crate::error::PicoParseError;
 use crate::uv;
