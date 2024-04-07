@@ -76,11 +76,11 @@ impl Footer {
         return true;
     }
 
-    /// Get a reference to the color at the given index in `usize`.
+    /// Get a reference to the color at the given index in [`usize`].
     /// This uses the actual pixel position in the texture.
     /// `0, 0` is located in the top left corner.
     ///
-    /// Returns `None` if coordinates are out of bounds.
+    /// Returns [`None`] if coordinates are out of bounds.
     ///
     /// `u` is out of bounds if `>= 128`.
     ///
@@ -88,7 +88,7 @@ impl Footer {
     ///
     /// <br/>
     ///
-    /// Currently, no `get_mut` method as `Color` does not have any methods that take a mutable
+    /// Currently, no `get_mut` method as [`Color`] does not have any methods that take a mutable
     /// reference of self.
     ///
     /// # Example
@@ -114,11 +114,11 @@ impl Footer {
         };
     }
 
-    /// Sets the color at the given index in `usize`.
+    /// Sets the color at the given index in [`usize`].
     /// This uses the actual pixel position in the texture.
     /// `0, 0` is located in the top left corner.
     ///
-    /// Returns a `PicoError::IndexUSIZE` if index is out of bounds.
+    /// Returns a [`PicoError::IndexUSIZE`] if index is out of bounds.
     ///
     /// `u` is out of bounds if `>= 128`.
     ///
@@ -155,10 +155,10 @@ impl Footer {
 
     /// Reads the color at the given uv coordinates and returns a copy of the color
     /// at the given position.
-    /// If you want to index with whole numbers representing pixels consider using `get` instead.
+    /// If you want to index with whole numbers representing pixels consider using [`get`](Footer::get) instead.
     ///
     /// `0.0, 0.0` is located in the top left corner.
-    /// Returns `Color::Invalid` if coordinates are outside the texture.
+    /// Returns [`Color::Invalid`] if coordinates are outside the texture.
     ///
     /// `u` is out of bounds if `-0.0625 > u` or `u >= 15.9375`.
     ///

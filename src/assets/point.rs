@@ -1,6 +1,6 @@
 //! For different kind of coordinates.
 //!
-//! This module houses the structs `Point2D` and `Point3D` that describe points in either 2- or
+//! This module houses the structs [`Point2D`] and [`Point3D`] that describe points in either 2- or
 //! 3-dimensional space.
 
 use crate::error::PicoParseError;
@@ -12,7 +12,7 @@ use std::str::FromStr;
 /// Represents a 2-dimensional point in space.
 /// In this crates context used for uv-mapping.
 ///
-/// It can be either created by using the method `new` or by using the `point!` macro.
+/// It can be either created by using the method [`new`](Point2D::new) or by using the `point` macro.
 ///
 /// # Example
 ///
@@ -43,7 +43,7 @@ impl<T> Point2D<T> {
     /// Used to create new points in a 2-dimensional space.
     /// Takes the points `u` and `v` coordinates as arguments.
     ///
-    /// A simpler way to create new `Point2D`s is to use the `point!` macro.
+    /// A simpler way to create new [`Point2D`]s is to use the `point!` macro.
     ///
     /// # Example
     ///
@@ -161,8 +161,8 @@ impl<T: Display> Display for Point2D<T> {
 impl TryFrom<Table<'_>> for Point2D<f64> {
     type Error = PicoParseError;
 
-    /// Tries to create a `Point2D` from a lua table.
-    /// Only succeeds if the table has 2 fields that can be parsed into a `f64`.
+    /// Tries to create a [`Point2D`] from a lua table.
+    /// Only succeeds if the table has 2 fields that can be parsed into a [`f64`].
     /// Partly used as a helper method to parse from a string.
     fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
         let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
@@ -184,8 +184,8 @@ impl TryFrom<Table<'_>> for Point2D<f64> {
 impl FromStr for Point2D<f64> {
     type Err = PicoParseError;
 
-    /// Parses a `Point2D` from a string representing a lua table with 2 float values.
-    /// Fails if table does not have 2 fields or they cant be parsed into `f64`.
+    /// Parses a [`Point2D`] from a string representing a lua table with 2 float values.
+    /// Fails if table does not have 2 fields or they cant be parsed into [`f64`].
     ///
     /// # Example
     ///
@@ -217,7 +217,7 @@ impl FromStr for Point2D<f64> {
 /// Represents a 3-dimensional point in space.
 /// In this crates context mostly used for displaying points of vertices.
 ///
-/// It can be either created by using the method `new` or by using the `point!` macro.
+/// It can be either created by using the method [`new`](Point3D::new) or by using the `point!` macro.
 ///
 /// # Example
 ///
@@ -250,7 +250,7 @@ impl<T> Point3D<T> {
     /// Used to create new points in a 3-dimensional space.
     /// Takes the points `x`, `y` and `z` coordinates as arguments.
     ///
-    /// A simpler way to create new `Point3D`s is to use the `point!` macro.
+    /// A simpler way to create new [`Point3D`]s is to use the `point!` macro.
     ///
     /// # Example
     ///
@@ -375,8 +375,8 @@ impl<T: Display> Display for Point3D<T> {
 impl TryFrom<Table<'_>> for Point3D<f64> {
     type Error = PicoParseError;
 
-    /// Tries to create a `Point3D` from a lua table.
-    /// Only succeeds if the table has 3 fields that can be parsed into a `f64`.
+    /// Tries to create a [`Point3D`] from a lua table.
+    /// Only succeeds if the table has 3 fields that can be parsed into a [`f64`].
     /// Partly used as a helper method to parse from a string.
     fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
         let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
@@ -398,8 +398,8 @@ impl TryFrom<Table<'_>> for Point3D<f64> {
 impl FromStr for Point3D<f64> {
     type Err = PicoParseError;
 
-    /// Parses a `Point3D` from a string representing a lua table with 3 float values.
-    /// Fails if table does not have 3 fields or they cant be parsed into `f64`.
+    /// Parses a [`Point3D`] from a string representing a lua table with 3 float values.
+    /// Fails if table does not have 3 fields or they cant be parsed into [`f64`].
     ///
     /// # Example
     ///

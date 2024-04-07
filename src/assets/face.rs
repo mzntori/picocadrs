@@ -179,7 +179,7 @@ impl Display for Face {
 impl TryFrom<Table<'_>> for Face {
     type Error = PicoParseError;
 
-    /// Tries to create a `Face` from a lua table.
+    /// Tries to create a [`Face`] from a lua table.
     ///
     /// If you have a lua-table in form of a string try parsing from that string.
     fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {

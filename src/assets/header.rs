@@ -71,7 +71,7 @@ pub struct Header {
 }
 
 impl Header {
-    /// Returns the identifier of the header as a `String`.
+    /// Returns the identifier of the header as a [`String`].
     /// In normal use this will always be `"picocad"`.
     ///
     /// # Examples

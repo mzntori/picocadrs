@@ -11,8 +11,8 @@ pub const OSX: &str = "~/Library/Application Support/pico-8/appdata/picocad/";
 /// File path where a picoCAD project files are located on Linux systems.
 pub const LINUX: &str = "~/.lexaloffle/pico-8/appdata/picocad/";
 
-/// Returns the file path where picoCAD project files are located on the system as an `&OsStr`.
-/// If the system does not support picoCAD this returns `None`.
+/// Returns the file path where picoCAD project files are located on the system as an [`&OsStr`](OsStr).
+/// If the system does not support picoCAD this returns [`None`].
 ///
 /// I could verify that this works on windows and linux, but I don't see why it shouldn't on macOS.
 ///

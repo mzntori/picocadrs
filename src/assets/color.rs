@@ -28,13 +28,13 @@ pub enum Color {
 }
 
 impl Color {
-    /// Returns the color as a `i32`.
+    /// Returns the color as a [`i32`].
     ///
     /// This representation is used in the header of the project file to represent the background- and alpha color.
     ///
     /// It is also used to represent the color of a face.
     ///
-    /// If `self` is `Invalid` returns `0` which is equal to black.
+    /// If `self` is [`Invalid`](Color::Invalid) returns `0` which is equal to black.
     ///
     /// # Examples
     ///
@@ -71,7 +71,7 @@ impl Color {
     ///
     /// This will return the code with upper case letters and no # at the start.
     ///
-    /// If `self` is `Invalid` returns `"000000"` which is equal to black.
+    /// If `self` is [`Invalid`](Color::Invalid) returns `"000000"` which is equal to black.
     ///
     /// # Examples
     ///
@@ -109,7 +109,7 @@ impl Color {
     ///
     /// The rgb values are mapped like this: `(r, g, b)`.
     ///
-    /// If `self` is `Invalid` returns `(0, 0, 0)` which is equal to black.
+    /// If `self` is [`Invalid`](Color::Invalid) returns `(0, 0, 0)` which is equal to black.
     ///
     /// # Examples
     ///
@@ -142,13 +142,13 @@ impl Color {
         }
     }
 
-    /// Returns the color represented as a `char`.
+    /// Returns the color represented as a [`char`].
     ///
     /// This is required for the UV map which stores colors as the hex representation of their
     /// integer representation. For example lavender is represented by `13` in integer form, so it
     /// is represented by `'d'` as a character.
     ///
-    /// If `self` is `Invalid` returns `'0'` which is equal to black.
+    /// If `self` is [`Invalid`](Color::Invalid) returns `'0'` which is equal to black.
     ///
     /// # Example
     ///
@@ -183,7 +183,7 @@ impl Color {
 
     /// Returns the color picoCAD would use to replace `self` with if it was shadowed.
     ///
-    /// Shadow of `Invalid` is still `Invalid`.
+    /// Shadow of [`Invalid`](Color::Invalid) is still [`Invalid`](Color::Invalid).
     ///
     /// # Example
     ///
@@ -209,7 +209,7 @@ impl Color {
 
     /// Returns the color picoCAD would replace `self` with while transitioning to being shadowed.
     ///
-    /// Shadow in transition of `Invalid` is still `Invalid`.
+    /// Shadow in transition of [`Invalid`](Color::Invalid) is still [`Invalid`](Color::Invalid).
     ///
     /// # Example
     ///
@@ -238,9 +238,10 @@ impl Color {
 }
 
 impl From<char> for Color {
-    /// Converts `char` into `Color`.
+    /// Converts [`char`](std::char) into [`Color`].
     ///
-    /// Only hex values of 0-f as a `char` are valid, any other value will be turned into an `Invalid` color.
+    /// Only hex values of 0-f as a [`char`](std::char) are valid, any other value will be turned
+    /// into an [`Invalid`](Color::Invalid) color.
     ///
     /// # Example
     ///
@@ -275,9 +276,10 @@ impl From<char> for Color {
 }
 
 impl From<i32> for Color {
-    /// Converts `i32` into `Color`.
+    /// Converts [`i32`] into [`Color`].
     ///
-    /// Only `i32` values of 0-15 are valid, any other value will be turned into an `Invalid` color.
+    /// Only [`i32`] values of 0-15 are valid, any other value will be turned into an
+    /// [`Invalid`](Color::Invalid) color.
     ///
     /// # Example
     ///
@@ -312,10 +314,12 @@ impl From<i32> for Color {
 }
 
 impl From<(u8, u8, u8)> for Color {
-    /// Converts `(u8, u8, u8)` into `Color`.
+    /// Converts `(u8, u8, u8)` into [`Color`].
     /// The tuple should represent the rgb values of the color mapped `(r, g, b)`.
     ///
-    /// Only the rgb values in [this](https://pico-8.fandom.com/wiki/Palette#0..15:_Official_base_colors) table will return valid colors.
+    /// Only the rgb values in
+    /// [this](https://pico-8.fandom.com/wiki/Palette#0..15:_Official_base_colors) table will
+    /// return valid colors.
     ///
     /// # Example
     ///
