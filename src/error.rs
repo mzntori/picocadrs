@@ -16,6 +16,8 @@ pub enum PicoParseError {
     FaceUVMapLength(usize, usize),
     #[error("found {0} table elements (expected {1})")]
     TableLength(usize, usize),
+    #[error("could not parse mesh field {0}")]
+    MeshField(String),
     #[error("invalid vertex index")]
     Lua(#[from] LuaError),
 }
