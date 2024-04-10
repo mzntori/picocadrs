@@ -72,7 +72,7 @@ impl UVMap {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::face::UVMap;
+    /// use picocadrs::assets::{face::UVMap, point::Point2D};
     /// use picocadrs::point;
     ///
     /// let map = UVMap::new(2, point!(2.0, 3.5));
