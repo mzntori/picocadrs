@@ -22,7 +22,7 @@
 //! In this example `0` which represents black.
 
 use super::color::Color;
-use crate::error::PicoParseError;
+use crate::error::PicoError;
 use std::{fmt::Display, str::FromStr};
 
 /// Represents the header of a picoCAD project.
@@ -113,15 +113,15 @@ impl Default for Header {
 }
 
 impl FromStr for Header {
-    type Err = PicoParseError;
+    type Err = PicoError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let fields: Vec<&str> = s.trim().splitn(5, ';').collect();
 
         if fields.len() != 5 {
-            return Err(PicoParseError::HeaderLength(fields.len()));
+            return Err(PicoError::HeaderLength(fields.len()));
         } else if fields.get(0).unwrap().to_string() != "picocad".to_string() {
-            return Err(PicoParseError::Identifier);
+            return Err(PicoError::Identifier);
         }
 
         let identifier: String = fields[0].to_string();
@@ -130,19 +130,19 @@ impl FromStr for Header {
         let zoom: u8 = if let Ok(value) = fields[2].parse::<u8>() {
             value
         } else {
-            return Err(PicoParseError::HeaderField("zoom".to_string()));
+            return Err(PicoError::HeaderField("zoom".to_string()));
         };
 
         let background: Color = if let Ok(value) = fields[3].parse::<i32>() {
             Color::from(value)
         } else {
-            return Err(PicoParseError::HeaderField("background".to_string()));
+            return Err(PicoError::HeaderField("background".to_string()));
         };
 
         let alpha: Color = if let Ok(value) = fields[4].parse::<i32>() {
             Color::from(value)
         } else {
-            return Err(PicoParseError::HeaderField("alpha".to_string()));
+            return Err(PicoError::HeaderField("alpha".to_string()));
         };
 
         let header = Header {

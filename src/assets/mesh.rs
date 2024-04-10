@@ -18,7 +18,7 @@
 
 use crate::assets::face::Face;
 use crate::assets::point::Point3D;
-use crate::error::PicoParseError;
+use crate::error::PicoError;
 use crate::point;
 use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
@@ -246,7 +246,7 @@ impl Display for Mesh {
 }
 
 impl TryFrom<Table<'_>> for Mesh {
-    type Error = PicoParseError;
+    type Error = PicoError;
 
     fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
         let mut name = String::new();
@@ -263,21 +263,21 @@ impl TryFrom<Table<'_>> for Mesh {
                     name = if let Value::String(string) = value {
                         string.to_str()?.to_string()
                     } else {
-                        return Err(PicoParseError::MeshField("name".to_string()));
+                        return Err(PicoError::MeshField("name".to_string()));
                     }
                 }
                 "pos" => {
                     position = if let Value::Table(table) = value {
                         Point3D::try_from(table)?
                     } else {
-                        return Err(PicoParseError::MeshField("pos".to_string()));
+                        return Err(PicoError::MeshField("pos".to_string()));
                     }
                 }
                 "rot" => {
                     rotation = if let Value::Table(table) = value {
                         Rotation(Point3D::try_from(table)?)
                     } else {
-                        return Err(PicoParseError::MeshField("rot".to_string()));
+                        return Err(PicoError::MeshField("rot".to_string()));
                     }
                 }
                 "v" => {
@@ -286,7 +286,7 @@ impl TryFrom<Table<'_>> for Mesh {
                             vertices.push(Point3D::try_from(point?)?);
                         }
                     } else {
-                        return Err(PicoParseError::MeshField("rot".to_string()));
+                        return Err(PicoError::MeshField("rot".to_string()));
                     };
                 }
                 "f" => {
@@ -295,7 +295,7 @@ impl TryFrom<Table<'_>> for Mesh {
                             faces.push(Face::try_from(face?)?);
                         }
                     } else {
-                        return Err(PicoParseError::MeshField("rot".to_string()));
+                        return Err(PicoError::MeshField("rot".to_string()));
                     }
                 }
                 _ => {}
@@ -313,7 +313,7 @@ impl TryFrom<Table<'_>> for Mesh {
 }
 
 impl FromStr for Mesh {
-    type Err = PicoParseError;
+    type Err = PicoError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut mesh = Ok(Mesh::new("mesh".to_string()));
@@ -324,7 +324,7 @@ impl FromStr for Mesh {
 
             mesh = match table_result {
                 Ok(table) => Mesh::try_from(table),
-                Err(err) => Err(PicoParseError::from(err)),
+                Err(err) => Err(PicoError::from(err)),
             }
         });
 

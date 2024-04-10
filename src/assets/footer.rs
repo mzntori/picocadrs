@@ -17,7 +17,7 @@
 
 use crate::{
     assets::{color::Color, point::Point2D},
-    error::{PicoError, PicoParseError},
+    error::PicoError,
     point,
 };
 use std::fmt::{Display, Formatter};
@@ -228,7 +228,7 @@ impl Display for Footer {
 }
 
 impl FromStr for Footer {
-    type Err = PicoParseError;
+    type Err = PicoError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let data: Vec<Color> = s
@@ -240,7 +240,7 @@ impl FromStr for Footer {
             .collect();
 
         if data.len() != Footer::DATA_LENGHT {
-            return Err(PicoParseError::FooterLength(data.len()));
+            return Err(PicoError::FooterLength(data.len()));
         }
 
         Ok(Footer { data })

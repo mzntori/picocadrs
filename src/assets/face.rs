@@ -40,7 +40,7 @@
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
 use crate::assets::{color::Color, point::Point2D};
-use crate::error::PicoParseError;
+use crate::error::PicoError;
 use crate::point;
 use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
@@ -177,7 +177,7 @@ impl Display for Face {
 }
 
 impl TryFrom<Table<'_>> for Face {
-    type Error = PicoParseError;
+    type Error = PicoError;
 
     /// Tries to create a [`Face`] from a lua table.
     ///
@@ -217,10 +217,7 @@ impl TryFrom<Table<'_>> for Face {
 
                         // return error if lengths don't match.
                         if uv_chunks.len() != uv_maps.len() * 2 {
-                            return Err(PicoParseError::FaceUVMapLength(
-                                uv_maps.len(),
-                                uv_chunks.len(),
-                            ));
+                            return Err(PicoError::FaceUVMapLength(uv_maps.len(), uv_chunks.len()));
                         }
 
                         for (i, chunk) in uv_chunks.chunks_exact(2).enumerate() {
@@ -244,7 +241,7 @@ impl TryFrom<Table<'_>> for Face {
 }
 
 impl FromStr for Face {
-    type Err = PicoParseError;
+    type Err = PicoError;
 
     /// Parses a face from a string that contains a lua table with the right arguments.
     ///
@@ -277,7 +274,7 @@ impl FromStr for Face {
 
             face = match table_result {
                 Ok(table) => Face::try_from(table),
-                Err(err) => Err(PicoParseError::from(err)),
+                Err(err) => Err(PicoError::from(err)),
             }
         });
 

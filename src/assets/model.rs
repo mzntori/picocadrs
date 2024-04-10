@@ -1,7 +1,7 @@
 use crate::assets::footer::Footer;
 use crate::assets::header::Header;
 use crate::assets::mesh::Mesh;
-use crate::error::PicoParseError;
+use crate::error::PicoError;
 use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -74,7 +74,7 @@ impl Display for Model {
 }
 
 impl FromStr for Model {
-    type Err = PicoParseError;
+    type Err = PicoError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (header_str, meshes_str, footer_str) = seperate_model(s)?;
@@ -83,7 +83,7 @@ impl FromStr for Model {
         let footer: Footer = footer_str.parse()?;
 
         let mut meshes: Vec<Mesh> = vec![];
-        let mut lua_result: Result<(), PicoParseError> = Ok(());
+        let mut lua_result: Result<(), PicoError> = Ok(());
 
         // We would be fucked without '?' LUL
         let lua = Lua::new();
@@ -103,14 +103,14 @@ impl FromStr for Model {
                             }
                         }
                         Err(lua_err) => {
-                            lua_result = Err(PicoParseError::from(lua_err));
+                            lua_result = Err(PicoError::from(lua_err));
                             return;
                         }
                     }
                 }
             }
             Err(lua_err) => {
-                lua_result = Err(PicoParseError::from(lua_err));
+                lua_result = Err(PicoError::from(lua_err));
                 return;
             }
         });
@@ -127,11 +127,11 @@ impl FromStr for Model {
 
 /// Returns header, meshes and footer as their literal strings.
 /// If seperators do not exist this will fail.
-fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoParseError> {
+fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoError> {
     let (header, rest) = if let Some(split) = model.split_once('\n') {
         split
     } else {
-        return Err(PicoParseError::Split(
+        return Err(PicoError::Split(
             r#"seperate header from meshes with '\n'"#.to_string(),
         ));
     };
@@ -139,7 +139,7 @@ fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoParseError> {
     let (meshes, footer) = if let Some(split) = rest.rsplit_once('%') {
         split
     } else {
-        return Err(PicoParseError::Split(
+        return Err(PicoError::Split(
             r#"seperate meshes from footer with '%'"#.to_string(),
         ));
     };
