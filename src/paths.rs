@@ -3,33 +3,37 @@
 //! Mainly the paths of where picoCAD will store project files.
 
 use std::{env::consts::OS, ffi::OsStr};
+use std::ffi::OsString;
 
-/// File path where a picoCAD project files are located on Windows systems.
-pub const WINDOWS: &str = "%appdata%/Roaming/pico-8/appdata/picocad/";
-/// File path where a picoCAD project files are located on OSX systems.
-pub const OSX: &str = "~/Library/Application Support/pico-8/appdata/picocad/";
-/// File path where a picoCAD project files are located on Linux systems.
-pub const LINUX: &str = "~/.lexaloffle/pico-8/appdata/picocad/";
+/// File path where a picoCAD project files are located on Windows systems relative to home directory.
+pub const WINDOWS: &str = r#"\AppData\Roaming\pico-8\appdata\picocad\"#;
+/// File path where a picoCAD project files are located on OSX systems relative to home directory.
+pub const OSX: &str = "/Library/Application Support/pico-8/appdata/picocad/";
+/// File path where a picoCAD project files are located on Linux systems relative to home directory.
+pub const LINUX: &str = "/.lexaloffle/pico-8/appdata/picocad/";
 
-/// Returns the file path where picoCAD project files are located on the system as an [`&OsStr`](OsStr).
-/// If the system does not support picoCAD this returns [`None`].
+/// Returns the file path where picoCAD project files are located on the system as an [`OsString`](OsString).
+/// If there is no home directory found this returns [`None`].
+/// If this returns [`None`] when it shouldn't check
+/// [`this`](https://docs.rs/directories/latest/directories/struct.BaseDirs.html#method.new)
+/// methods documentation, which this function relies on.
 ///
-/// I could verify that this works on windows and linux, but I don't see why it shouldn't on macOS.
-///
-/// # Examples
-/// ```
-/// use std::ffi::OsStr;
-/// use picocadrs::paths::{projects_path, WINDOWS};
-/// // When target is windows.
-/// assert_eq!(projects_path().unwrap(), OsStr::new(WINDOWS));
-/// ```
-pub fn projects_path() -> Option<&'static OsStr> {
-    match OS {
-        "windows" => Some(OsStr::new(WINDOWS)),
-        "macos" => Some(OsStr::new(OSX)),
-        "linux" => Some(OsStr::new(LINUX)),
-        &_ => None,
-    }
+/// I could verify that this works on windows, but I don't see why it shouldn't on macOS or linux.
+pub fn projects_path() -> Option<OsString> {
+    return if let Some(user_dirs) = directories::UserDirs::new() {
+        let mut path = user_dirs.home_dir().as_os_str().to_os_string();
+        path.push(
+            match OS {
+                "windows" => WINDOWS,
+                "linux" => LINUX,
+                "macos" => OSX,
+                &_ => ""
+            }
+        );
+        Some(path)
+    } else {
+        None
+    };
 }
 
 #[cfg(test)]
@@ -38,7 +42,14 @@ pub mod tests {
 
     #[test]
     fn path_test_windows() {
-        assert_eq!(projects_path().unwrap(), OsStr::new(WINDOWS));
+        let user_dirs = directories::UserDirs::new().unwrap();
+        let mut path = user_dirs.home_dir().as_os_str().to_os_string();
+        path.push(WINDOWS);
+
+        assert_eq!(
+            path,
+            projects_path().unwrap()
+        )
     }
 
     #[test]

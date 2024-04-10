@@ -12,5 +12,6 @@ categories = ["data-structures", "graphics", "parsing"]
 exclude = []
 
 [dependencies]
+directories = "5.0.1"
 rlua = "0.19.4"
 thiserror = "1.0.58"
