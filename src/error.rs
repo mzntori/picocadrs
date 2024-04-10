@@ -18,6 +18,10 @@ pub enum PicoParseError {
     TableLength(usize, usize),
     #[error("could not parse mesh field {0}")]
     MeshField(String),
+    #[error("could not parse meshes from file")]
+    MeshTable,
+    #[error("could not split file properly ({0})")]
+    Split(String),
     #[error("invalid vertex index")]
     Lua(#[from] LuaError),
 }
