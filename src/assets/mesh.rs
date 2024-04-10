@@ -1,5 +1,22 @@
+//! In charge of mesh level data.
+//!
+//! A mesh has 5 fields.
+//! - _name:_ Name of the mesh.
+//! To reduce file-space this can be shortened to a singular character which will not affect the
+//! render result.
+//! - _pos (position):_ Anchor point of the mesh given as a point in 3-dimensional space.
+//! All Vertex positions are relative to this position.
+//! - _rot (rotation):_ Shadow rotation of the mesh.
+//! More info in [`Rotation`].
+//! - _v (vertices):_ List of all the vertices relative to _position_ given as a point in
+//! 3-dimensional space.
+//! - _f (faces):_ List of all faces the mesh has.
+//! More info on faces: [`Face`].
+//!
+//! This module also provides a wrapper struct for [`rotation`](Rotation) which implements some useful methods
+//! that only apply to rotation in picoCAD.
+
 use crate::assets::face::Face;
-use crate::assets::mesh;
 use crate::assets::point::Point3D;
 use crate::error::PicoParseError;
 use crate::point;
