@@ -50,12 +50,20 @@ pub mod tests {
     #[test]
     #[ignore]
     fn path_test_linux() {
-        assert_eq!(projects_path().unwrap(), OsStr::new(LINUX));
+        let user_dirs = directories::UserDirs::new().unwrap();
+        let mut path = user_dirs.home_dir().as_os_str().to_os_string();
+        path.push(LINUX);
+
+        assert_eq!(path, projects_path().unwrap())
     }
 
     #[test]
     #[ignore]
     fn path_test_macos() {
-        assert_eq!(projects_path().unwrap(), OsStr::new(OSX));
+        let user_dirs = directories::UserDirs::new().unwrap();
+        let mut path = user_dirs.home_dir().as_os_str().to_os_string();
+        path.push(OSX);
+
+        assert_eq!(path, projects_path().unwrap())
     }
 }
