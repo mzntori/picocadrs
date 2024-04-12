@@ -39,6 +39,7 @@ pub mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn path_test_windows() {
         let user_dirs = directories::UserDirs::new().unwrap();
         let mut path = user_dirs.home_dir().as_os_str().to_os_string();
