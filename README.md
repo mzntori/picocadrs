@@ -1,7 +1,9 @@
 # picocadrs
 
+[![Test Status](https://github.com/mzntori/picocadrs/workflows/Rust/badge.svg?event=push)](https://github.com/mzntori/picocadrs/actions)
 [![Crates.io Version](https://img.shields.io/crates/v/picocadrs)](https://crates.io/crates/picocadrs)
 [![docs.rs](https://img.shields.io/docsrs/picocadrs)](https://docs.rs/picocadrs/0.2.0/picocadrs/)
+
 
 This is a crate for working with [picoCAD](https://johanpeitz.itch.io/picocad) project files.
 It supports de-/serialization of picoCAD projects and some other helpful methods and function.
