@@ -6,6 +6,7 @@ description = "Library for working with picoCAD saves."
 readme = "README.md"
 homepage = "https://github.com/mzntori/picocadrs"
 repository = "https://github.com/mzntori/picocadrs"
+documentation = "https://docs.rs/picocadrs/latest/"
 license = "MIT"
 keywords = ["picoCAD", "pico8"]
 categories = ["data-structures", "graphics", "parsing"]
