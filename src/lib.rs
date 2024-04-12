@@ -3,6 +3,11 @@
 //! This is a crate for working with [picoCAD](https://johanpeitz.itch.io/picocad) project files.
 //! It supports de-/serialization of picoCAD projects and some other helpful methods and function.
 //!
+//! <br/>
+//!
+//! If you are interested in how a picoCAD file is structured start from [here](assets::model) and
+//! work your way down.
+//!
 //! # Example
 //!
 //! ```no_run
