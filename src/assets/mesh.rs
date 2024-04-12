@@ -16,14 +16,17 @@
 //! This module also provides a wrapper struct for [`rotation`](Rotation) which implements some useful methods
 //! that only apply to rotation in picoCAD.
 
-use crate::assets::Face;
-use crate::assets::Point3D;
-use crate::error::PicoError;
-use crate::point;
+use crate::{
+    assets::{Face, Point3D},
+    error::PicoError,
+    point
+};
 use rlua::{Lua, Table, Value};
-use std::fmt::{Display, Formatter};
-use std::ops::{Deref, DerefMut};
-use std::str::FromStr;
+use std::{
+    fmt::{Display, Formatter},
+    ops::{Deref, DerefMut},
+    str::FromStr
+};
 
 /// Wrapper type for [`Point3D<f64>`] representing a rotation in picoCAD.
 /// If you want to access the raw [`Point3D`] type that is wrapped you can access it using an index

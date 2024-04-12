@@ -1,4 +1,3 @@
-
 //! Houses the struct representing a model which is equivalent to all the information a
 //! picoCAD file holds.
 //!
@@ -16,16 +15,18 @@
 //! - _[`footer`](crate::assets::footer):_ Holds the texture used for uv mapping.
 
 use std::ffi::OsString;
-use crate::assets::Footer;
-use crate::assets::Header;
-use crate::assets::mesh::Mesh;
-use crate::error::PicoError;
+use crate::{
+    assets::{Footer, Header, Mesh},
+    error::PicoError,
+    paths::projects_path,
+};
 use rlua::{Lua, Table};
-use std::fmt::{Display, Formatter};
-use std::io::Write;
-use std::path::PathBuf;
-use std::str::FromStr;
-use crate::paths::projects_path;
+use std::{
+    fmt::{Display, Formatter},
+    io::Write,
+    path::PathBuf,
+    str::FromStr,
+};
 
 /// A picoCAD model.
 ///
