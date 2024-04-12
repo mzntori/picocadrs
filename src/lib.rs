@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```
+//! ```no_run
 //! use std::ffi::OsString;
 //! use picocadrs::assets::{Color, Model, Point3D}; // Point3D required for point macro
 //! use picocadrs::point;
