@@ -14,13 +14,13 @@
 //! Aside from the lua table's closing bracket the end of this section is indicated by a `%`
 //! - _[`footer`](crate::assets::footer):_ Holds the texture used for uv mapping.
 
-use std::ffi::OsString;
 use crate::{
     assets::{Footer, Header, Mesh},
     error::PicoError,
     paths::projects_path,
 };
 use rlua::{Lua, Table};
+use std::ffi::OsString;
 use std::{
     fmt::{Display, Formatter},
     io::Write,
@@ -80,13 +80,13 @@ impl Model {
     /// assert_eq!(model.header.name, "test");
     /// ```
     pub fn load(file_name: OsString) -> Result<Model, PicoError> {
-        return if let Some(mut projects_path) = projects_path() {
+        if let Some(mut projects_path) = projects_path() {
             projects_path.push(file_name);
             projects_path.push(".txt");
             Model::load_from_path(projects_path)
         } else {
             Err(PicoError::NoHomeDirectory)
-        };
+        }
     }
 
     /// Writes the model to the project file named after the value in [`self.header.name`](Header).
@@ -118,7 +118,7 @@ impl Model {
         path.set_extension("txt");
 
         let mut file = std::fs::File::create(path)?;
-        file.write(self.to_string().as_bytes())?;
+        file.write_all(self.to_string().as_bytes())?;
 
         Ok(())
     }
@@ -204,7 +204,6 @@ impl FromStr for Model {
             }
             Err(lua_err) => {
                 lua_result = Err(PicoError::from(lua_err));
-                return;
             }
         });
 
@@ -270,10 +269,7 @@ pub mod tests {
         let mut path: OsString = projects_path().unwrap();
         path.push("test3.txt");
 
-        assert_eq!(
-            TEST_FILE,
-            Model::load_from_path(path).unwrap().to_string()
-        );
+        assert_eq!(TEST_FILE, Model::load_from_path(path).unwrap().to_string());
 
         assert_eq!(
             TEST_FILE,

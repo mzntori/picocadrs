@@ -120,7 +120,7 @@ impl FromStr for Header {
 
         if fields.len() != 5 {
             return Err(PicoError::HeaderLength(fields.len()));
-        } else if fields.get(0).unwrap().to_string() != "picocad".to_string() {
+        } else if *fields.first().unwrap() != "picocad" {
             return Err(PicoError::Identifier);
         }
 

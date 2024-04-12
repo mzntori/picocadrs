@@ -291,7 +291,7 @@ impl From<i32> for Color {
     /// assert_eq!(Color::Invalid, Color::from(-2));
     /// ```
     fn from(value: i32) -> Self {
-        match value.into() {
+        match value {
             0 => Color::Black,
             1 => Color::DarkBlue,
             2 => Color::DarkPurple,

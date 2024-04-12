@@ -144,7 +144,7 @@ impl Display for Face {
 
         for uv_map in self.uv_maps.iter() {
             vertex_indices.push_str(format!("{},", uv_map.vertex_index + 1).as_str());
-            uvs.push_str(format!("{},", uv_map.coords.to_string()).as_str());
+            uvs.push_str(format!("{},", uv_map.coords).as_str());
         }
 
         let mut attributes = String::new();

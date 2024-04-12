@@ -19,13 +19,12 @@
 use crate::{
     assets::{Face, Point3D},
     error::PicoError,
-    point
+    point,
 };
 use rlua::{Lua, Table, Value};
 use std::{
     fmt::{Display, Formatter},
-    ops::{Deref, DerefMut},
-    str::FromStr
+    str::FromStr,
 };
 
 /// Wrapper type for [`Point3D<f64>`] representing a rotation in picoCAD.

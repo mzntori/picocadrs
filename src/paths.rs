@@ -2,7 +2,7 @@
 //!
 //! Mainly the paths of where picoCAD will store project files.
 
-use std::{env::consts::OS, ffi::OsStr};
+use std::env::consts::OS;
 use std::ffi::OsString;
 
 /// File path where a picoCAD project files are located on Windows systems relative to home directory.
@@ -22,14 +22,12 @@ pub const LINUX: &str = "/.lexaloffle/pico-8/appdata/picocad/";
 pub fn projects_path() -> Option<OsString> {
     return if let Some(user_dirs) = directories::UserDirs::new() {
         let mut path = user_dirs.home_dir().as_os_str().to_os_string();
-        path.push(
-            match OS {
-                "windows" => WINDOWS,
-                "linux" => LINUX,
-                "macos" => OSX,
-                &_ => ""
-            }
-        );
+        path.push(match OS {
+            "windows" => WINDOWS,
+            "linux" => LINUX,
+            "macos" => OSX,
+            &_ => "",
+        });
         Some(path)
     } else {
         None
@@ -46,10 +44,7 @@ pub mod tests {
         let mut path = user_dirs.home_dir().as_os_str().to_os_string();
         path.push(WINDOWS);
 
-        assert_eq!(
-            path,
-            projects_path().unwrap()
-        )
+        assert_eq!(path, projects_path().unwrap())
     }
 
     #[test]

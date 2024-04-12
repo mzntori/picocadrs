@@ -73,7 +73,7 @@ impl Footer {
             }
         }
 
-        return true;
+        true
     }
 
     /// Get a reference to the color at the given index in [`usize`].
@@ -145,12 +145,12 @@ impl Footer {
     /// );
     /// ```
     pub fn set(&mut self, coords: Point2D<usize>, value: Color) -> Result<(), PicoError> {
-        return if coords.u > 127 || coords.v > 119 {
+        if coords.u > 127 || coords.v > 119 {
             Err(PicoError::IndexUSIZE(coords, point!(128, 120)))
         } else {
             self[coords] = value;
             Ok(())
-        };
+        }
     }
 
     /// Reads the color at the given uv coordinates and returns a copy of the color
@@ -181,18 +181,14 @@ impl Footer {
     /// assert_eq!(footer.read(point!(15.95, 0.5)), Color::Invalid);
     /// ```
     pub fn read(&self, coords: Point2D<f64>) -> Color {
-        return if -0.0625 > coords.u
-            || coords.u >= 15.9375
-            || -0.0625 > coords.v
-            || coords.v >= 14.9375
-        {
+        if -0.0625 > coords.u || coords.u >= 15.9375 || -0.0625 > coords.v || coords.v >= 14.9375 {
             Color::Invalid
         } else {
             self[point!(
                 (coords.u * 8.0).round() as usize,
                 (coords.v * 8.0).round() as usize
             )]
-        };
+        }
     }
 }
 
