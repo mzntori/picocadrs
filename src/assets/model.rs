@@ -1,3 +1,20 @@
+
+//! Houses the struct representing a model which is equivalent to all the information a
+//! picoCAD file holds.
+//!
+//! A picoCAD file consists of 3 main parts.
+//! - _[`header`](crate::assets::header):_ Contains general settings of the project,
+//! like background color or name.
+//! Each component is seperated by `;`.
+//! Its end is indicated by a newline (`\n`) character, meaning this is always the first line of the
+//! file.
+//! - _[`meshes`](crate::assets::mesh):_ This is a [`lua table`](https://www.lua.org/pil/2.5.html)
+//! holding a list of meshes.
+//! The order these are in does not matter.
+//! Each mesh itself is also represented as a [`lua table`](https://www.lua.org/pil/2.5.html).
+//! Aside from the lua table's closing bracket the end of this section is indicated by a `%`
+//! - _[`footer`](crate::assets::footer):_ Holds the texture used for uv mapping.
+
 use std::ffi::OsString;
 use crate::assets::footer::Footer;
 use crate::assets::header::Header;
