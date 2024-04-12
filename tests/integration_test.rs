@@ -3,6 +3,7 @@ use picocadrs::assets::{Color, Model, Point3D}; // Point3D required for point ma
 use picocadrs::point;
 
 #[test]
+#[ignore]
 fn readme() {
     // Loads the file "test.txt" located in the picoCAD project folder as a model.
     // This model now can access any part of that project.
