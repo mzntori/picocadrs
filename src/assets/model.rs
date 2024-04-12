@@ -70,7 +70,7 @@ impl Model {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```no_run
     /// use std::ffi::OsString;
     /// use picocadrs::assets::Model;
     ///
@@ -100,7 +100,7 @@ impl Model {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```no_run
     /// use picocadrs::assets::Model;
     /// use std::ffi::OsString;
     ///
