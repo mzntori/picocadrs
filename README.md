@@ -1,36 +1,53 @@
 # picocadrs
 
-A library to deserialize and serialize picoCAD files.
-As of now there aren't many features that help with manipulating the file, however these features are planned.
+This is a crate for working with [picoCAD](https://johanpeitz.itch.io/picocad) project files.
+It supports de-/serialization of picoCAD projects and some other helpful methods and function.
 
-## Example
-
-This is a simple example of how to read a file, modify it and write the results to the same file.
-Note that an environment variable `picocad_path` containing the absolute path to your picoCAD folder and a picoCAD file called `plane.txt` is required, to run this example the way it is. 
-`plane.txt` might get changed in a way you dont want it to, so please be sure that it does not contain any project you wouldn't want to be changed.
+# Example
 
 ```rust
-use std::{fs, env};
-use picocadrs::assets::{PicoColor, Vector};
-use picocadrs::save::PicoSave;
+use std::ffi::OsString;
+use picocadrs::assets::{Color, Model, Point3D}; // Point3D required for point macro
+use picocadrs::point;
 
-// generate path
-let mut path = env::var("picocad_path").expect("Invalid environment variable.");
-path.push_str("plane.txt");
+// Loads the file "test.txt" located in the picoCAD project folder as a model.
+// This model now can access any part of that project.
+// For this example test.txt is a new picoCAD project that has a single plane added without
+// modifying it saved under the name "test".
+let model = Model::load(OsString::from("test")).unwrap();
 
-// read file and create save
-let mut save = PicoSave::from(fs::read_to_string(path.clone()).expect("Couldn't read file."));
+println!("Model name: {}", model.header.name);          // "Model name: test"
+println!("Amount of meshes: {}", model.meshes.len());   // "Amount of meshes: 1"
 
-// set bg color
-save.header.bg_color = PicoColor::DarkGreen;
+let mesh = model.meshes.get(0).unwrap();
+println!("Mesh name: {}", mesh.name);           // "Mesh name: plane"
+println!("Mesh position: {}", mesh.position);   // "Mesh position: 0,0,0"
 
-// edit mesh
-let mesh = save.meshes.get_mut(0).unwrap();
-// rename the mesh to "first_mesh"
-mesh.name = "first_mesh".to_string();
-// set mesh origin to 0|3|0
-mesh.pos = Vector::new(0.0, 3.0, 0.0);
+let face = mesh.faces.get(0).unwrap();
+println!("Face color: {}", face.color.as_i32()); // "Face color: 6"
+println!("Double sided: {}", face.double_sided); // "Double sided: true"
+println!("No texture: {}", face.no_texture);     // "No texture: false"
 
-// write save to file
-fs::write(path, save.to_string()).expect("Couldn't write to file.");
+print!("\n");
+
+// Of course, you can change these values too.
+let mut model = Model::load(OsString::from("test")).unwrap();
+
+model.header.name = "model_name".to_string();
+println!("Model name: {}", model.header.name);          // "Model name: model_name"
+println!("Amount of meshes: {}", model.meshes.len());   // "Amount of meshes: 1"
+
+let mesh = model.meshes.get_mut(0).unwrap();
+mesh.name = "some_plane".to_string();
+mesh.position = point!(1.5, -1.0, 2.0);
+println!("Mesh name: {}", mesh.name);           // "Mesh name: some_plane"
+println!("Mesh position: {}", mesh.position);   // "Mesh position: 1.5,-1,2"
+
+let face = mesh.faces.get_mut(0).unwrap();
+face.color = Color::Lavender;
+face.double_sided = false;
+face.no_texture = true;
+println!("Face color: {}", face.color.as_i32()); // "Face color: 13"
+println!("Double sided: {}", face.double_sided); // "Double sided: false"
+println!("No texture: {}", face.no_texture);     // "No texture: true"
 ```
