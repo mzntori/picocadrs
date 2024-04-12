@@ -22,8 +22,12 @@ pub enum PicoError {
     MeshTable,
     #[error("could not split file properly ({0})")]
     Split(String),
+    #[error("couldn't get home directory")]
+    NoHomeDirectory,
     #[error("invalid vertex index")]
     Lua(#[from] LuaError),
+    #[error("io error")]
+    IO(#[from] std::io::Error),
     #[error("index out of range: {0:?} (expected < {1:?})")]
     IndexUSIZE(Point2D<usize>, Point2D<usize>),
 }

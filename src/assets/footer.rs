@@ -234,7 +234,7 @@ impl FromStr for Footer {
         let data: Vec<Color> = s
             .chars()
             .filter_map(|c| match c {
-                ' ' | '\n' => None,
+                ' ' | '\n' | '\r' => None,
                 _ => Some(Color::from(c)),
             })
             .collect();

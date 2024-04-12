@@ -1,10 +1,14 @@
+use std::ffi::OsString;
 use crate::assets::footer::Footer;
 use crate::assets::header::Header;
 use crate::assets::mesh::Mesh;
 use crate::error::PicoError;
 use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
+use std::io::Write;
+use std::path::PathBuf;
 use std::str::FromStr;
+use crate::paths::projects_path;
 
 /// A picoCAD model.
 ///
@@ -29,6 +33,77 @@ pub struct Model {
     pub meshes: Vec<Mesh>,
     /// Footer, holding the texture for uv mapping.
     pub footer: Footer,
+}
+
+impl Model {
+    /// Loads a model from an absolute path.
+    ///
+    /// It's recommended to use [`load`](Model::load).
+    pub fn load_from_path(path: OsString) -> Result<Model, PicoError> {
+        let file_string = std::fs::read_to_string(path)?;
+
+        file_string.parse::<Model>()
+    }
+
+    /// Loads a model from a given file-name.
+    ///
+    /// Returns an error if the users home directory can't be found ([`PicoError::NoHomeDirectory`])
+    /// or if file doesn't exist [`PicoError::IO`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use std::ffi::OsString;
+    /// use picocadrs::assets::model::Model;
+    ///
+    /// // Requires a valid picoCAD project file in projects folder called "test.txt"
+    /// let model = Model::load(OsString::from("test.txt")).unwrap();
+    ///
+    /// assert_eq!(model.header.name, "test");
+    /// ```
+    pub fn load(file_name: OsString) -> Result<Model, PicoError> {
+        return if let Some(mut projects_path) = projects_path() {
+            projects_path.push(file_name);
+            projects_path.push(".txt");
+            Model::load_from_path(projects_path)
+        } else {
+            Err(PicoError::NoHomeDirectory)
+        };
+    }
+
+    /// Writes the model to the project file named after the value in [`self.header.name`](Header).
+    ///
+    /// This means if that field contains the string `my_model` this will be written to
+    /// `{result from` [`projects_path`]`}/my_model.txt`.
+    ///
+    /// Returns errors if files can't be written to.
+    ///
+    /// Contents of the file will be overwritten.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::assets::model::Model;
+    /// use std::ffi::OsString;
+    ///
+    /// let mut model = Model::default();
+    /// model.header.name = "model_write_example".to_string();
+    /// model.write().unwrap();
+    ///
+    /// let read_model = Model::load(OsString::from("model_write_example")).unwrap();
+    ///
+    /// assert_eq!(model, read_model);
+    /// ```
+    pub fn write(&self) -> Result<(), PicoError> {
+        let mut path = PathBuf::from(projects_path().unwrap());
+        path.push(self.header.name.clone());
+        path.set_extension("txt");
+
+        let mut file = std::fs::File::create(path)?;
+        file.write(self.to_string().as_bytes())?;
+
+        Ok(())
+    }
 }
 
 impl Default for Model {
@@ -150,6 +225,7 @@ fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoError> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::paths::projects_path;
 
     #[test]
     fn test_model_parse() {
@@ -168,6 +244,34 @@ pub mod tests {
         assert_eq!(model.header, Header::default());
         assert_eq!(model.footer, Footer::default());
         assert!(model.meshes.is_empty());
+    }
+
+    /// Requires a file called `test3.txt` with the contents of [`TEST_FILE`]
+    #[test]
+    fn test_model_load() {
+        let mut path: OsString = projects_path().unwrap();
+        path.push("test3.txt");
+
+        assert_eq!(
+            TEST_FILE,
+            Model::load_from_path(path).unwrap().to_string()
+        );
+
+        assert_eq!(
+            TEST_FILE,
+            Model::load(OsString::from("test3")).unwrap().to_string()
+        );
+    }
+
+    #[test]
+    fn test_model_write() {
+        let mut model = TEST_FILE.parse::<Model>().unwrap();
+        model.header.name = "test_model_write".to_string();
+        model.write().unwrap();
+
+        let read_model = Model::load(OsString::from("test_model_write")).unwrap();
+
+        assert_eq!(model, read_model);
     }
 
     const TEST_FILE: &str = r#"picocad;test3;16;1;0
