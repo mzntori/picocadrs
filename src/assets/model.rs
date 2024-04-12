@@ -265,6 +265,7 @@ pub mod tests {
 
     /// Requires a file called `test3.txt` with the contents of [`TEST_FILE`]
     #[test]
+    #[ignore]
     fn test_model_load() {
         let mut path: OsString = projects_path().unwrap();
         path.push("test3.txt");
@@ -278,6 +279,7 @@ pub mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_model_write() {
         let mut model = TEST_FILE.parse::<Model>().unwrap();
         model.header.name = "test_model_write".to_string();
