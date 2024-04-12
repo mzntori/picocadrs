@@ -9,7 +9,7 @@ repository = "https://github.com/ElektroEnte/picocadrs"
 license = "MIT"
 keywords = ["picoCAD", "pico8"]
 categories = ["data-structures", "graphics", "parsing"]
-exclude = []
+exclude = [".github/workflows/rust.yml"]
 
 [dependencies]
 directories = "5.0.1"
