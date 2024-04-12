@@ -11,7 +11,7 @@
 //! - _v (vertices):_ List of all the vertices relative to _position_ given as a point in
 //! 3-dimensional space.
 //! - _f (faces):_ List of all faces the mesh has.
-//! More info on faces: [`Face`].
+//! More info on faces [`here`](crate::assets::face).
 //!
 //! This module also provides a wrapper struct for [`rotation`](Rotation) which implements some useful methods
 //! that only apply to rotation in picoCAD.
