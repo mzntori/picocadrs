@@ -35,11 +35,11 @@
 //! coordinates.
 //! In the example above the coordinates `1.25, 0` in the texture are mapped onto the corner that
 //! is at vertex with the index `3`.
-//! More information on how float coordinates work can be found in the docs of [`Footer`](super::footer::Footer).
+//! More information on how float coordinates work can be found in the docs of [`Footer`](super::Footer).
 //!
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
-use crate::assets::{color::Color, point::Point2D};
+use crate::assets::{Color, Point2D};
 use crate::error::PicoError;
 use crate::point;
 use rlua::{Lua, Table, Value};
@@ -72,7 +72,7 @@ impl UVMap {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{face::UVMap, point::Point2D};
+    /// use picocadrs::assets::{UVMap, Point2D};
     /// use picocadrs::point;
     ///
     /// let map = UVMap::new(2, point!(2.0, 3.5));
@@ -114,7 +114,7 @@ impl Default for Face {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{face::Face, color::Color};
+    /// use picocadrs::assets::{Face, Color};
     ///
     /// let face = Face::default();
     ///
@@ -248,7 +248,7 @@ impl FromStr for Face {
     /// # Exmaple
     ///
     /// ```
-    /// use picocadrs::assets::{face::{Face, UVMap}, color::Color, point::Point2D};
+    /// use picocadrs::assets::{Face, UVMap, Color, Point2D};
     /// use picocadrs::point;
     ///
     /// assert_eq!(

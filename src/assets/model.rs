@@ -16,8 +16,8 @@
 //! - _[`footer`](crate::assets::footer):_ Holds the texture used for uv mapping.
 
 use std::ffi::OsString;
-use crate::assets::footer::Footer;
-use crate::assets::header::Header;
+use crate::assets::Footer;
+use crate::assets::Header;
 use crate::assets::mesh::Mesh;
 use crate::error::PicoError;
 use rlua::{Lua, Table};
@@ -71,7 +71,7 @@ impl Model {
     ///
     /// ```
     /// use std::ffi::OsString;
-    /// use picocadrs::assets::model::Model;
+    /// use picocadrs::assets::Model;
     ///
     /// // Requires a valid picoCAD project file in projects folder called "test.txt"
     /// let model = Model::load(OsString::from("test.txt")).unwrap();
@@ -100,7 +100,7 @@ impl Model {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::model::Model;
+    /// use picocadrs::assets::Model;
     /// use std::ffi::OsString;
     ///
     /// let mut model = Model::default();
@@ -129,7 +129,7 @@ impl Default for Model {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{model::Model, header::Header, footer::Footer};
+    /// use picocadrs::assets::{Model, Footer, Header};
     ///
     /// let model = Model::default();
     ///

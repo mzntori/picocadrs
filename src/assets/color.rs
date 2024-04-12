@@ -39,7 +39,7 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender.as_i32(), 13);
     /// assert_eq!(Color::LightGrey.as_i32(), 6);
@@ -76,7 +76,7 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender.as_hex(), "83769C".to_string());
     /// assert_eq!(Color::LightGrey.as_hex(), "C2C3C7".to_string());
@@ -114,7 +114,7 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender.as_rgb(), (131, 118, 156));
     /// assert_eq!(Color::LightGrey.as_rgb(), (194, 195, 199));
@@ -153,7 +153,7 @@ impl Color {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender.as_char(), 'd');
     /// assert_eq!(Color::LightGrey.as_char(), '6');
@@ -188,7 +188,7 @@ impl Color {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// // Oranges shadow is dark-purple
     /// assert_eq!(Color::Orange.shadow(), Color::DarkPurple);
@@ -214,7 +214,7 @@ impl Color {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// // Orange transitions like `orange -> brown -> dark-purple`
     /// assert_eq!(Color::Orange.shadow_transition(), Color::Brown);
@@ -246,7 +246,7 @@ impl From<char> for Color {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender, Color::from('d'));
     /// assert_eq!(Color::LightGrey, Color::from('6'));
@@ -284,7 +284,7 @@ impl From<i32> for Color {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender, Color::from(13));
     /// assert_eq!(Color::Invalid, Color::from(17));
@@ -324,7 +324,7 @@ impl From<(u8, u8, u8)> for Color {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::color::Color;
+    /// use picocadrs::assets::Color;
     ///
     /// assert_eq!(Color::Lavender, Color::from((131, 118, 156)));
     /// assert_eq!(Color::LightGrey, Color::from((194, 195, 199)));

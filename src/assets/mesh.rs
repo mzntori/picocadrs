@@ -16,8 +16,8 @@
 //! This module also provides a wrapper struct for [`rotation`](Rotation) which implements some useful methods
 //! that only apply to rotation in picoCAD.
 
-use crate::assets::face::Face;
-use crate::assets::point::Point3D;
+use crate::assets::Face;
+use crate::assets::Point3D;
 use crate::error::PicoError;
 use crate::point;
 use rlua::{Lua, Table, Value};
@@ -42,7 +42,7 @@ use std::str::FromStr;
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::{point::Point3D, mesh::Rotation};
+/// use picocadrs::assets::{Point3D, Rotation};
 /// use picocadrs::point;
 ///
 /// let rot = Rotation(point!(0.3, 0.2, 0.1));
@@ -55,7 +55,7 @@ use std::str::FromStr;
 /// digit), normalizing and rounding fill not be enough in some rare cases.
 ///
 /// ```
-/// use picocadrs::assets::{mesh::Rotation, point::Point3D};
+/// use picocadrs::assets::{Rotation, Point3D};
 /// use picocadrs::point;
 ///
 /// let mut rot = Rotation(point!(0.9999, 1.0, 0.0));
@@ -71,7 +71,7 @@ use std::str::FromStr;
 /// This is what [`equal_rotation`](Rotation::equal_rotation) does:
 ///
 /// ```
-/// use picocadrs::assets::{mesh::Rotation, point::Point3D};
+/// use picocadrs::assets::{Rotation, Point3D};
 /// use picocadrs::point;
 ///
 /// let mut rot = Rotation(point!(0.9999, 1.0, 0.0));
@@ -90,7 +90,7 @@ impl Rotation {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{mesh::Rotation, point::Point3D};
+    /// use picocadrs::assets::{Rotation, Point3D};
     /// use picocadrs::point;
     ///
     /// let mut rot = Rotation(point!(0.2423, 0.9999, 0.34));
@@ -114,7 +114,7 @@ impl Rotation {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{mesh::Rotation, point::Point3D};
+    /// use picocadrs::assets::{Rotation, Point3D};
     /// use picocadrs::point;
     ///
     /// let mut rot = Rotation(point!(2.24, -1.21, 0.34));
@@ -140,7 +140,7 @@ impl Rotation {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::{mesh::Rotation, point::Point3D};
+    /// use picocadrs::assets::{Rotation, Point3D};
     /// use picocadrs::point;
     ///
     /// let rot = Rotation(point!(2.0, 1.5, 0.0));
@@ -191,7 +191,7 @@ impl Mesh {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{mesh::Mesh, point::Point3D};
+    /// use picocadrs::assets::{Mesh, Point3D};
     /// use picocadrs::point;
     ///
     /// let mesh = Mesh::new("my_mesh".to_string());

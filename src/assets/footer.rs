@@ -16,7 +16,7 @@
 //! in most cases but are not disallowed by picoCAD.
 
 use crate::{
-    assets::{color::Color, point::Point2D},
+    assets::{Color, Point2D},
     error::PicoError,
     point,
 };
@@ -59,7 +59,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::footer::Footer;
+    /// use picocadrs::assets::Footer;
     ///
     /// let footer = Footer::default();
     /// assert!(footer.is_solid());
@@ -94,7 +94,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
+    /// use picocadrs::assets::{Color, Point2D, Footer};
     /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
@@ -127,7 +127,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
+    /// use picocadrs::assets::{Color, Point2D, Footer};
     /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
@@ -169,7 +169,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{color::Color, point::Point2D, footer::Footer};
+    /// use picocadrs::assets::{Color, Point2D, Footer};
     /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
@@ -203,7 +203,7 @@ impl Default for Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::footer::Footer;
+    /// use picocadrs::assets::Footer;
     ///
     /// let footer = Footer::default();
     /// assert!(footer.is_solid());
@@ -255,7 +255,7 @@ impl Index<Point2D<usize>> for Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{footer::Footer, color::Color, point::Point2D};
+    /// use picocadrs::assets::{Footer, Color, Point2D};
     /// use picocadrs::point;
     ///
     /// let footer = Footer::default();
@@ -282,7 +282,7 @@ impl IndexMut<Point2D<usize>> for Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{footer::Footer, color::Color, point::Point2D};
+    /// use picocadrs::assets::{Footer, Color, Point2D};
     /// use picocadrs::point;
     ///
     /// let footer = Footer::default();

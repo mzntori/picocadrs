@@ -17,7 +17,7 @@ use std::str::FromStr;
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::point::Point2D;
+/// use picocadrs::assets::Point2D;
 /// use picocadrs::point;
 ///
 /// let mut point = Point2D::new(2, 4);
@@ -48,7 +48,7 @@ impl<T> Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point2D;
+    /// use picocadrs::assets::Point2D;
     /// use picocadrs::point;
     ///
     /// let point = Point2D::new(2, 4);
@@ -67,7 +67,7 @@ impl<T> Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point2D;
+    /// use picocadrs::assets::Point2D;
     ///
     /// let mut point = Point2D::new(2, 4);
     ///
@@ -89,7 +89,7 @@ impl<T> Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point2D;
+    /// use picocadrs::assets::Point2D;
     ///
     /// let mut point = Point2D::new(2, 3);
     ///
@@ -114,7 +114,7 @@ impl<T: Add<Output = T>> Add for Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point2D;
+    /// use picocadrs::assets::Point2D;
     ///
     /// let p1 = Point2D::new(1, 4);
     /// let p2 = Point2D::new(2, 1);
@@ -137,7 +137,7 @@ impl<T: Sub<Output = T>> Sub for Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point2D;
+    /// use picocadrs::assets::Point2D;
     ///
     /// let p1 = Point2D::new(1, 4);
     /// let p2 = Point2D::new(2, 1);
@@ -190,7 +190,7 @@ impl FromStr for Point2D<f64> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point2D;
+    /// use picocadrs::assets::Point2D;
     ///
     /// assert_eq!(
     ///     "-1.5,2.2",
@@ -222,7 +222,7 @@ impl FromStr for Point2D<f64> {
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::point::Point3D;
+/// use picocadrs::assets::Point3D;
 /// use picocadrs::point;
 ///
 /// let mut point = Point3D::new(2, 4, -1);
@@ -255,7 +255,7 @@ impl<T> Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point3D;
+    /// use picocadrs::assets::Point3D;
     /// use picocadrs::point;
     ///
     /// let point = Point3D::new(2, 4, -1);
@@ -275,7 +275,7 @@ impl<T> Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point3D;
+    /// use picocadrs::assets::Point3D;
     ///
     /// let mut point = Point3D::new(2, 4, -1);
     ///
@@ -300,7 +300,7 @@ impl<T> Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point3D;
+    /// use picocadrs::assets::Point3D;
     ///
     /// let mut point = Point3D::new(2, 3, -1);
     ///
@@ -326,7 +326,7 @@ impl<T: Add<Output = T>> Add for Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point3D;
+    /// use picocadrs::assets::Point3D;
     ///
     /// let p1 = Point3D::new(1, 4, -2);
     /// let p2 = Point3D::new(2, -2, 3);
@@ -350,7 +350,7 @@ impl<T: Sub<Output = T>> Sub for Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point3D;
+    /// use picocadrs::assets::Point3D;
     ///
     /// let p1 = Point3D::new(1, 4, 2);
     /// let p2 = Point3D::new(2, 1, -4);
@@ -404,7 +404,7 @@ impl FromStr for Point3D<f64> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::point::Point3D;
+    /// use picocadrs::assets::Point3D;
     ///
     /// assert_eq!(
     ///     "0,-1.5,2.2",
