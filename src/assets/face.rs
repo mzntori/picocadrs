@@ -39,7 +39,8 @@
 //!
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
-use crate::assets::{Color, Point2D};
+use crate::assets::edge::Edge;
+use crate::assets::{Color, Point2D, Point3D};
 use crate::error::PicoError;
 use crate::point;
 use rlua::{Lua, Table, Value};
@@ -106,6 +107,59 @@ pub struct Face {
     /// uv-mappings of this face.
     /// Tells picoCAD which vertices this face is between and where they are on the uv-map.
     pub uv_maps: Vec<UVMap>,
+}
+
+impl Face {
+    /// Generates a vector of [`edges`](Edge) that this face is formed by.
+    /// Returns an empty vector if no edges can be generated or some edges fail.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
+    ///     uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
+    ///     .parse::<Face>()
+    ///     .unwrap();
+    ///
+    /// dbg!(face.edges(vec![
+    ///     point!(0.0, 1.0, 0.0),
+    ///     point!(0.0, 0.0, 0.0),
+    ///     point!(1.0, 0.0, 0.0),
+    ///     point!(1.0, 1.0, 0.0),
+    /// ]));
+    /// ```
+    pub fn edges(&self, vertices: &Vec<Point3D<f64>>) -> Vec<Edge> {
+        if self.uv_maps.len() < 2 {
+            return vec![];
+        }
+
+        let start = match vertices.get(self.uv_maps[0].vertex_index) {
+            Some(point) => point,
+            None => {
+                return vec![];
+            }
+        };
+
+        let mut result: Vec<Edge> = vec![];
+        let mut last: &Point3D<f64> = start;
+
+        for uv_map in self.uv_maps.iter() {
+            let vertex = match vertices.get(uv_map.vertex_index) {
+                None => continue,
+                Some(v) => v
+            };
+
+            if vertex != last {
+                result.push(Edge::new(*last, *vertex))
+            }
+
+            last = vertex
+        }
+
+        result.push(Edge::new(*last, *start));
+
+        result
+    }
 }
 
 impl Default for Face {
@@ -344,5 +398,21 @@ pub mod tests {
         assert!(face.no_texture);
         assert!(face.render_priority);
         assert_eq!(face.uv_maps[1], UVMap::new(2, point!(1.25, 0.0)));
+    }
+
+
+    #[test]
+    fn test_edges() {
+        let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
+        uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
+            .parse::<Face>()
+            .unwrap();
+
+        dbg!(face.edges(&vec![
+            point!(0.0, 1.0, 0.0),
+            point!(0.0, 0.0, 0.0),
+            point!(1.0, 0.0, 0.0),
+            point!(1.0, 1.0, 0.0),
+        ]));
     }
 }

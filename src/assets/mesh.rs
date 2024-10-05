@@ -26,6 +26,7 @@ use std::{
     fmt::{Display, Formatter},
     str::FromStr,
 };
+use crate::assets::edge::Edge;
 
 /// Wrapper type for [`Point3D<f64>`] representing a rotation in picoCAD.
 /// If you want to access the raw [`Point3D`] type that is wrapped you can access it using an index
@@ -213,6 +214,32 @@ impl Mesh {
             faces: vec![],
         }
     }
+
+    // TODO: tests, docs
+    pub fn edges(&self) -> Vec<Edge> {
+        let mut face_edges: Vec<Edge> = vec![];
+
+        for face in self.faces.iter() {
+            let edges = face.edges(&self.vertices);
+
+            for edge in edges {
+                if !face_edges.contains(&edge) {
+                    face_edges.push(edge)
+                }
+            }
+        }
+
+        face_edges
+    }
+
+    #[cfg(feature = "svg")]
+    pub fn svg_path_data(&self, angle: SVGAngle, scale: f64) -> Data {
+        let data = Data::new();
+
+
+
+        data
+    }
 }
 
 impl Display for Mesh {
@@ -388,6 +415,13 @@ pub mod tests {
     #[test]
     fn test_mesh_parse() {
         assert_eq!(TEST_MESH, TEST_MESH.parse::<Mesh>().unwrap().to_string());
+    }
+
+    #[test]
+    fn test_mesh_edges() {
+        let mesh = TEST_MESH.parse::<Mesh>().unwrap();
+
+        dbg!(mesh.edges());
     }
 
     const TEST_MESH: &str = r#"{

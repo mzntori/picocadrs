@@ -5,6 +5,7 @@ pub mod header;
 pub mod mesh;
 pub mod model;
 pub mod point;
+pub mod edge;
 
 pub use color::Color;
 pub use face::{Face, UVMap};
@@ -13,3 +14,4 @@ pub use header::Header;
 pub use mesh::{Mesh, Rotation};
 pub use model::Model;
 pub use point::{Point2D, Point3D};
+pub use edge::Edge;
