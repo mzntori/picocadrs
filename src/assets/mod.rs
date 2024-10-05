@@ -15,3 +15,5 @@ pub use mesh::{Mesh, Rotation};
 pub use model::Model;
 pub use point::{Point2D, Point3D};
 pub use edge::Edge;
+#[cfg(feature = "svg")]
+pub use mesh::SVGAngle;
