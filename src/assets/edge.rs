@@ -1,9 +1,9 @@
-use crate::assets::{Point3D, UVMap};
+use crate::assets::Point3D;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Edge {
-    start: Point3D<f64>,
-    end: Point3D<f64>,
+    pub start: Point3D<f64>,
+    pub end: Point3D<f64>,
 }
 
 impl Edge {
