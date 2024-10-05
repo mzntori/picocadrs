@@ -218,7 +218,7 @@ impl Mesh {
         }
     }
 
-    // TODO: tests, docs
+    /// Generates a vector containing all edges this mesh owns.
     pub fn edges(&self) -> Vec<Edge> {
         let mut face_edges: Vec<Edge> = vec![];
 
@@ -235,7 +235,10 @@ impl Mesh {
         face_edges
     }
 
-    // TODO: docs
+    /// Generates SVG path data for all edges of this mesh.
+    /// Requires the `svg` feature.
+    ///
+    /// For more information on how to use the path data, take a look at the [`svg`](https://docs.rs/svg/latest/svg/index.html) crate.
     #[cfg(feature = "svg")]
     pub fn svg_path_data(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> Data {
         let mut data = Data::new();

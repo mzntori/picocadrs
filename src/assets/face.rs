@@ -48,6 +48,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 #[cfg(feature = "svg")]
 use svg::node::element::path::Data;
+#[cfg(feature = "svg")]
 use crate::assets::mesh::SVGAngle;
 
 /// Represents uv-coordinates and the vertex they correspond to.
@@ -164,7 +165,10 @@ impl Face {
         result
     }
 
-    // TODO: docs, tests
+    /// Generates SVG path data for all edges of this face.
+    /// Requires the `svg` feature.
+    ///
+    /// For more information on how to use the path data, take a look at the [`svg`](https://docs.rs/svg/latest/svg/index.html) crate.
     #[cfg(feature = "svg")]
     pub fn svg_path_data(&self, vertices: &Vec<Point3D<f64>>, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> Data {
         let mut data = Data::new();
