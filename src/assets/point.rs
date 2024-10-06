@@ -351,7 +351,6 @@ impl Point3D<f64> {
                 self.x * -scale + offset.u,
                 self.y * scale + offset.v,
             ),
-            SVGAngle::Custom(_) => (0.0, 0.0),
         }
     }
 }
@@ -494,13 +493,19 @@ macro_rules! point {
     };
 }
 
+/// Angle from where to render SVGs from.
+/// Angle describes the axis that faces the camera.
+/// These are equivalent to the fixed angles PicoCAD natively renders from.
+///
+/// - _`X`_: Bottom left perspective.
+/// - _`Y`_: Top left perspective.
+/// - _`Z`_: Bottom right perspective.
 #[cfg(feature = "svg")]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum SVGAngle {
     X,
     Y,
     Z,
-    Custom(Rotation),
 }
 
 #[cfg(test)]
