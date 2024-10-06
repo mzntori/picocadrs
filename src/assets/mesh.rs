@@ -161,8 +161,8 @@ impl Rotation {
     /// assert!(rot.equal_rotation(&actual_rot));
     /// ```
     pub fn equal_rotation(&self, other: &Rotation) -> bool {
-        let mut left = self.clone();
-        let mut right = other.clone();
+        let mut left = *self;
+        let mut right = *other;
 
         left.round();
         left.normalize();

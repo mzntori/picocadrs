@@ -14,16 +14,16 @@ fn readme() {
     println!("Model name: {}", model.header.name); // "Model name: test"
     println!("Amount of meshes: {}", model.meshes.len()); // "Amount of meshes: 1"
 
-    let mesh = model.meshes.get(0).unwrap();
+    let mesh = model.meshes.first().unwrap();
     println!("Mesh name: {}", mesh.name); // "Mesh name: plane"
     println!("Mesh position: {}", mesh.position); // "Mesh position: 0,0,0"
 
-    let face = mesh.faces.get(0).unwrap();
+    let face = mesh.faces.first().unwrap();
     println!("Face color: {}", face.color.as_i32()); // "Face color: 6"
     println!("Double sided: {}", face.double_sided); // "Double sided: true"
     println!("No texture: {}", face.no_texture); // "No texture: false"
 
-    print!("\n");
+    println!();
 
     // Of course, you can change these values too.
     let mut model = Model::load(OsString::from("test")).unwrap();

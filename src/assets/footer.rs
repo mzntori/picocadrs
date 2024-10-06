@@ -372,7 +372,7 @@ pub mod tests {
 
     #[test]
     fn footer_read() {
-        let mut footer = TEST_FOOTER.parse::<Footer>().unwrap();
+        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
 
         assert_eq!(footer.read(point!(1.25, 0.75)), Color::from('8'));
         assert_eq!(footer.read(point!(-0.75, 0.5)), Color::Invalid);
