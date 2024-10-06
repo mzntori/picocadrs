@@ -320,7 +320,6 @@ impl<T> Point3D<T> {
 }
 
 impl Point3D<f64> {
-    // TODO: custom angle
     /// Generates the position of a point for SVG render at a given [`angle`](SVGAngle).
     /// Custom angles are not supported yet and will always return `(0.0, 0.0)`.
     ///
