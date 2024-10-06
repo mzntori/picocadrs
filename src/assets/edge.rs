@@ -26,10 +26,7 @@ pub struct Edge {
 
 impl Edge {
     pub fn new(start: Point3D<f64>, end: Point3D<f64>) -> Edge {
-        Edge {
-            start,
-            end
-        }
+        Edge { start, end }
     }
 }
 
@@ -42,8 +39,8 @@ impl PartialEq for Edge {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::point;
     use super::*;
+    use crate::point;
 
     #[test]
     fn test_eq() {

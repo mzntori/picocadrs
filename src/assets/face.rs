@@ -40,6 +40,8 @@
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
 use crate::assets::edge::Edge;
+#[cfg(feature = "svg")]
+use crate::assets::SVGAngle;
 use crate::assets::{Color, Point2D, Point3D};
 use crate::error::PicoError;
 use crate::point;
@@ -48,8 +50,6 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 #[cfg(feature = "svg")]
 use svg::node::element::path::Data;
-#[cfg(feature = "svg")]
-use crate::assets::SVGAngle;
 
 /// Represents uv-coordinates and the vertex they correspond to.
 ///
@@ -150,7 +150,7 @@ impl Face {
         for uv_map in self.uv_maps.iter() {
             let vertex = match vertices.get(uv_map.vertex_index) {
                 None => continue,
-                Some(v) => v
+                Some(v) => v,
             };
 
             if vertex != last {
@@ -170,7 +170,13 @@ impl Face {
     ///
     /// For more information on how to use the path data, take a look at the [`svg`](https://docs.rs/svg/latest/svg/index.html) crate.
     #[cfg(feature = "svg")]
-    pub fn svg_path_data(&self, vertices: &Vec<Point3D<f64>>, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> Data {
+    pub fn svg_path_data(
+        &self,
+        vertices: &Vec<Point3D<f64>>,
+        angle: SVGAngle,
+        scale: f64,
+        offset: Point2D<f64>,
+    ) -> Data {
         let mut data = Data::new();
 
         for edge in self.edges(vertices) {
@@ -421,7 +427,6 @@ pub mod tests {
         assert_eq!(face.uv_maps[1], UVMap::new(2, point!(1.25, 0.0)));
     }
 
-
     #[test]
     fn test_edges() {
         let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
@@ -442,27 +447,27 @@ pub mod tests {
 #[cfg(feature = "svg")]
 pub mod tests_svg {
     use super::*;
-    #[cfg(feature = "svg")]
-    use svg::{
-        node::element::Path,
-        Document,
-    };
     use crate::assets::Mesh;
+    #[cfg(feature = "svg")]
+    use svg::{node::element::Path, Document};
 
     #[test]
     #[cfg(feature = "svg")]
     fn test_face_svg() {
         let mesh = TEST_MESH.parse::<Mesh>().unwrap();
 
-        let mut document = Document::new()
-            .set("viewBox", (-100, -100, 200, 200));
+        let mut document = Document::new().set("viewBox", (-100, -100, 200, 200));
 
         for face in mesh.faces.clone() {
-            document = document.add(Path::new()
-                .set("fill", "none")
-                .set("stroke", format!("#{}", face.color.as_hex()))
-                .set("stroke-width", 1)
-                .set("d", face.svg_path_data(&mesh.vertices, SVGAngle::Z, 5.0, point!(0.0, 0.0)))
+            document = document.add(
+                Path::new()
+                    .set("fill", "none")
+                    .set("stroke", format!("#{}", face.color.as_hex()))
+                    .set("stroke-width", 1)
+                    .set(
+                        "d",
+                        face.svg_path_data(&mesh.vertices, SVGAngle::Z, 5.0, point!(0.0, 0.0)),
+                    ),
             );
         }
 

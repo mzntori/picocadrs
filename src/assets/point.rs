@@ -8,7 +8,6 @@ use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 use std::str::FromStr;
-use crate::assets::Rotation;
 
 /// Represents a 2-dimensional point in space.
 /// In this crates context used for uv-mapping.
@@ -338,18 +337,9 @@ impl Point3D<f64> {
     #[cfg(feature = "svg")]
     pub fn svg_position(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> (f64, f64) {
         match angle {
-            SVGAngle::X => (
-                self.z * scale + offset.u,
-                self.y * scale + offset.v,
-            ),
-            SVGAngle::Y => (
-                self.z * scale + offset.u,
-                self.x * scale + offset.v,
-            ),
-            SVGAngle::Z => (
-                self.x * -scale + offset.u,
-                self.y * scale + offset.v,
-            ),
+            SVGAngle::X => (self.z * scale + offset.u, self.y * scale + offset.v),
+            SVGAngle::Y => (self.z * scale + offset.u, self.x * scale + offset.v),
+            SVGAngle::Z => (self.x * -scale + offset.u, self.y * scale + offset.v),
         }
     }
 }
@@ -659,8 +649,17 @@ pub mod tests_svg {
     fn test_svg_position() {
         let p = point!(0.0, 1.0, -1.0);
 
-        assert_eq!(p.svg_position(SVGAngle::X, 1.5, point!(1.0, 1.0)), (-0.5, 2.5));
-        assert_eq!(p.svg_position(SVGAngle::Y, 2.0, point!(0.0, 0.0)), (-2.0, 0.0));
-        assert_eq!(p.svg_position(SVGAngle::Z, -1.0, point!(1.0, 0.0)), (1.0, -1.0));
+        assert_eq!(
+            p.svg_position(SVGAngle::X, 1.5, point!(1.0, 1.0)),
+            (-0.5, 2.5)
+        );
+        assert_eq!(
+            p.svg_position(SVGAngle::Y, 2.0, point!(0.0, 0.0)),
+            (-2.0, 0.0)
+        );
+        assert_eq!(
+            p.svg_position(SVGAngle::Z, -1.0, point!(1.0, 0.0)),
+            (1.0, -1.0)
+        );
     }
 }

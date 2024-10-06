@@ -17,12 +17,17 @@
 //! that only apply to rotation in picoCAD.
 
 use crate::assets::edge::Edge;
-use crate::assets::Point2D;
+
 use crate::{
-    assets::{Face, Point3D, SVGAngle},
+    assets::{Face, Point3D},
     error::PicoError,
     point,
 };
+
+#[cfg(feature = "svg")]
+use crate::assets::Point2D;
+#[cfg(feature = "svg")]
+use crate::assets::SVGAngle;
 use rlua::{Lua, Table, Value};
 use std::{
     fmt::{Display, Formatter},
