@@ -120,12 +120,15 @@ impl Face {
     /// # Example
     ///
     /// ```
+    /// use picocadrs::point;
+    /// use picocadrs::assets::{Point3D, Face};
+    ///
     /// let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
     ///     uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
     ///     .parse::<Face>()
     ///     .unwrap();
     ///
-    /// dbg!(face.edges(vec![
+    /// dbg!(face.edges(&vec![
     ///     point!(0.0, 1.0, 0.0),
     ///     point!(0.0, 0.0, 0.0),
     ///     point!(1.0, 0.0, 0.0),
