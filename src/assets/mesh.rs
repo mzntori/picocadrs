@@ -19,7 +19,7 @@
 use crate::assets::edge::Edge;
 use crate::assets::Point2D;
 use crate::{
-    assets::{Face, Point3D},
+    assets::{Face, Point3D, SVGAngle},
     error::PicoError,
     point,
 };
@@ -370,15 +370,6 @@ impl FromStr for Mesh {
 
         mesh
     }
-}
-
-#[cfg(feature = "svg")]
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum SVGAngle {
-    X,
-    Y,
-    Z,
-    Custom(Rotation),
 }
 
 #[cfg(test)]

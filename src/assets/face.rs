@@ -49,7 +49,7 @@ use std::str::FromStr;
 #[cfg(feature = "svg")]
 use svg::node::element::path::Data;
 #[cfg(feature = "svg")]
-use crate::assets::mesh::SVGAngle;
+use crate::assets::SVGAngle;
 
 /// Represents uv-coordinates and the vertex they correspond to.
 ///

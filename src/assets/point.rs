@@ -8,8 +8,7 @@ use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
 use std::str::FromStr;
-#[cfg(feature = "svg")]
-use crate::assets::mesh::SVGAngle;
+use crate::assets::Rotation;
 
 /// Represents a 2-dimensional point in space.
 /// In this crates context used for uv-mapping.
@@ -493,6 +492,15 @@ macro_rules! point {
             z: $z,
         }
     };
+}
+
+#[cfg(feature = "svg")]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum SVGAngle {
+    X,
+    Y,
+    Z,
+    Custom(Rotation),
 }
 
 #[cfg(test)]
