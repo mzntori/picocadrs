@@ -176,7 +176,7 @@ impl Face {
             vertices.push(mesh_vertices.get(uv_map.vertex_index));
         }
 
-        vertices.into_iter().filter_map(|x| x).map(|y| *y).collect()
+        vertices.into_iter().flatten().copied().collect()
     }
 
     /// Generates SVG path data for all edges of this face.
