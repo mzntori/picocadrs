@@ -135,12 +135,12 @@ impl Face {
     ///     point!(1.0, 1.0, 0.0),
     /// ]));
     /// ```
-    pub fn edges(&self, vertices: &Vec<Point3D<f64>>) -> Vec<Edge> {
+    pub fn edges(&self, mesh_vertices: &Vec<Point3D<f64>>) -> Vec<Edge> {
         if self.uv_maps.len() < 2 {
             return vec![];
         }
 
-        let start = match vertices.get(self.uv_maps[0].vertex_index) {
+        let start = match mesh_vertices.get(self.uv_maps[0].vertex_index) {
             Some(point) => point,
             None => {
                 return vec![];
@@ -151,7 +151,7 @@ impl Face {
         let mut last: &Point3D<f64> = start;
 
         for uv_map in self.uv_maps.iter() {
-            let vertex = match vertices.get(uv_map.vertex_index) {
+            let vertex = match mesh_vertices.get(uv_map.vertex_index) {
                 None => continue,
                 Some(v) => v,
             };
@@ -168,6 +168,17 @@ impl Face {
         result
     }
 
+    /// Returns a vector of all vertices a face touches in order.
+    pub fn vertices(&self, mesh_vertices: &Vec<Point3D<f64>>) -> Vec<Point3D<f64>> {
+        let mut vertices: Vec<Option<&Point3D<f64>>> = vec![];
+
+        for uv_map in self.uv_maps.iter() {
+            vertices.push(mesh_vertices.get(uv_map.vertex_index));
+        }
+
+        vertices.into_iter().filter_map(|x| x).map(|y| *y).collect()
+    }
+
     /// Generates SVG path data for all edges of this face.
     /// Requires the `svg` feature.
     ///
@@ -175,20 +186,50 @@ impl Face {
     #[cfg(feature = "svg")]
     pub fn svg_path_data(
         &self,
-        vertices: &Vec<Point3D<f64>>,
+        mesh_vertices: &Vec<Point3D<f64>>,
         angle: SVGAngle,
         scale: f64,
         offset: Point2D<f64>,
     ) -> Data {
         let mut data = Data::new();
 
-        for edge in self.edges(vertices) {
-            data = data
-                .move_to(edge.start.svg_position(angle, scale, offset))
-                .line_to(edge.end.svg_position(angle, scale, offset));
+        for (i, vertex) in self.vertices(mesh_vertices).iter().enumerate() {
+            data = if i == 0 {
+                data.move_to(vertex.svg_position(angle, scale, offset))
+            } else {
+                data.line_to(vertex.svg_position(angle, scale, offset))
+            }
         }
 
-        data
+        data.close()
+    }
+
+    /// Generates a string of SVG path data for all edges of this face.
+    /// Requires the `svg` feature.
+    ///
+    /// Will Always generate a closed path.
+    #[cfg(feature = "svg")]
+    pub fn svg_path(
+        &self,
+        mesh_vertices: &Vec<Point3D<f64>>,
+        angle: SVGAngle,
+        scale: f64,
+        offset: Point2D<f64>,
+    ) -> String {
+        let mut path = String::new();
+
+        for (i, vertex) in self.vertices(mesh_vertices).iter().enumerate() {
+            let pos = vertex.svg_position(angle, scale, offset);
+
+            if i == 0 {
+                path.push_str(format!("M{},{} ", pos.0, pos.1).as_str());
+            } else {
+                path.push_str(format!("L{},{} ", pos.0, pos.1).as_str());
+            }
+        }
+
+        path.push('z');
+        path
     }
 }
 
@@ -469,12 +510,22 @@ pub mod tests_svg {
                     .set("stroke-width", 1)
                     .set(
                         "d",
-                        face.svg_path_data(&mesh.vertices, SVGAngle::Z, 5.0, point!(0.0, 0.0)),
+                        face.svg_path_data(&mesh.vertices, SVGAngle::X, 5.0, point!(0.0, 0.0)),
                     ),
             );
         }
 
         svg::save("test_output_files/svg_face_test_x.svg", &document).unwrap();
+    }
+
+    #[test]
+    #[cfg(feature = "svg")]
+    fn test_face_svg_path() {
+        let mesh = TEST_MESH.parse::<Mesh>().unwrap();
+
+        for face in mesh.faces.iter() {
+            dbg!(face.svg_path(&mesh.vertices, SVGAngle::X, 5.0, point!(0.0, 0.0)));
+        }
     }
 
     const TEST_MESH: &str = r#"{

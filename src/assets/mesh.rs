@@ -240,21 +240,28 @@ impl Mesh {
         face_edges
     }
 
-    /// Generates SVG path data for all edges of this mesh.
+    /// Returns a vector of SVG path data for each face of the mesh.
     /// Requires the `svg` feature.
     ///
     /// For more information on how to use the path data, take a look at the [`svg`](https://docs.rs/svg/latest/svg/index.html) crate.
     #[cfg(feature = "svg")]
-    pub fn svg_path_data(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> Data {
-        let mut data = Data::new();
+    pub fn svg_path_data(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> Vec<Data> {
+        let mut data: Vec<Data> = vec![];
 
-        for edge in self.edges() {
-            data = data
-                .move_to(edge.start.svg_position(angle, scale, offset))
-                .line_to(edge.end.svg_position(angle, scale, offset));
+        for face in self.faces.iter() {
+            data.push(face.svg_path_data(&self.vertices, angle, scale, offset));
         }
 
         data
+    }
+
+    #[cfg(feature = "svg")]
+    pub fn svg_path(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> String {
+        let mut path = String::new();
+
+
+
+        path
     }
 }
 
@@ -474,16 +481,21 @@ pub mod tests_svg {
     #[cfg(feature = "svg")]
     fn test_svg() {
         let mesh = TEST_MESH.parse::<Mesh>().unwrap();
+        let datas = mesh.svg_path_data(SVGAngle::Z, 20.0, point!(0.0, 0.0));
 
-        let path = Path::new()
-            .set("fill", "none")
-            .set("stroke", "black")
-            .set("stroke-width", 1)
-            .set("d", mesh.svg_path_data(SVGAngle::Z, 20.0, point!(0.0, 0.0)));
+        let mut document = Document::new()
+            .set("viewBox", (-100, -100, 200, 200));
 
-        let document = Document::new()
-            .set("viewBox", (-100, -100, 200, 200))
-            .add(path);
+        for (data, face) in datas.into_iter().zip(mesh.faces) {
+            let path = Path::new()
+                .set("fill", format!("#{}55", face.color.as_hex()))
+                .set("stroke", format!("#{}", face.color.as_hex()))
+                .set("stroke-width", 1)
+                .set("d", data);
+
+            document = document.add(path);
+        }
+
 
         svg::save("test_output_files/svg_test_x.svg", &document).unwrap();
     }
