@@ -254,15 +254,6 @@ impl Mesh {
 
         data
     }
-
-    #[cfg(feature = "svg")]
-    pub fn svg_path(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> String {
-        let mut path = String::new();
-
-
-
-        path
-    }
 }
 
 impl Display for Mesh {
@@ -483,8 +474,7 @@ pub mod tests_svg {
         let mesh = TEST_MESH.parse::<Mesh>().unwrap();
         let datas = mesh.svg_path_data(SVGAngle::Z, 20.0, point!(0.0, 0.0));
 
-        let mut document = Document::new()
-            .set("viewBox", (-100, -100, 200, 200));
+        let mut document = Document::new().set("viewBox", (-100, -100, 200, 200));
 
         for (data, face) in datas.into_iter().zip(mesh.faces) {
             let path = Path::new()
@@ -495,7 +485,6 @@ pub mod tests_svg {
 
             document = document.add(path);
         }
-
 
         svg::save("test_output_files/svg_test_x.svg", &document).unwrap();
     }

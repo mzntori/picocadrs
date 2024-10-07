@@ -135,7 +135,7 @@ impl Face {
     ///     point!(1.0, 1.0, 0.0),
     /// ]));
     /// ```
-    pub fn edges(&self, mesh_vertices: &Vec<Point3D<f64>>) -> Vec<Edge> {
+    pub fn edges(&self, mesh_vertices: &[Point3D<f64>]) -> Vec<Edge> {
         if self.uv_maps.len() < 2 {
             return vec![];
         }
@@ -169,7 +169,7 @@ impl Face {
     }
 
     /// Returns a vector of all vertices a face touches in order.
-    pub fn vertices(&self, mesh_vertices: &Vec<Point3D<f64>>) -> Vec<Point3D<f64>> {
+    pub fn vertices(&self, mesh_vertices: &[Point3D<f64>]) -> Vec<Point3D<f64>> {
         let mut vertices: Vec<Option<&Point3D<f64>>> = vec![];
 
         for uv_map in self.uv_maps.iter() {
@@ -186,7 +186,7 @@ impl Face {
     #[cfg(feature = "svg")]
     pub fn svg_path_data(
         &self,
-        mesh_vertices: &Vec<Point3D<f64>>,
+        mesh_vertices: &[Point3D<f64>],
         angle: SVGAngle,
         scale: f64,
         offset: Point2D<f64>,
@@ -211,7 +211,7 @@ impl Face {
     #[cfg(feature = "svg")]
     pub fn svg_path(
         &self,
-        mesh_vertices: &Vec<Point3D<f64>>,
+        mesh_vertices: &[Point3D<f64>],
         angle: SVGAngle,
         scale: f64,
         offset: Point2D<f64>,
@@ -478,7 +478,7 @@ pub mod tests {
             .parse::<Face>()
             .unwrap();
 
-        dbg!(face.edges(&vec![
+        dbg!(face.edges(&[
             point!(0.0, 1.0, 0.0),
             point!(0.0, 0.0, 0.0),
             point!(1.0, 0.0, 0.0),
