@@ -3,7 +3,7 @@
 //! This module houses the structs [`Point2D`] and [`Point3D`] that describe points in either 2- or
 //! 3-dimensional space.
 
-use crate::error::PicoError;
+use crate::v1::error::PicoError;
 use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};

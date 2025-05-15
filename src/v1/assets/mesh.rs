@@ -11,23 +11,23 @@
 //! - _v (vertices):_ List of all the vertices relative to _position_ given as a point in
 //! 3-dimensional space.
 //! - _f (faces):_ List of all faces the mesh has.
-//! More info on faces [`here`](crate::assets::face).
+//! More info on faces [`here`](crate::v1::assets::face).
 //!
 //! This module also provides a wrapper struct for [`rotation`](Rotation) which implements some useful methods
 //! that only apply to rotation in picoCAD.
 
-use crate::assets::edge::Edge;
+use crate::v1::assets::edge::Edge;
 
 use crate::{
-    assets::{Face, Point3D},
-    error::PicoError,
     point,
+    v1::assets::{Face, Point3D},
+    v1::error::PicoError,
 };
 
 #[cfg(feature = "svg")]
-use crate::assets::Point2D;
+use crate::v1::assets::Point2D;
 #[cfg(feature = "svg")]
-use crate::assets::SVGAngle;
+use crate::v1::assets::SVGAngle;
 use rlua::{Lua, Table, Value};
 use std::{
     fmt::{Display, Formatter},

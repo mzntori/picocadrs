@@ -1,385 +1,331 @@
-//! For the footer of a picoCAD project.
+//! Houses the struct representing a model which is equivalent to all the information a
+//! picoCAD file holds.
 //!
-//! <br/>
-//!
-//! This part of the file saves the texture that is used for uv-mapping.
-//! It consists of 120 lines of 128 characters each.
-//! Each character is a hex digit and indicates the color at this position.
-//! For more information on which characters stands for what color, look at
-//! [this](https://pico-8.fandom.com/wiki/Palette#0..15:_Official_base_colors) table.
-//!
-//! The first character in the first line is at `u=0, v=0`, where `u` extends to the right and
-//! `v` downwards.
-//! Internally coordinates are stored as float numbers where `0 - 16` are the outer
-//! borders for `u` and `0 - 15` for `v`.
-//! Any numbers above or below will still be mapped appropriately, but will not return good results
-//! in most cases but are not disallowed by picoCAD.
+//! A picoCAD file consists of 3 main parts.
+//! - _[`header`](crate::v1::assets::header):_ Contains general settings of the project,
+//! like background color or name.
+//! Each component is seperated by `;`.
+//! Its end is indicated by a newline (`\n`) character, meaning this is always the first line of the
+//! file.
+//! - _[`meshes`](crate::v1::assets::mesh):_ This is a [`lua table`](https://www.lua.org/pil/2.5.html)
+//! holding a list of meshes.
+//! The order these are in does not matter.
+//! Each mesh itself is also represented as a [`lua table`](https://www.lua.org/pil/2.5.html).
+//! Aside from the lua table's closing bracket the end of this section is indicated by a `%`
+//! - _[`footer`](crate::v1::assets::footer):_ Holds the texture used for uv mapping.
 
 use crate::{
-    assets::{Color, Point2D},
-    error::PicoError,
-    point,
+    v1::assets::{Footer, Header, Mesh},
+    v1::error::PicoError,
+    v1::paths::projects_path,
 };
-use std::fmt::{Display, Formatter};
-use std::ops::{Index, IndexMut};
-use std::str::FromStr;
+use rlua::{Lua, Table};
+use std::ffi::OsString;
+use std::{
+    fmt::{Display, Formatter},
+    io::Write,
+    path::PathBuf,
+    str::FromStr,
+};
 
-/// Represents the bottom of a picoCAD file.
+/// A picoCAD model.
+///
+/// This contains the same information a picoCAD project file does.
+/// It is split into three parts.
+///
+/// - The [`Header`] contains general settings of the project, like background color or name.
+/// - After the header there is a list of [`meshes`](Mesh) that combined define the 3-dimensional structure of
+/// the model.
+/// This part also takes care of uv-mapping.
+/// - At the end is the [`Footer`] which holds the texture used for uv-mapping.
 ///
 /// <br/>
 ///
-/// This part of the file saves the texture that is used for uv-mapping.
-/// It consists of 120 lines of 128 characters each.
-///
-/// The first character in the first line is at `u=0, v=0`, where `u` extends to the right and
-/// `v` downwards.
-/// Internally coordinates are stored as float numbers where `0 - 16` are the outer
-/// borders for `u` and `0 - 15` for `v`.
-/// Any numbers above or below will still be mapped appropriately, but will not return good results
-/// in most cases but are not disallowed by this struct.
-///
-/// <br/>
-///
-/// This means that the color at `u=1, v=0.25` is represented by the 9th character in the 3rd line.
-/// Since indexing by float numbers can be a bit annoying at times this struct has APIs for access
-/// via floats and whole numbers.
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Footer {
-    data: Vec<Color>,
+/// It is important that there is a newline character after the header as well as a '%' before the
+/// footer to assure the file can be parsed properly.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Model {
+    /// Header of the file.
+    pub header: Header,
+    /// Meshes, this model consists of.
+    pub meshes: Vec<Mesh>,
+    /// Footer, holding the texture for uv mapping.
+    pub footer: Footer,
 }
 
-impl Footer {
-    /// Length the private `data` field should have, and the amount of pixels the texture has.
+impl Model {
+    /// Loads a model from an absolute path.
     ///
-    /// `120 * 128 = 15360`.
-    const DATA_LENGHT: usize = 15360;
+    /// It's recommended to use [`load`](Model::load).
+    pub fn load_from_path(path: OsString) -> Result<Model, PicoError> {
+        let file_string = std::fs::read_to_string(path)?;
 
-    /// Checks if every pixel in the texture has the same color.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use picocadrs::assets::Footer;
-    ///
-    /// let footer = Footer::default();
-    /// assert!(footer.is_solid());
-    /// ```
-    pub fn is_solid(&self) -> bool {
-        let comp = self.data[0];
-
-        for pixel in self.data.iter() {
-            if pixel != &comp {
-                return false;
-            }
-        }
-
-        true
+        file_string.parse::<Model>()
     }
 
-    /// Get a reference to the color at the given index in [`usize`].
-    /// This uses the actual pixel position in the texture.
-    /// `0, 0` is located in the top left corner.
+    /// Loads a model from a given file-name.
     ///
-    /// Returns [`None`] if coordinates are out of bounds.
-    ///
-    /// `u` is out of bounds if `>= 128`.
-    ///
-    /// `v` is out of bounds if `>= 120`.
-    ///
-    /// <br/>
-    ///
-    /// Currently, no `get_mut` method as [`Color`] does not have any methods that take a mutable
-    /// reference of self.
+    /// Returns an error if the users home directory can't be found ([`PicoError::NoHomeDirectory`])
+    /// or if file doesn't exist [`PicoError::IO`].
     ///
     /// # Example
     ///
+    /// ```no_run
+    /// use std::ffi::OsString;
+    /// use picocadrs::assets::Model;
+    ///
+    /// // Requires a valid picoCAD project file in projects folder called "test.txt"
+    /// let model = Model::load(OsString::from("test.txt")).unwrap();
+    ///
+    /// assert_eq!(model.header.name, "test");
     /// ```
-    /// use picocadrs::assets::{Color, Point2D, Footer};
-    /// use picocadrs::point;
-    ///
-    /// let mut footer = Footer::default();
-    ///
-    /// footer.set(point!(3, 2), Color::Lavender).expect("uv index out of range");
-    ///
-    /// assert_eq!(
-    ///     footer.get(point!(3, 2)).unwrap(),
-    ///     &Color::Lavender
-    /// );
-    /// ```
-    pub fn get(&self, coords: Point2D<usize>) -> Option<&Color> {
-        return if coords.u > 127 || coords.v > 119 {
-            None
+    pub fn load(file_name: OsString) -> Result<Model, PicoError> {
+        if let Some(mut projects_path) = projects_path() {
+            projects_path.push(file_name);
+            projects_path.push(".txt");
+            Model::load_from_path(projects_path)
         } else {
-            Some(self.index(coords))
-        };
-    }
-
-    /// Sets the color at the given index in [`usize`].
-    /// This uses the actual pixel position in the texture.
-    /// `0, 0` is located in the top left corner.
-    ///
-    /// Returns a [`PicoError::IndexUSIZE`] if index is out of bounds.
-    ///
-    /// `u` is out of bounds if `>= 128`.
-    ///
-    /// `v` is out of bounds if `>= 120`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use picocadrs::assets::{Color, Point2D, Footer};
-    /// use picocadrs::point;
-    ///
-    /// let mut footer = Footer::default();
-    ///
-    /// assert_eq!(
-    ///     footer.get(point!(3, 2)).unwrap(),
-    ///     &Color::Black
-    /// );
-    ///
-    /// footer.set(point!(3, 2), Color::Lavender).expect("uv index out of range");
-    ///
-    /// assert_eq!(
-    ///     footer.get(point!(3, 2)).unwrap(),
-    ///     &Color::Lavender
-    /// );
-    /// ```
-    pub fn set(&mut self, coords: Point2D<usize>, value: Color) -> Result<(), PicoError> {
-        if coords.u > 127 || coords.v > 119 {
-            Err(PicoError::IndexUSIZE(coords, point!(128, 120)))
-        } else {
-            self[coords] = value;
-            Ok(())
+            Err(PicoError::NoHomeDirectory)
         }
     }
 
-    /// Reads the color at the given uv coordinates and returns a copy of the color
-    /// at the given position.
-    /// If you want to index with whole numbers representing pixels consider using [`get`](Footer::get) instead.
+    /// Writes the model to the project file named after the value in [`self.header.name`](Header).
     ///
-    /// `0.0, 0.0` is located in the top left corner.
-    /// Returns [`Color::Invalid`] if coordinates are outside the texture.
+    /// This means if that field contains the string `my_model` this will be written to
+    /// `{result from` [`projects_path`]`}/my_model.txt`.
     ///
-    /// `u` is out of bounds if `-0.0625 > u` or `u >= 15.9375`.
+    /// Returns errors if files can't be written to.
     ///
-    /// `v` is out of bounds if `-0.0625 > v` or `v >= 14.9375`.
-    ///
-    /// This means each pixel "owns" a region of `0.125 x 0.125`.
+    /// Contents of the file will be overwritten.
     ///
     /// # Example
     ///
+    /// ```no_run
+    /// use picocadrs::assets::Model;
+    /// use std::ffi::OsString;
+    ///
+    /// let mut model = Model::default();
+    /// model.header.name = "model_write_example".to_string();
+    /// model.write().unwrap();
+    ///
+    /// let read_model = Model::load(OsString::from("model_write_example")).unwrap();
+    ///
+    /// assert_eq!(model, read_model);
     /// ```
-    /// use picocadrs::assets::{Color, Point2D, Footer};
-    /// use picocadrs::point;
-    ///
-    /// let mut footer = Footer::default();
-    ///
-    /// footer.set(point!(6, 4), Color::Lavender).expect("uv index out of range");
-    ///
-    /// assert_eq!(footer.read(point!(0.75, 0.5)), Color::Lavender);
-    /// assert_eq!(footer.read(point!(-0.75, 0.5)), Color::Invalid);
-    /// assert_eq!(footer.read(point!(15.95, 0.5)), Color::Invalid);
-    /// ```
-    pub fn read(&self, coords: Point2D<f64>) -> Color {
-        if -0.0625 > coords.u || coords.u >= 15.9375 || -0.0625 > coords.v || coords.v >= 14.9375 {
-            Color::Invalid
-        } else {
-            self[point!(
-                (coords.u * 8.0).round() as usize,
-                (coords.v * 8.0).round() as usize
-            )]
-        }
+    pub fn write(&self) -> Result<(), PicoError> {
+        let mut path = PathBuf::from(projects_path().unwrap());
+        path.push(self.header.name.clone());
+        path.set_extension("txt");
+
+        let mut file = std::fs::File::create(path)?;
+        file.write_all(self.to_string().as_bytes())?;
+
+        Ok(())
     }
 }
 
-impl Default for Footer {
-    /// Creates an empty Footer.
-    /// The texture is fully black.
+impl Default for Model {
+    /// Creates a new Model with a default header and footer and no meshes.
     ///
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Footer;
+    /// use picocadrs::assets::{Model, Footer, Header};
     ///
-    /// let footer = Footer::default();
-    /// assert!(footer.is_solid());
+    /// let model = Model::default();
+    ///
+    /// assert_eq!(model.header, Header::default());
+    /// assert_eq!(model.footer, Footer::default());
+    /// assert!(model.meshes.is_empty());
     /// ```
     fn default() -> Self {
-        Footer {
-            data: vec![Color::Black; Footer::DATA_LENGHT],
+        Model {
+            header: Header::default(),
+            meshes: vec![],
+            footer: Footer::default(),
         }
     }
 }
 
-impl Display for Footer {
+impl Display for Model {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut chars: String = self.data.iter().map(|c| c.as_char()).collect();
+        let mut meshes = String::new();
 
-        for line in (1..=120).rev() {
-            chars.insert(line * 128, '\n');
+        for mesh in self.meshes.iter() {
+            meshes.push_str(format!("{},", mesh).as_str());
         }
+        meshes = meshes.trim_end_matches(',').to_string();
 
-        write!(f, "{}", chars)
+        write!(
+            f,
+            "{}\n{{\n{}\n}}%\n{}",
+            self.header,
+            meshes.trim_end_matches(','),
+            self.footer
+        )
     }
 }
 
-impl FromStr for Footer {
+impl FromStr for Model {
     type Err = PicoError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let data: Vec<Color> = s
-            .chars()
-            .filter_map(|c| match c {
-                ' ' | '\n' | '\r' => None,
-                _ => Some(Color::from(c)),
-            })
-            .collect();
+        let (header_str, meshes_str, footer_str) = seperate_model(s)?;
 
-        if data.len() != Footer::DATA_LENGHT {
-            return Err(PicoError::FooterLength(data.len()));
-        }
+        let header: Header = header_str.parse()?;
+        let footer: Footer = footer_str.parse()?;
 
-        Ok(Footer { data })
+        let mut meshes: Vec<Mesh> = vec![];
+        let mut lua_result: Result<(), PicoError> = Ok(());
+
+        // We would be fucked without '?' LUL
+        let lua = Lua::new();
+        lua.context(|ctx| match ctx.load(meshes_str).eval::<Table>() {
+            Ok(meshes_table) => {
+                for mesh_table_result in meshes_table.sequence_values::<Table>() {
+                    match mesh_table_result {
+                        Ok(mesh_table) => {
+                            let mesh_result = Mesh::try_from(mesh_table);
+
+                            match mesh_result {
+                                Ok(mesh) => meshes.push(mesh),
+                                Err(parse_error) => {
+                                    lua_result = Err(parse_error);
+                                    return;
+                                }
+                            }
+                        }
+                        Err(lua_err) => {
+                            lua_result = Err(PicoError::from(lua_err));
+                            return;
+                        }
+                    }
+                }
+            }
+            Err(lua_err) => {
+                lua_result = Err(PicoError::from(lua_err));
+            }
+        });
+
+        lua_result?;
+
+        Ok(Model {
+            header,
+            meshes,
+            footer,
+        })
     }
 }
 
-impl Index<Point2D<usize>> for Footer {
-    type Output = Color;
+/// Returns header, meshes and footer as their literal strings.
+/// If seperators do not exist this will fail.
+fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoError> {
+    let (header, rest) = if let Some(split) = model.split_once('\n') {
+        split
+    } else {
+        return Err(PicoError::Split(
+            r#"seperate header from meshes with '\n'"#.to_string(),
+        ));
+    };
 
-    /// Panics if `u >= 128` or `v >= 120`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use picocadrs::assets::{Footer, Color, Point2D};
-    /// use picocadrs::point;
-    ///
-    /// let footer = Footer::default();
-    ///
-    /// assert_eq!(footer[point!(0, 0)], Color::Black);
-    /// assert_eq!(footer[point!(127, 119)], Color::Black);
-    /// // assert_eq!(footer[point!(127, 120)], Color::Black); These panic
-    /// // assert_eq!(footer[point!(128, 119)], Color::Black);
-    /// ```
-    fn index(&self, index: Point2D<usize>) -> &Self::Output {
-        if index.u > 127 || index.v > 119 {
-            panic!("index out of range");
-        }
+    let (meshes, footer) = if let Some(split) = rest.rsplit_once('%') {
+        split
+    } else {
+        return Err(PicoError::Split(
+            r#"seperate meshes from footer with '%'"#.to_string(),
+        ));
+    };
 
-        let data_index = index.u + index.v * 128;
-
-        self.data.get(data_index).unwrap()
-    }
-}
-
-impl IndexMut<Point2D<usize>> for Footer {
-    /// Panics if `u >= 128` or `v >= 120`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use picocadrs::assets::{Footer, Color, Point2D};
-    /// use picocadrs::point;
-    ///
-    /// let footer = Footer::default();
-    ///
-    /// assert_eq!(footer[point!(0, 0)], Color::Black);
-    /// assert_eq!(footer[point!(127, 119)], Color::Black);
-    /// // assert_eq!(footer[point!(127, 120)], Color::Black); These panic
-    /// // assert_eq!(footer[point!(128, 119)], Color::Black);
-    /// ```
-    fn index_mut(&mut self, index: Point2D<usize>) -> &mut Self::Output {
-        if index.u > 127 || index.v > 119 {
-            panic!("index out of range");
-        }
-
-        let data_index = index.u + index.v * 128;
-
-        self.data.get_mut(data_index).unwrap()
-    }
+    Ok((header, meshes, footer))
 }
 
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::point;
+    use crate::v1::paths::projects_path;
 
     #[test]
-    fn footer_parse() {
-        let _footer = TEST_FOOTER.parse::<Footer>().unwrap();
+    fn test_model_parse() {
+        dbg!(TEST_FILE.parse::<Model>().unwrap());
     }
 
     #[test]
-    fn footer_serialize() {
-        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
-        assert_eq!(TEST_FOOTER, footer.to_string());
+    fn test_model_display() {
+        assert_eq!(TEST_FILE, TEST_FILE.parse::<Model>().unwrap().to_string())
     }
 
     #[test]
-    fn footer_default() {
-        let footer1 = TEST_FOOTER.parse::<Footer>().unwrap();
-        let footer2 = Footer::default();
+    fn test_model_default() {
+        let model = Model::default();
 
-        assert_ne!(footer1, footer2);
-        assert!(footer2.is_solid());
-        assert!(!footer1.is_solid());
+        assert_eq!(model.header, Header::default());
+        assert_eq!(model.footer, Footer::default());
+        assert!(model.meshes.is_empty());
+    }
+
+    /// Requires a file called `test3.txt` with the contents of [`TEST_FILE`]
+    #[test]
+    #[ignore]
+    fn test_model_load() {
+        let mut path: OsString = projects_path().unwrap();
+        path.push("test3.txt");
+
+        assert_eq!(TEST_FILE, Model::load_from_path(path).unwrap().to_string());
+
+        assert_eq!(
+            TEST_FILE,
+            Model::load(OsString::from("test3")).unwrap().to_string()
+        );
     }
 
     #[test]
-    fn footer_is_solid() {
-        let footer1 = TEST_FOOTER.parse::<Footer>().unwrap();
-        let footer2 = Footer::default();
+    #[ignore]
+    fn test_model_write() {
+        let mut model = TEST_FILE.parse::<Model>().unwrap();
+        model.header.name = "test_model_write".to_string();
+        model.write().unwrap();
 
-        assert_ne!(footer1, footer2);
-        assert!(footer2.is_solid());
-        assert!(!footer1.is_solid());
+        let read_model = Model::load(OsString::from("test_model_write")).unwrap();
+
+        assert_eq!(model, read_model);
     }
 
-    #[test]
-    fn footer_index() {
-        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
-
-        assert_eq!(footer[point!(0, 0)], Color::Black);
-        assert_eq!(footer[point!(13, 4)], Color::from('e'));
-        assert_eq!(footer[point!(127, 119)], Color::Black);
-        // assert_eq!(footer[point!(127, 120)], Color::Black); These panic
-        // assert_eq!(footer[point!(128, 119)], Color::Black);
-    }
-
-    #[test]
-    fn footer_get() {
-        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
-
-        assert_eq!(footer.get(point!(13, 4)).unwrap(), &Color::from('e'));
-        assert_eq!(footer.get(point!(0, 0)).unwrap(), &Color::Black);
-        assert_eq!(footer.get(point!(128, 1)), None);
-        assert_eq!(footer.get(point!(1, 120)), None);
-    }
-
-    #[test]
-    fn footer_set() {
-        let mut footer = TEST_FOOTER.parse::<Footer>().unwrap();
-
-        assert_eq!(footer.get(point!(3, 2)).unwrap(), &Color::Black);
-
-        footer
-            .set(point!(3, 2), Color::Lavender)
-            .expect("index out of range");
-        assert_eq!(footer.get(point!(3, 2)).unwrap(), &Color::Lavender);
-
-        assert!(footer.set(point!(128, 0), Color::Lavender).is_err());
-    }
-
-    #[test]
-    fn footer_read() {
-        let footer = TEST_FOOTER.parse::<Footer>().unwrap();
-
-        assert_eq!(footer.read(point!(1.25, 0.75)), Color::from('8'));
-        assert_eq!(footer.read(point!(-0.75, 0.5)), Color::Invalid);
-        assert_eq!(footer.read(point!(15.95, 0.5)), Color::Invalid);
-    }
-
-    const TEST_FOOTER: &str = r#"00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
+    const TEST_FILE: &str = r#"picocad;test3;16;1;0
+{
+{
+ name='plane', pos={0,0,1}, rot={0,0,0},
+ v={
+  {-1,0,-1},
+  {1,0,-1},
+  {1,0,1},
+  {-1,0,1}
+ },
+ f={
+  {4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, uv={16.25,0,1.25,0,15.5,2,-0.75,2} }
+ }
+},{
+ name='cube', pos={0,0,0}, rot={0,-0.5,0},
+ v={
+  {-0.5,-0.5,-0.5},
+  {0.5,-0.5,-0.5},
+  {0.5,0.5,-0.5},
+  {-0.5,0.5,-0.5},
+  {-0.5,-0.5,0.5},
+  {0.5,-0.5,0.5},
+  {0.5,0.5,0.5},
+  {-0.5,0.5,0.5}
+ },
+ f={
+  {1,2,3,4, c=11, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} },
+  {6,5,8,7, c=11, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} },
+  {5,6,2,1, c=11, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} },
+  {5,1,4,8, c=11, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} },
+  {2,6,7,3, c=11, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} },
+  {4,3,7,8, c=11, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} }
+ }
+}
+}%
+00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
 00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
 00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
 00000000eeee8888eeee8888aaaa9999aaaa9999bbbb3333bbbb3333ccccddddccccddddffffeeeeffffeeee7777666677776666555566665555666600000000
