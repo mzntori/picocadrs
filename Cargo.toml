@@ -10,7 +10,7 @@ documentation = "https://docs.rs/picocadrs/latest/"
 license = "MIT"
 keywords = ["picoCAD", "pico8"]
 categories = ["data-structures", "graphics", "parsing"]
-exclude = [".github/workflows/rust.yml"]
+exclude = [".github/workflows/rust.yml", "img/*"]
 
 [dependencies]
 directories = "5.0.1"
