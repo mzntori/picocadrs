@@ -2,7 +2,7 @@
 name = "picocadrs"
 version = "1.1.0"
 edition = "2021"
-description = "Library for working with picoCAD saves."
+description = "Library for working with picoCAD and picoCAD 2 saves."
 readme = "README.md"
 homepage = "https://github.com/mzntori/picocadrs"
 repository = "https://github.com/mzntori/picocadrs"
