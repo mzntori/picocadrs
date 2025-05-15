@@ -15,4 +15,8 @@ exclude = [".github/workflows/rust.yml"]
 [dependencies]
 directories = "5.0.1"
 rlua = "0.19.4"
+svg = { version = "0.18.0", optional = true }
 thiserror = "1.0.58"
+
+[features]
+svg = ["dep:svg"]

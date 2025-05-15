@@ -318,6 +318,32 @@ impl<T> Point3D<T> {
     }
 }
 
+impl Point3D<f64> {
+    /// Generates the position of a point for SVG render at a given [`angle`](SVGAngle).
+    /// Custom angles are not supported yet and will always return `(0.0, 0.0)`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::point;
+    /// use picocadrs::assets::{Point2D, Point3D, SVGAngle};
+    ///
+    /// let p = point!(0.0, 1.0, -1.0);
+    ///
+    /// assert_eq!(p.svg_position(SVGAngle::X, 1.5, point!(1.0, 1.0)), (-0.5, 2.5));
+    /// assert_eq!(p.svg_position(SVGAngle::Y, 2.0, point!(0.0, 0.0)), (-2.0, 0.0));
+    /// assert_eq!(p.svg_position(SVGAngle::Z, -1.0, point!(1.0, 0.0)), (1.0, -1.0));
+    /// ```
+    #[cfg(feature = "svg")]
+    pub fn svg_position(&self, angle: SVGAngle, scale: f64, offset: Point2D<f64>) -> (f64, f64) {
+        match angle {
+            SVGAngle::X => (self.z * scale + offset.u, self.y * scale + offset.v),
+            SVGAngle::Y => (self.z * scale + offset.u, self.x * scale + offset.v),
+            SVGAngle::Z => (self.x * -scale + offset.u, self.y * scale + offset.v),
+        }
+    }
+}
+
 impl<T: Add<Output = T>> Add for Point3D<T> {
     type Output = Point3D<T>;
 
@@ -454,6 +480,21 @@ macro_rules! point {
             z: $z,
         }
     };
+}
+
+/// Angle from where to render SVGs from.
+/// Angle describes the axis that faces the camera.
+/// These are equivalent to the fixed angles PicoCAD natively renders from.
+///
+/// - _`X`_: Bottom left perspective.
+/// - _`Y`_: Top left perspective.
+/// - _`Z`_: Bottom right perspective.
+#[cfg(feature = "svg")]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum SVGAngle {
+    X,
+    Y,
+    Z,
 }
 
 #[cfg(test)]
@@ -595,5 +636,30 @@ pub mod tests {
             "0,-1.5,2.2",
             "{0,-1.5,2.2}".parse::<Point3D<f64>>().unwrap().to_string()
         )
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "svg")]
+pub mod tests_svg {
+    use super::*;
+
+    #[test]
+    #[cfg(feature = "svg")]
+    fn test_svg_position() {
+        let p = point!(0.0, 1.0, -1.0);
+
+        assert_eq!(
+            p.svg_position(SVGAngle::X, 1.5, point!(1.0, 1.0)),
+            (-0.5, 2.5)
+        );
+        assert_eq!(
+            p.svg_position(SVGAngle::Y, 2.0, point!(0.0, 0.0)),
+            (-2.0, 0.0)
+        );
+        assert_eq!(
+            p.svg_position(SVGAngle::Z, -1.0, point!(1.0, 0.0)),
+            (1.0, -1.0)
+        );
     }
 }

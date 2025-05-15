@@ -39,12 +39,17 @@
 //!
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
-use crate::assets::{Color, Point2D};
+use crate::assets::edge::Edge;
+#[cfg(feature = "svg")]
+use crate::assets::SVGAngle;
+use crate::assets::{Color, Point2D, Point3D};
 use crate::error::PicoError;
 use crate::point;
 use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+#[cfg(feature = "svg")]
+use svg::node::element::path::Data;
 
 /// Represents uv-coordinates and the vertex they correspond to.
 ///
@@ -106,6 +111,126 @@ pub struct Face {
     /// uv-mappings of this face.
     /// Tells picoCAD which vertices this face is between and where they are on the uv-map.
     pub uv_maps: Vec<UVMap>,
+}
+
+impl Face {
+    /// Generates a vector of [`edges`](Edge) that this face is formed by.
+    /// Returns an empty vector if no edges can be generated or some edges fail.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use picocadrs::point;
+    /// use picocadrs::assets::{Point3D, Face};
+    ///
+    /// let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
+    ///     uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
+    ///     .parse::<Face>()
+    ///     .unwrap();
+    ///
+    /// dbg!(face.edges(&vec![
+    ///     point!(0.0, 1.0, 0.0),
+    ///     point!(0.0, 0.0, 0.0),
+    ///     point!(1.0, 0.0, 0.0),
+    ///     point!(1.0, 1.0, 0.0),
+    /// ]));
+    /// ```
+    pub fn edges(&self, mesh_vertices: &[Point3D<f64>]) -> Vec<Edge> {
+        if self.uv_maps.len() < 2 {
+            return vec![];
+        }
+
+        let start = match mesh_vertices.get(self.uv_maps[0].vertex_index) {
+            Some(point) => point,
+            None => {
+                return vec![];
+            }
+        };
+
+        let mut result: Vec<Edge> = vec![];
+        let mut last: &Point3D<f64> = start;
+
+        for uv_map in self.uv_maps.iter() {
+            let vertex = match mesh_vertices.get(uv_map.vertex_index) {
+                None => continue,
+                Some(v) => v,
+            };
+
+            if vertex != last {
+                result.push(Edge::new(*last, *vertex))
+            }
+
+            last = vertex
+        }
+
+        result.push(Edge::new(*last, *start));
+
+        result
+    }
+
+    /// Returns a vector of all vertices a face touches in order.
+    pub fn vertices(&self, mesh_vertices: &[Point3D<f64>]) -> Vec<Point3D<f64>> {
+        let mut vertices: Vec<Option<&Point3D<f64>>> = vec![];
+
+        for uv_map in self.uv_maps.iter() {
+            vertices.push(mesh_vertices.get(uv_map.vertex_index));
+        }
+
+        vertices.into_iter().flatten().copied().collect()
+    }
+
+    /// Generates SVG path data for all edges of this face.
+    /// Requires the `svg` feature.
+    ///
+    /// For more information on how to use the path data, take a look at the [`svg`](https://docs.rs/svg/latest/svg/index.html) crate.
+    #[cfg(feature = "svg")]
+    pub fn svg_path_data(
+        &self,
+        mesh_vertices: &[Point3D<f64>],
+        angle: SVGAngle,
+        scale: f64,
+        offset: Point2D<f64>,
+    ) -> Data {
+        let mut data = Data::new();
+
+        for (i, vertex) in self.vertices(mesh_vertices).iter().enumerate() {
+            data = if i == 0 {
+                data.move_to(vertex.svg_position(angle, scale, offset))
+            } else {
+                data.line_to(vertex.svg_position(angle, scale, offset))
+            }
+        }
+
+        data.close()
+    }
+
+    /// Generates a string of SVG path data for all edges of this face.
+    /// Requires the `svg` feature.
+    ///
+    /// Will Always generate a closed path.
+    #[cfg(feature = "svg")]
+    pub fn svg_path(
+        &self,
+        mesh_vertices: &[Point3D<f64>],
+        angle: SVGAngle,
+        scale: f64,
+        offset: Point2D<f64>,
+    ) -> String {
+        let mut path = String::new();
+
+        for (i, vertex) in self.vertices(mesh_vertices).iter().enumerate() {
+            let pos = vertex.svg_position(angle, scale, offset);
+
+            if i == 0 {
+                path.push_str(format!("M{},{} ", pos.0, pos.1).as_str());
+            } else {
+                path.push_str(format!("L{},{} ", pos.0, pos.1).as_str());
+            }
+        }
+
+        path.push('z');
+        path
+    }
 }
 
 impl Default for Face {
@@ -345,4 +470,135 @@ pub mod tests {
         assert!(face.render_priority);
         assert_eq!(face.uv_maps[1], UVMap::new(2, point!(1.25, 0.0)));
     }
+
+    #[test]
+    fn test_edges() {
+        let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
+        uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
+            .parse::<Face>()
+            .unwrap();
+
+        dbg!(face.edges(&[
+            point!(0.0, 1.0, 0.0),
+            point!(0.0, 0.0, 0.0),
+            point!(1.0, 0.0, 0.0),
+            point!(1.0, 1.0, 0.0),
+        ]));
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "svg")]
+pub mod tests_svg {
+    use super::*;
+    use crate::assets::Mesh;
+    #[cfg(feature = "svg")]
+    use svg::{node::element::Path, Document};
+
+    #[test]
+    #[cfg(feature = "svg")]
+    fn test_face_svg() {
+        let mesh = TEST_MESH.parse::<Mesh>().unwrap();
+
+        let mut document = Document::new().set("viewBox", (-100, -100, 200, 200));
+
+        for face in mesh.faces.clone() {
+            document = document.add(
+                Path::new()
+                    .set("fill", "none")
+                    .set("stroke", format!("#{}", face.color.as_hex()))
+                    .set("stroke-width", 1)
+                    .set(
+                        "d",
+                        face.svg_path_data(&mesh.vertices, SVGAngle::X, 5.0, point!(0.0, 0.0)),
+                    ),
+            );
+        }
+
+        svg::save("test_output_files/svg_face_test_x.svg", &document).unwrap();
+    }
+
+    #[test]
+    #[cfg(feature = "svg")]
+    fn test_face_svg_path() {
+        let mesh = TEST_MESH.parse::<Mesh>().unwrap();
+
+        for face in mesh.faces.iter() {
+            dbg!(face.svg_path(&mesh.vertices, SVGAngle::X, 5.0, point!(0.0, 0.0)));
+        }
+    }
+
+    const TEST_MESH: &str = r#"{
+ name='branch', pos={0,-30,0}, rot={0,0,0},
+ v={
+  {-6.9584,14.25,3},
+  {-5.1951,12.75,8.25},
+  {-7.4383,13.5,3},
+  {-6.9576,13.5,2.75},
+  {-5.3511,11.5,7.75},
+  {-6.3128,11.75,7.75},
+  {-7.438,13.75,2.5},
+  {-6.9573,13.75,2},
+  {-6.9581,14.5,2.5},
+  {-6.3173,15.75,-2},
+  {-5.8374,15.75,-2},
+  {-5.8377,16,-1.5},
+  {-6.3172,16,-1.75},
+  {-5.9998,15.5,-2.25},
+  {-5.8374,15.75,-2},
+  {-5.8377,16,-1.5},
+  {-4.8806,16.25,-2.75},
+  {-3.7565,16.75,-3.75},
+  {-3.7565,17,-3.75},
+  {-4.8806,16.5,-2.75},
+  {-3.9176,16.25,1.25},
+  {-5.6761,15,1.75},
+  {-5.6756,15.5,2},
+  {-3.9176,16.5,1.25},
+  {-8.7127,15,-3.75},
+  {-7.4386,15.5,-2.5},
+  {-7.438,15.25,-2.75},
+  {-8.7135,14.75,-3.75},
+  {-5.5185,13.75,0},
+  {-5.0384,17,-0.25},
+  {-4.7158,14.25,4.25},
+  {-5.0348,16.5,2.5},
+  {-4.8806,15,-4.25},
+  {-5.5195,17.75,-4.75},
+  {-3.7576,14.25,-1},
+  {-5.0405,18.25,-2.25},
+  {-9.3571,14.25,-2.5},
+  {-7.5993,15.25,-4.75},
+  {-7.1164,16.25,-2},
+  {-6.6399,17,-4.25},
+  {-7.7545,13,-1.5},
+  {-5.9975,15.75,-1.75},
+  {-5.1952,12.75,2.75},
+  {-4.0753,15.5,3.25}
+ },
+ f={
+  {4,3,6,5, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {1,4,5,2, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {7,3,4,8, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {10,7,8,11, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {11,8,9,12, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {14,10,11,15, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {15,11,12,16, c=4, dbl=1, uv={5.5,0.5,6.5,0.5,6.5,1.5,5.5,1.5} },
+  {17,14,15,18, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {18,15,16,19, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {17,18,19,20, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {21,8,4,22, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {22,4,1,23, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {23,1,9,24, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {24,9,8,21, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {21,22,23,24, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {26,13,10,27, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {27,10,14,28, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {25,26,27,28, c=4, dbl=1, uv={13,4.5,14,4.5,14,5,13,5} },
+  {31,32,30,29, c=6, dbl=1, noshade=1, uv={11,4.5,12.75,4.5,12.75,6,11.5,6} },
+  {35,36,34,33, c=6, dbl=1, noshade=1, uv={10.75,4.5,12.75,4.5,12.25,6,10.75,6} },
+  {39,40,38,37, c=6, dbl=1, noshade=1, uv={10.75,4.5,12.75,4.5,12.25,6,10.75,6} },
+  {43,44,42,41, c=6, dbl=1, noshade=1, uv={10.5,4.5,12.5,4.5,12,6,10.5,6} }
+ }
+}"#;
 }
