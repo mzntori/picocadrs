@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use picocadrs::point;
 use picocadrs::v1::assets::{Color, Model, Point3D}; // Point3D required for point macro
 use std::ffi::OsString;
