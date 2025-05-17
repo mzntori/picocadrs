@@ -2,7 +2,7 @@
 name = "picocadrs"
 version = "1.1.0"
 edition = "2021"
-description = "Library for working with picoCAD saves."
+description = "Library for working with picoCAD and picoCAD 2 saves."
 readme = "README.md"
 homepage = "https://github.com/mzntori/picocadrs"
 repository = "https://github.com/mzntori/picocadrs"
@@ -14,9 +14,15 @@ exclude = [".github/workflows/rust.yml", "img/*"]
 
 [dependencies]
 directories = "5.0.1"
+measurements = { version = "0.11", features = ["serde", "std"] }
 rlua = "0.19.4"
+serde = { version = "1.0", features = ["serde_derive"] }
+serde_json = "1.0"
 svg = { version = "0.18.0", optional = true }
 thiserror = "1.0.58"
+
+[dev-dependencies]
+assert_float_eq = "1.1.4"
 
 [features]
 svg = ["dep:svg"]

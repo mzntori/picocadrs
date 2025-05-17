@@ -1,4 +1,4 @@
-use crate::assets::Point2D;
+use super::assets::Point2D;
 use rlua::Error as LuaError;
 use thiserror::Error;
 

@@ -1,4 +1,4 @@
-use crate::assets::Point3D;
+use crate::v1::assets::Point3D;
 
 /// Edge of a mesh.
 /// This is not actually stored in the project file, however it can be constructed from it.
