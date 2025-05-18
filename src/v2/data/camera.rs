@@ -13,10 +13,10 @@ use super::vector::{Vector, Vector3};
 #[derive(Debug, Copy, Clone, serde::Deserialize, serde::Serialize)]
 pub struct Camera {
     target: Vector3,
-    #[serde(rename = "distance_to_target")]
-    magnitude: f64,
     #[serde(rename = "pos")]
     position: Vector3,
+    #[serde(rename = "distance_to_target")]
+    magnitude: f64,
     theta: Angle,
     omega: Angle,
 }
@@ -41,8 +41,8 @@ impl Camera {
     pub fn new(target: Vector3, position: Vector3) -> Camera {
         let mut cam = Camera {
             target,
-            magnitude: 0.0,
             position,
+            magnitude: 0.0,
             theta: Angle::from_radians(0.0),
             omega: Angle::from_radians(0.0),
         };
@@ -143,9 +143,79 @@ impl Camera {
         self.omega = new;
         self.update_from_angles_and_magnitude();
     }
+
+    /// Consumes the camera, sets the target of the camera to the provided value and returns the modified camera.
+    pub fn with_target(mut self, new: Vector3) -> Camera {
+        self.target = new;
+
+        self
+    }
+
+    /// Consumes the camera, sets the position of the camera to the provided value and returns the modified camera.
+    pub fn with_position(mut self, new: Vector3) -> Camera {
+        self.target = new;
+        self.update_from_position();
+
+        self
+    }
+
+    /// Consumes the camera, sets the magnitude of the camera to the provided value and returns the modified camera.
+    pub fn with_magnitude(mut self, new: f64) -> Camera {
+        self.magnitude = new;
+        self.update_from_angles_and_magnitude();
+
+        self
+    }
+
+    /// Consumes the camera, sets theta of the camera to the provided value and returns the modified camera.
+    pub fn with_theta(mut self, new: Angle) -> Camera {
+        self.theta = new;
+        self.update_from_angles_and_magnitude();
+
+        self
+    }
+
+    /// Consumes the camera, sets omega of the camera to the provided value and returns the modified camera.
+    pub fn with_omega(mut self, new: Angle) -> Camera {
+        self.omega = new;
+        self.update_from_angles_and_magnitude();
+
+        self
+    }
 }
 
-pub struct UnlockedCamera;
+impl From<UnlockedCamera> for Camera {
+    fn from(value: UnlockedCamera) -> Self {
+        Camera {
+            target: value.target,
+            position: value.position,
+            magnitude: value.magnitude,
+            theta: value.theta,
+            omega: value.omega,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct UnlockedCamera {
+    pub target: Vector3,
+    pub position: Vector3,
+    pub magnitude: f64,
+    pub theta: Angle,
+    pub omega: Angle,
+}
+
+impl From<Camera> for UnlockedCamera {
+    fn from(value: Camera) -> Self {
+        UnlockedCamera {
+            target: value.target,
+            position: value.position,
+            magnitude: value.magnitude,
+            theta: value.theta,
+            omega: value.omega,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
