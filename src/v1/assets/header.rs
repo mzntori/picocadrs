@@ -22,7 +22,7 @@
 //! In this example `0` which represents black.
 
 use super::Color;
-use crate::error::PicoError;
+use crate::v1::error::PicoError;
 use std::{fmt::Display, str::FromStr};
 
 /// Represents the header of a picoCAD project.

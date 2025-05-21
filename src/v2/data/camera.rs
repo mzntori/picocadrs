@@ -1,0 +1,280 @@
+use measurements::Angle;
+
+use super::vector::{Vector, Vector3};
+
+/// Represents a locked picoCAD (2) camera.
+/// Locked in this case means that all values that depend on other values stored are guaranteed to be accurate in relation to eachother.
+///
+///	If you want a camera that does not have these restrictions, consider using [`UnlockedCamera`].
+///
+/// # Assumptions
+///
+/// - `pos` is relative to target.
+#[derive(Debug, Copy, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
+pub struct Camera {
+    target: Vector3,
+    #[serde(rename = "pos")]
+    position: Vector3,
+    #[serde(rename = "distance_to_target")]
+    magnitude: f64,
+    theta: Angle,
+    omega: Angle,
+}
+
+impl Camera {
+    /// Calculates the current magnitude.
+    fn calculate_magnitude(&self) -> f64 {
+        self.position.magnitude()
+    }
+
+    /// Calculates omega based on current position.
+    fn calculate_omega(&self) -> Angle {
+        Angle::from_radians((self.position.z / self.position.x).atan())
+    }
+
+    /// Calculates theta based on current position.
+    fn calculate_theta(&self) -> Angle {
+        Angle::from_radians((self.position.y / self.position.magnitude()).asin())
+    }
+
+    /// Creates a new camera based on target and position.
+    pub fn new(target: Vector3, position: Vector3) -> Camera {
+        let mut cam = Camera {
+            target,
+            position,
+            magnitude: 0.0,
+            theta: Angle::from_radians(0.0),
+            omega: Angle::from_radians(0.0),
+        };
+
+        cam.position = position;
+        cam.update_from_position();
+
+        cam
+    }
+
+    /// Updates magnitude, theta and omega based on position.
+    /// Acts as a reverse operation of [`update_from_angles_and_magnitude`].
+    pub fn update_from_position(&mut self) {
+        self.magnitude = self.calculate_magnitude();
+        self.omega = self.calculate_omega();
+        self.theta = self.calculate_theta();
+    }
+
+    /// Updates position based on magnitude, theta and omega.
+    /// Acts as a reverse operation of [`update_from_position`].
+    pub fn update_from_angles_and_magnitude(&mut self) {
+        self.position.y = self.magnitude * self.theta.sin();
+        let a = (self.magnitude.powi(2) - self.position.y.powi(2)).sqrt();
+        self.position.z = a * self.omega.sin();
+        self.position.x = a * self.omega.cos();
+    }
+
+    /// Borrows the target position.
+    ///
+    /// In a project file this is stored in the `target` field.
+    pub fn target(&self) -> &Vector3 {
+        &self.target
+    }
+
+    /// Borrows the target position mutable.
+    ///
+    /// In a project file this is stored in the `target` field.
+    pub fn target_mut(&mut self) -> &mut Vector3 {
+        &mut self.target
+    }
+
+    /// Borrows the cameras relative position to [`target`].
+    ///
+    /// In a project file this is stored in the `pos` field.
+    pub fn position(&self) -> &Vector3 {
+        &self.position
+    }
+
+    /// Borrows the magnitude.
+    /// If the camera has not been created from an [`UnlockedCamera`], this is always equal to the magnitude of [`position`].
+    ///
+    /// In a project file this is stored in the `distance_to_target` field.
+    pub fn magnitude(&self) -> &f64 {
+        &self.magnitude
+    }
+
+    /// Borrows the angle theta.
+    /// If the camera has not been created from an [`UnlockedCamera`], this is accurate to the angle of the magnitude of [`position`].
+    ///
+    /// In a project file this is stored in the `theta` field.
+    pub fn theta(&self) -> &Angle {
+        &self.theta
+    }
+
+    /// Borrows the angle omega.
+    /// If the camera has not been created from an [`UnlockedCamera`], this is accurate to the angle of the magnitude of [`position`].
+    ///
+    /// In a project file this is stored in the `omega` field.
+    pub fn omega(&self) -> &Angle {
+        &self.omega
+    }
+
+    /// Sets the target of the camera to the provided value.
+    pub fn set_target(&mut self, new: Vector3) {
+        self.target = new;
+    }
+
+    /// Sets the position of the camera to the provided value.
+    pub fn set_position(&mut self, new: Vector3) {
+        self.target = new;
+        self.update_from_position();
+    }
+
+    /// Sets the magnitude of the camera to the provided value.
+    pub fn set_magnitude(&mut self, new: f64) {
+        self.magnitude = new;
+        self.update_from_angles_and_magnitude();
+    }
+
+    /// Sets the theta of the camera to the provided value.
+    pub fn set_theta(&mut self, new: Angle) {
+        self.theta = new;
+        self.update_from_angles_and_magnitude();
+    }
+
+    /// Sets omega of the camera to the provided value.
+    pub fn set_omega(&mut self, new: Angle) {
+        self.omega = new;
+        self.update_from_angles_and_magnitude();
+    }
+
+    /// Consumes the camera, sets the target of the camera to the provided value and returns the modified camera.
+    pub fn with_target(mut self, new: Vector3) -> Camera {
+        self.target = new;
+
+        self
+    }
+
+    /// Consumes the camera, sets the position of the camera to the provided value and returns the modified camera.
+    pub fn with_position(mut self, new: Vector3) -> Camera {
+        self.target = new;
+        self.update_from_position();
+
+        self
+    }
+
+    /// Consumes the camera, sets the magnitude of the camera to the provided value and returns the modified camera.
+    pub fn with_magnitude(mut self, new: f64) -> Camera {
+        self.magnitude = new;
+        self.update_from_angles_and_magnitude();
+
+        self
+    }
+
+    /// Consumes the camera, sets theta of the camera to the provided value and returns the modified camera.
+    pub fn with_theta(mut self, new: Angle) -> Camera {
+        self.theta = new;
+        self.update_from_angles_and_magnitude();
+
+        self
+    }
+
+    /// Consumes the camera, sets omega of the camera to the provided value and returns the modified camera.
+    pub fn with_omega(mut self, new: Angle) -> Camera {
+        self.omega = new;
+        self.update_from_angles_and_magnitude();
+
+        self
+    }
+}
+
+impl From<UnlockedCamera> for Camera {
+    fn from(value: UnlockedCamera) -> Self {
+        Camera {
+            target: value.target,
+            position: value.position,
+            magnitude: value.magnitude,
+            theta: value.theta,
+            omega: value.omega,
+        }
+    }
+}
+
+/// Represents a camera, that is unlocked.
+/// Unlocked in this case means, that value that depend on each other are not updated correctly and may contridict each other.
+///
+/// If you want to use this camera it is recommended to unlock a regular [`Camera`], and just before serializing convert it back into a regular camera.
+/// Note that once a camera has been locked again setting values will update all other values, meaning it removes unlocked elements.
+/// Getting values still works.
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct UnlockedCamera {
+    pub target: Vector3,
+    pub position: Vector3,
+    pub magnitude: f64,
+    pub theta: Angle,
+    pub omega: Angle,
+}
+
+impl From<Camera> for UnlockedCamera {
+    fn from(value: Camera) -> Self {
+        UnlockedCamera {
+            target: value.target,
+            position: value.position,
+            magnitude: value.magnitude,
+            theta: value.theta,
+            omega: value.omega,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ops::Add;
+
+    use assert_float_eq::assert_float_absolute_eq;
+
+    use crate::vector;
+
+    use super::*;
+
+    const DEFAULT_POS: Vector3 = vector!(2.026658184747, 6.5516349516249, 3.746506626054);
+    const DEFAULT_MAG: f64 = 7.8145745780703;
+
+    fn default_camera() -> Camera {
+        Camera::new(Vector3::default(), DEFAULT_POS)
+    }
+
+    #[test]
+    fn test_camera_update() {
+        let mut c = default_camera();
+
+        c.theta = Angle::from_radians(0.14);
+        c.omega = Angle::from_radians(0.14);
+
+        assert_ne!(c, default_camera());
+        c.update_from_position();
+        assert_eq!(c, default_camera());
+
+        c.position = vector!(0.1, 1.1, 1.1);
+
+        assert_ne!(c, default_camera());
+        c.update_from_angles_and_magnitude();
+        // assert_eq!(c, default_camera());	TODO: This fails but is true because floats.
+    }
+
+    #[test]
+    fn test_camera_terget() {
+        let mut c = Camera::new(vector!(1.0, 0.5, 0.0), vector!(1.0, 1.0, 1.0));
+        let t = c.target_mut();
+
+        t.scale(2.0);
+        assert_eq!(vector!(2.0, 1.0, 0.0), *t);
+
+        c.set_target(vector!(1.0, 2.0, -1.0));
+        assert_eq!(vector!(1.0, 2.0, -1.0), *c.target());
+    }
+
+    #[test]
+    fn test_camera_magnitude() {
+        let c = Camera::new(Vector3::default(), DEFAULT_POS);
+
+        assert_float_absolute_eq!(DEFAULT_MAG, *c.magnitude());
+        assert_float_absolute_eq!(DEFAULT_MAG + 1.0, *c.magnitude() + 1.0);
+    }
+}

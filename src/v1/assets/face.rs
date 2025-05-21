@@ -39,12 +39,12 @@
 //!
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
-use crate::assets::edge::Edge;
-#[cfg(feature = "svg")]
-use crate::assets::SVGAngle;
-use crate::assets::{Color, Point2D, Point3D};
-use crate::error::PicoError;
 use crate::point;
+use crate::v1::assets::edge::Edge;
+#[cfg(feature = "svg")]
+use crate::v1::assets::SVGAngle;
+use crate::v1::assets::{Color, Point2D, Point3D};
+use crate::v1::error::PicoError;
 use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -491,7 +491,7 @@ pub mod tests {
 #[cfg(feature = "svg")]
 pub mod tests_svg {
     use super::*;
-    use crate::assets::Mesh;
+    use crate::v1::assets::Mesh;
     #[cfg(feature = "svg")]
     use svg::{node::element::Path, Document};
 
