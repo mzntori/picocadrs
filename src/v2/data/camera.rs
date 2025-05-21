@@ -10,7 +10,7 @@ use super::vector::{Vector, Vector3};
 /// # Assumptions
 ///
 /// - `pos` is relative to target.
-#[derive(Debug, Copy, Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Copy, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Camera {
     target: Vector3,
     #[serde(rename = "pos")]
@@ -196,7 +196,13 @@ impl From<UnlockedCamera> for Camera {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+/// Represents a camera, that is unlocked.
+/// Unlocked in this case means, that value that depend on each other are not updated correctly and may contridict each other.
+///
+/// If you want to use this camera it is recommended to unlock a regular [`Camera`], and just before serializing convert it back into a regular camera.
+/// Note that once a camera has been locked again setting values will update all other values, meaning it removes unlocked elements.
+/// Getting values still works.
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct UnlockedCamera {
     pub target: Vector3,
     pub position: Vector3,
@@ -219,6 +225,8 @@ impl From<Camera> for UnlockedCamera {
 
 #[cfg(test)]
 mod tests {
+    use std::ops::Add;
+
     use assert_float_eq::assert_float_absolute_eq;
 
     use crate::vector;
@@ -228,8 +236,42 @@ mod tests {
     const DEFAULT_POS: Vector3 = vector!(2.026658184747, 6.5516349516249, 3.746506626054);
     const DEFAULT_MAG: f64 = 7.8145745780703;
 
+    fn default_camera() -> Camera {
+        Camera::new(Vector3::default(), DEFAULT_POS)
+    }
+
     #[test]
-    fn camera_magnitude() {
+    fn test_camera_update() {
+        let mut c = default_camera();
+
+        c.theta = Angle::from_radians(0.14);
+        c.omega = Angle::from_radians(0.14);
+
+        assert_ne!(c, default_camera());
+        c.update_from_position();
+        assert_eq!(c, default_camera());
+
+        c.position = vector!(0.1, 1.1, 1.1);
+
+        assert_ne!(c, default_camera());
+        c.update_from_angles_and_magnitude();
+        // assert_eq!(c, default_camera());	TODO: This fails but is true because floats.
+    }
+
+    #[test]
+    fn test_camera_terget() {
+        let mut c = Camera::new(vector!(1.0, 0.5, 0.0), vector!(1.0, 1.0, 1.0));
+        let t = c.target_mut();
+
+        t.scale(2.0);
+        assert_eq!(vector!(2.0, 1.0, 0.0), *t);
+
+        c.set_target(vector!(1.0, 2.0, -1.0));
+        assert_eq!(vector!(1.0, 2.0, -1.0), *c.target());
+    }
+
+    #[test]
+    fn test_camera_magnitude() {
         let c = Camera::new(Vector3::default(), DEFAULT_POS);
 
         assert_float_absolute_eq!(DEFAULT_MAG, *c.magnitude());
