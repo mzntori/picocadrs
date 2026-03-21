@@ -15,11 +15,9 @@
 //! Any numbers above or below will still be mapped appropriately, but will not return good results
 //! in most cases but are not disallowed by picoCAD.
 
-use crate::{
-    assets::{Color, Point2D},
-    error::PicoError,
-    point,
-};
+use super::{super::error::PicoError, Color, Point2D};
+use crate::point;
+
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
@@ -59,7 +57,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Footer;
+    /// use picocadrs::v1::assets::Footer;
     ///
     /// let footer = Footer::default();
     /// assert!(footer.is_solid());
@@ -94,7 +92,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Color, Point2D, Footer};
+    /// use picocadrs::v1::assets::{Color, Point2D, Footer};
     /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
@@ -127,7 +125,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Color, Point2D, Footer};
+    /// use picocadrs::v1::assets::{Color, Point2D, Footer};
     /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
@@ -169,7 +167,7 @@ impl Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Color, Point2D, Footer};
+    /// use picocadrs::v1::assets::{Color, Point2D, Footer};
     /// use picocadrs::point;
     ///
     /// let mut footer = Footer::default();
@@ -199,7 +197,7 @@ impl Default for Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Footer;
+    /// use picocadrs::v1::assets::Footer;
     ///
     /// let footer = Footer::default();
     /// assert!(footer.is_solid());
@@ -251,7 +249,7 @@ impl Index<Point2D<usize>> for Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Footer, Color, Point2D};
+    /// use picocadrs::v1::assets::{Footer, Color, Point2D};
     /// use picocadrs::point;
     ///
     /// let footer = Footer::default();
@@ -278,7 +276,7 @@ impl IndexMut<Point2D<usize>> for Footer {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Footer, Color, Point2D};
+    /// use picocadrs::v1::assets::{Footer, Color, Point2D};
     /// use picocadrs::point;
     ///
     /// let footer = Footer::default();

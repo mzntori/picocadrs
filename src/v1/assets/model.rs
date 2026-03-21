@@ -14,11 +14,7 @@
 //! Aside from the lua table's closing bracket the end of this section is indicated by a `%`
 //! - _[`footer`](crate::assets::footer):_ Holds the texture used for uv mapping.
 
-use crate::{
-    assets::{Footer, Header, Mesh},
-    error::PicoError,
-    paths::projects_path,
-};
+use super::{super::error::PicoError, super::paths::projects_path, Footer, Header, Mesh};
 use rlua::{Lua, Table};
 use std::ffi::OsString;
 use std::{
@@ -72,7 +68,7 @@ impl Model {
     ///
     /// ```no_run
     /// use std::ffi::OsString;
-    /// use picocadrs::assets::Model;
+    /// use picocadrs::v1::assets::Model;
     ///
     /// // Requires a valid picoCAD project file in projects folder called "test.txt"
     /// let model = Model::load(OsString::from("test.txt")).unwrap();
@@ -101,7 +97,7 @@ impl Model {
     /// # Example
     ///
     /// ```no_run
-    /// use picocadrs::assets::Model;
+    /// use picocadrs::v1::assets::Model;
     /// use std::ffi::OsString;
     ///
     /// let mut model = Model::default();
@@ -130,7 +126,7 @@ impl Default for Model {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Model, Footer, Header};
+    /// use picocadrs::v1::assets::{Model, Footer, Header};
     ///
     /// let model = Model::default();
     ///
@@ -242,7 +238,7 @@ fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoError> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::paths::projects_path;
+    use crate::v1::paths::projects_path;
 
     #[test]
     fn test_model_parse() {

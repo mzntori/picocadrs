@@ -21,8 +21,8 @@
 //! - _alpha color_: The color that will be transparent when uv-mapped onto a face.
 //! In this example `0` which represents black.
 
+use super::super::error::PicoError;
 use super::Color;
-use crate::error::PicoError;
 use std::{fmt::Display, str::FromStr};
 
 /// Represents the header of a picoCAD project.
@@ -49,7 +49,7 @@ use std::{fmt::Display, str::FromStr};
 ///
 /// A header can be parsed, then modified and turned back into a string again.
 /// ```
-/// use picocadrs::assets::{Header, Color};
+/// use picocadrs::v1::assets::{Header, Color};
 ///
 /// let header = "picocad;unnamed;16;1;4".parse::<Header>().unwrap();
 ///
@@ -77,7 +77,7 @@ impl Header {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::Header;
+    /// use picocadrs::v1::assets::Header;
     ///
     /// assert_eq!(
     ///     "picocad;unnamed;16;1;4".parse::<Header>().unwrap().identifier(),
@@ -97,7 +97,7 @@ impl Default for Header {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::Header;
+    /// use picocadrs::v1::assets::Header;
     ///
     /// assert_eq!("picocad;unnamed;16;1;0", Header::default().to_string());
     /// ```

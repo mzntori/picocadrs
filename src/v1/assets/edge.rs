@@ -1,4 +1,4 @@
-use crate::assets::Point3D;
+use super::Point3D;
 
 /// Edge of a mesh.
 /// This is not actually stored in the project file, however it can be constructed from it.
@@ -10,7 +10,7 @@ use crate::assets::Point3D;
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::{Edge, Point3D};
+/// use picocadrs::v1::assets::{Edge, Point3D};
 /// use picocadrs::point;
 ///
 /// let e = Edge::new(point!(0.0, 1.0, 1.0), point!(1.0, 1.0, 0.0));
