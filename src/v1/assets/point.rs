@@ -3,7 +3,7 @@
 //! This module houses the structs [`Point2D`] and [`Point3D`] that describe points in either 2- or
 //! 3-dimensional space.
 
-use super::super::error::PicoError;
+use super::super::error::Pico1Error;
 use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
@@ -159,7 +159,7 @@ impl<T: Display> Display for Point2D<T> {
 }
 
 impl TryFrom<Table<'_>> for Point2D<f64> {
-    type Error = PicoError;
+    type Error = Pico1Error;
 
     /// Tries to create a [`Point2D`] from a lua table.
     /// Only succeeds if the table has 2 fields that can be parsed into a [`f64`].
@@ -168,7 +168,7 @@ impl TryFrom<Table<'_>> for Point2D<f64> {
         let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
 
         if coords_result.len() != 2 {
-            return Err(PicoError::TableLength(coords_result.len(), 3));
+            return Err(Pico1Error::TableLength(coords_result.len(), 3));
         }
 
         let mut coords: Vec<f64> = vec![];
@@ -182,7 +182,7 @@ impl TryFrom<Table<'_>> for Point2D<f64> {
 }
 
 impl FromStr for Point2D<f64> {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     /// Parses a [`Point2D`] from a string representing a lua table with 2 float values.
     /// Fails if table does not have 2 fields or they cant be parsed into [`f64`].
@@ -206,7 +206,7 @@ impl FromStr for Point2D<f64> {
 
             point = match table_result {
                 Ok(table) => Point2D::try_from(table),
-                Err(err) => Err(PicoError::from(err)),
+                Err(err) => Err(Pico1Error::from(err)),
             }
         });
 
@@ -399,7 +399,7 @@ impl<T: Display> Display for Point3D<T> {
 }
 
 impl TryFrom<Table<'_>> for Point3D<f64> {
-    type Error = PicoError;
+    type Error = Pico1Error;
 
     /// Tries to create a [`Point3D`] from a lua table.
     /// Only succeeds if the table has 3 fields that can be parsed into a [`f64`].
@@ -408,7 +408,7 @@ impl TryFrom<Table<'_>> for Point3D<f64> {
         let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
 
         if coords_result.len() != 3 {
-            return Err(PicoError::TableLength(coords_result.len(), 3));
+            return Err(Pico1Error::TableLength(coords_result.len(), 3));
         }
 
         let mut coords: Vec<f64> = vec![];
@@ -422,7 +422,7 @@ impl TryFrom<Table<'_>> for Point3D<f64> {
 }
 
 impl FromStr for Point3D<f64> {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     /// Parses a [`Point3D`] from a string representing a lua table with 3 float values.
     /// Fails if table does not have 3 fields or they cant be parsed into [`f64`].
@@ -446,7 +446,7 @@ impl FromStr for Point3D<f64> {
 
             point = match table_result {
                 Ok(table) => Point3D::try_from(table),
-                Err(err) => Err(PicoError::from(err)),
+                Err(err) => Err(Pico1Error::from(err)),
             }
         });
 

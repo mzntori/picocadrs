@@ -15,7 +15,7 @@
 //! Any numbers above or below will still be mapped appropriately, but will not return good results
 //! in most cases but are not disallowed by picoCAD.
 
-use super::{super::error::PicoError, Color, Point2D};
+use super::{super::error::Pico1Error, Color, Point2D};
 use crate::point;
 
 use std::fmt::{Display, Formatter};
@@ -142,9 +142,9 @@ impl Footer {
     ///     &Color::Lavender
     /// );
     /// ```
-    pub fn set(&mut self, coords: Point2D<usize>, value: Color) -> Result<(), PicoError> {
+    pub fn set(&mut self, coords: Point2D<usize>, value: Color) -> Result<(), Pico1Error> {
         if coords.u > 127 || coords.v > 119 {
-            Err(PicoError::IndexUSIZE(coords, point!(128, 120)))
+            Err(Pico1Error::IndexUSIZE(coords, point!(128, 120)))
         } else {
             self[coords] = value;
             Ok(())
@@ -222,7 +222,7 @@ impl Display for Footer {
 }
 
 impl FromStr for Footer {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let data: Vec<Color> = s
@@ -234,7 +234,7 @@ impl FromStr for Footer {
             .collect();
 
         if data.len() != Footer::DATA_LENGHT {
-            return Err(PicoError::FooterLength(data.len()));
+            return Err(Pico1Error::FooterLength(data.len()));
         }
 
         Ok(Footer { data })

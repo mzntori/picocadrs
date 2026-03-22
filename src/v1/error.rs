@@ -3,7 +3,7 @@ use rlua::Error as LuaError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum PicoError {
+pub enum Pico1Error {
     #[error(r#"identifier is not "picocad""#)]
     Identifier,
     #[error("could not parse header field {0}")]

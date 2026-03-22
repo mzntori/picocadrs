@@ -14,7 +14,7 @@
 //! Aside from the lua table's closing bracket the end of this section is indicated by a `%`
 //! - _[`footer`](crate::assets::footer):_ Holds the texture used for uv mapping.
 
-use super::{super::error::PicoError, super::paths::projects_path, Footer, Header, Mesh};
+use super::{super::error::Pico1Error, super::paths::projects_path, Footer, Header, Mesh};
 use rlua::{Lua, Table};
 use std::ffi::OsString;
 use std::{
@@ -53,7 +53,7 @@ impl Model {
     /// Loads a model from an absolute path.
     ///
     /// It's recommended to use [`load`](Model::load).
-    pub fn load_from_path(path: OsString) -> Result<Model, PicoError> {
+    pub fn load_from_path(path: OsString) -> Result<Model, Pico1Error> {
         let file_string = std::fs::read_to_string(path)?;
 
         file_string.parse::<Model>()
@@ -75,13 +75,13 @@ impl Model {
     ///
     /// assert_eq!(model.header.name, "test");
     /// ```
-    pub fn load(file_name: OsString) -> Result<Model, PicoError> {
+    pub fn load(file_name: OsString) -> Result<Model, Pico1Error> {
         if let Some(mut projects_path) = projects_path() {
             projects_path.push(file_name);
             projects_path.push(".txt");
             Model::load_from_path(projects_path)
         } else {
-            Err(PicoError::NoHomeDirectory)
+            Err(Pico1Error::NoHomeDirectory)
         }
     }
 
@@ -108,7 +108,7 @@ impl Model {
     ///
     /// assert_eq!(model, read_model);
     /// ```
-    pub fn write(&self) -> Result<(), PicoError> {
+    pub fn write(&self) -> Result<(), Pico1Error> {
         let mut path = PathBuf::from(projects_path().unwrap());
         path.push(self.header.name.clone());
         path.set_extension("txt");
@@ -163,7 +163,7 @@ impl Display for Model {
 }
 
 impl FromStr for Model {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (header_str, meshes_str, footer_str) = seperate_model(s)?;
@@ -172,7 +172,7 @@ impl FromStr for Model {
         let footer: Footer = footer_str.parse()?;
 
         let mut meshes: Vec<Mesh> = vec![];
-        let mut lua_result: Result<(), PicoError> = Ok(());
+        let mut lua_result: Result<(), Pico1Error> = Ok(());
 
         // We would be fucked without '?' LUL
         let lua = Lua::new();
@@ -192,14 +192,14 @@ impl FromStr for Model {
                             }
                         }
                         Err(lua_err) => {
-                            lua_result = Err(PicoError::from(lua_err));
+                            lua_result = Err(Pico1Error::from(lua_err));
                             return;
                         }
                     }
                 }
             }
             Err(lua_err) => {
-                lua_result = Err(PicoError::from(lua_err));
+                lua_result = Err(Pico1Error::from(lua_err));
             }
         });
 
@@ -215,11 +215,11 @@ impl FromStr for Model {
 
 /// Returns header, meshes and footer as their literal strings.
 /// If seperators do not exist this will fail.
-fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoError> {
+fn seperate_model(model: &str) -> Result<(&str, &str, &str), Pico1Error> {
     let (header, rest) = if let Some(split) = model.split_once('\n') {
         split
     } else {
-        return Err(PicoError::Split(
+        return Err(Pico1Error::Split(
             r#"seperate header from meshes with '\n'"#.to_string(),
         ));
     };
@@ -227,7 +227,7 @@ fn seperate_model(model: &str) -> Result<(&str, &str, &str), PicoError> {
     let (meshes, footer) = if let Some(split) = rest.rsplit_once('%') {
         split
     } else {
-        return Err(PicoError::Split(
+        return Err(Pico1Error::Split(
             r#"seperate meshes from footer with '%'"#.to_string(),
         ));
     };
