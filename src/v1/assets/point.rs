@@ -3,7 +3,7 @@
 //! This module houses the structs [`Point2D`] and [`Point3D`] that describe points in either 2- or
 //! 3-dimensional space.
 
-use crate::error::PicoError;
+use super::super::error::Pico1Error;
 use rlua::{Lua, Table};
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Sub};
@@ -17,7 +17,7 @@ use std::str::FromStr;
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::Point2D;
+/// use picocadrs::v1::assets::Point2D;
 /// use picocadrs::point;
 ///
 /// let mut point = Point2D::new(2, 4);
@@ -48,7 +48,7 @@ impl<T> Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point2D;
+    /// use picocadrs::v1::assets::Point2D;
     /// use picocadrs::point;
     ///
     /// let point = Point2D::new(2, 4);
@@ -67,7 +67,7 @@ impl<T> Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point2D;
+    /// use picocadrs::v1::assets::Point2D;
     ///
     /// let mut point = Point2D::new(2, 4);
     ///
@@ -89,7 +89,7 @@ impl<T> Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point2D;
+    /// use picocadrs::v1::assets::Point2D;
     ///
     /// let mut point = Point2D::new(2, 3);
     ///
@@ -114,7 +114,7 @@ impl<T: Add<Output = T>> Add for Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point2D;
+    /// use picocadrs::v1::assets::Point2D;
     ///
     /// let p1 = Point2D::new(1, 4);
     /// let p2 = Point2D::new(2, 1);
@@ -137,7 +137,7 @@ impl<T: Sub<Output = T>> Sub for Point2D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point2D;
+    /// use picocadrs::v1::assets::Point2D;
     ///
     /// let p1 = Point2D::new(1, 4);
     /// let p2 = Point2D::new(2, 1);
@@ -159,7 +159,7 @@ impl<T: Display> Display for Point2D<T> {
 }
 
 impl TryFrom<Table<'_>> for Point2D<f64> {
-    type Error = PicoError;
+    type Error = Pico1Error;
 
     /// Tries to create a [`Point2D`] from a lua table.
     /// Only succeeds if the table has 2 fields that can be parsed into a [`f64`].
@@ -168,7 +168,7 @@ impl TryFrom<Table<'_>> for Point2D<f64> {
         let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
 
         if coords_result.len() != 2 {
-            return Err(PicoError::TableLength(coords_result.len(), 3));
+            return Err(Pico1Error::TableLength(coords_result.len(), 3));
         }
 
         let mut coords: Vec<f64> = vec![];
@@ -182,7 +182,7 @@ impl TryFrom<Table<'_>> for Point2D<f64> {
 }
 
 impl FromStr for Point2D<f64> {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     /// Parses a [`Point2D`] from a string representing a lua table with 2 float values.
     /// Fails if table does not have 2 fields or they cant be parsed into [`f64`].
@@ -190,7 +190,7 @@ impl FromStr for Point2D<f64> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point2D;
+    /// use picocadrs::v1::assets::Point2D;
     ///
     /// assert_eq!(
     ///     "-1.5,2.2",
@@ -206,7 +206,7 @@ impl FromStr for Point2D<f64> {
 
             point = match table_result {
                 Ok(table) => Point2D::try_from(table),
-                Err(err) => Err(PicoError::from(err)),
+                Err(err) => Err(Pico1Error::from(err)),
             }
         });
 
@@ -222,7 +222,7 @@ impl FromStr for Point2D<f64> {
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::Point3D;
+/// use picocadrs::v1::assets::Point3D;
 /// use picocadrs::point;
 ///
 /// let mut point = Point3D::new(2, 4, -1);
@@ -255,7 +255,7 @@ impl<T> Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point3D;
+    /// use picocadrs::v1::assets::Point3D;
     /// use picocadrs::point;
     ///
     /// let point = Point3D::new(2, 4, -1);
@@ -275,7 +275,7 @@ impl<T> Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point3D;
+    /// use picocadrs::v1::assets::Point3D;
     ///
     /// let mut point = Point3D::new(2, 4, -1);
     ///
@@ -300,7 +300,7 @@ impl<T> Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point3D;
+    /// use picocadrs::v1::assets::Point3D;
     ///
     /// let mut point = Point3D::new(2, 3, -1);
     ///
@@ -326,7 +326,7 @@ impl Point3D<f64> {
     ///
     /// ```
     /// use picocadrs::point;
-    /// use picocadrs::assets::{Point2D, Point3D, SVGAngle};
+    /// use picocadrs::v1::assets::{Point2D, Point3D, SVGAngle};
     ///
     /// let p = point!(0.0, 1.0, -1.0);
     ///
@@ -352,7 +352,7 @@ impl<T: Add<Output = T>> Add for Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point3D;
+    /// use picocadrs::v1::assets::Point3D;
     ///
     /// let p1 = Point3D::new(1, 4, -2);
     /// let p2 = Point3D::new(2, -2, 3);
@@ -376,7 +376,7 @@ impl<T: Sub<Output = T>> Sub for Point3D<T> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point3D;
+    /// use picocadrs::v1::assets::Point3D;
     ///
     /// let p1 = Point3D::new(1, 4, 2);
     /// let p2 = Point3D::new(2, 1, -4);
@@ -399,7 +399,7 @@ impl<T: Display> Display for Point3D<T> {
 }
 
 impl TryFrom<Table<'_>> for Point3D<f64> {
-    type Error = PicoError;
+    type Error = Pico1Error;
 
     /// Tries to create a [`Point3D`] from a lua table.
     /// Only succeeds if the table has 3 fields that can be parsed into a [`f64`].
@@ -408,7 +408,7 @@ impl TryFrom<Table<'_>> for Point3D<f64> {
         let coords_result: Vec<rlua::Result<f64>> = value.sequence_values::<f64>().collect();
 
         if coords_result.len() != 3 {
-            return Err(PicoError::TableLength(coords_result.len(), 3));
+            return Err(Pico1Error::TableLength(coords_result.len(), 3));
         }
 
         let mut coords: Vec<f64> = vec![];
@@ -422,7 +422,7 @@ impl TryFrom<Table<'_>> for Point3D<f64> {
 }
 
 impl FromStr for Point3D<f64> {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     /// Parses a [`Point3D`] from a string representing a lua table with 3 float values.
     /// Fails if table does not have 3 fields or they cant be parsed into [`f64`].
@@ -430,7 +430,7 @@ impl FromStr for Point3D<f64> {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::Point3D;
+    /// use picocadrs::v1::assets::Point3D;
     ///
     /// assert_eq!(
     ///     "0,-1.5,2.2",
@@ -446,7 +446,7 @@ impl FromStr for Point3D<f64> {
 
             point = match table_result {
                 Ok(table) => Point3D::try_from(table),
-                Err(err) => Err(PicoError::from(err)),
+                Err(err) => Err(Pico1Error::from(err)),
             }
         });
 
@@ -460,7 +460,7 @@ impl FromStr for Point3D<f64> {
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::point::{Point2D, Point3D};
+/// use picocadrs::v1::assets::point::{Point2D, Point3D};
 /// use picocadrs::point;
 ///
 /// assert_eq!(point!(2, 3, -1), Point3D::new(2, 3, -1));

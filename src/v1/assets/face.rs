@@ -39,12 +39,12 @@
 //!
 //! *: picoCAD doesn't actually check the value of these fields but only if they exist.
 
-use crate::assets::edge::Edge;
+use super::edge::Edge;
 #[cfg(feature = "svg")]
-use crate::assets::SVGAngle;
-use crate::assets::{Color, Point2D, Point3D};
-use crate::error::PicoError;
+use super::SVGAngle;
+use super::{Color, Point2D, Point3D};
 use crate::point;
+use crate::v1::error::Pico1Error;
 use rlua::{Lua, Table, Value};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -77,7 +77,7 @@ impl UVMap {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{UVMap, Point2D};
+    /// use picocadrs::v1::assets::{UVMap, Point2D};
     /// use picocadrs::point;
     ///
     /// let map = UVMap::new(2, point!(2.0, 3.5));
@@ -121,7 +121,7 @@ impl Face {
     ///
     /// ```
     /// use picocadrs::point;
-    /// use picocadrs::assets::{Point3D, Face};
+    /// use picocadrs::v1::assets::{Point3D, Face};
     ///
     /// let face = "{4,3,2,1, c=10, dbl=1, noshade=1, notex=1, prio=1, \
     ///     uv={16.25,0,1.25,0,15.5,2,-0.75,2} }"
@@ -239,7 +239,7 @@ impl Default for Face {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Face, Color};
+    /// use picocadrs::v1::assets::{Face, Color};
     ///
     /// let face = Face::default();
     ///
@@ -302,7 +302,7 @@ impl Display for Face {
 }
 
 impl TryFrom<Table<'_>> for Face {
-    type Error = PicoError;
+    type Error = Pico1Error;
 
     /// Tries to create a [`Face`] from a lua table.
     ///
@@ -342,7 +342,10 @@ impl TryFrom<Table<'_>> for Face {
 
                         // return error if lengths don't match.
                         if uv_chunks.len() != uv_maps.len() * 2 {
-                            return Err(PicoError::FaceUVMapLength(uv_maps.len(), uv_chunks.len()));
+                            return Err(Pico1Error::FaceUVMapLength(
+                                uv_maps.len(),
+                                uv_chunks.len(),
+                            ));
                         }
 
                         for (i, chunk) in uv_chunks.chunks_exact(2).enumerate() {
@@ -366,14 +369,14 @@ impl TryFrom<Table<'_>> for Face {
 }
 
 impl FromStr for Face {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     /// Parses a face from a string that contains a lua table with the right arguments.
     ///
     /// # Exmaple
     ///
     /// ```
-    /// use picocadrs::assets::{Face, UVMap, Color, Point2D};
+    /// use picocadrs::v1::assets::{Face, UVMap, Color, Point2D};
     /// use picocadrs::point;
     ///
     /// assert_eq!(
@@ -399,7 +402,7 @@ impl FromStr for Face {
 
             face = match table_result {
                 Ok(table) => Face::try_from(table),
-                Err(err) => Err(PicoError::from(err)),
+                Err(err) => Err(Pico1Error::from(err)),
             }
         });
 

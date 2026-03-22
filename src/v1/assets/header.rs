@@ -21,8 +21,8 @@
 //! - _alpha color_: The color that will be transparent when uv-mapped onto a face.
 //! In this example `0` which represents black.
 
+use super::super::error::Pico1Error;
 use super::Color;
-use crate::error::PicoError;
 use std::{fmt::Display, str::FromStr};
 
 /// Represents the header of a picoCAD project.
@@ -49,7 +49,7 @@ use std::{fmt::Display, str::FromStr};
 ///
 /// A header can be parsed, then modified and turned back into a string again.
 /// ```
-/// use picocadrs::assets::{Header, Color};
+/// use picocadrs::v1::assets::{Header, Color};
 ///
 /// let header = "picocad;unnamed;16;1;4".parse::<Header>().unwrap();
 ///
@@ -77,7 +77,7 @@ impl Header {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::Header;
+    /// use picocadrs::v1::assets::Header;
     ///
     /// assert_eq!(
     ///     "picocad;unnamed;16;1;4".parse::<Header>().unwrap().identifier(),
@@ -97,7 +97,7 @@ impl Default for Header {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::Header;
+    /// use picocadrs::v1::assets::Header;
     ///
     /// assert_eq!("picocad;unnamed;16;1;0", Header::default().to_string());
     /// ```
@@ -113,15 +113,15 @@ impl Default for Header {
 }
 
 impl FromStr for Header {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let fields: Vec<&str> = s.trim().splitn(5, ';').collect();
 
         if fields.len() != 5 {
-            return Err(PicoError::HeaderLength(fields.len()));
+            return Err(Pico1Error::HeaderLength(fields.len()));
         } else if *fields.first().unwrap() != "picocad" {
-            return Err(PicoError::Identifier);
+            return Err(Pico1Error::Identifier);
         }
 
         let identifier: String = fields[0].to_string();
@@ -130,19 +130,19 @@ impl FromStr for Header {
         let zoom: u8 = if let Ok(value) = fields[2].parse::<u8>() {
             value
         } else {
-            return Err(PicoError::HeaderField("zoom".to_string()));
+            return Err(Pico1Error::HeaderField("zoom".to_string()));
         };
 
         let background: Color = if let Ok(value) = fields[3].parse::<i32>() {
             Color::from(value)
         } else {
-            return Err(PicoError::HeaderField("background".to_string()));
+            return Err(Pico1Error::HeaderField("background".to_string()));
         };
 
         let alpha: Color = if let Ok(value) = fields[4].parse::<i32>() {
             Color::from(value)
         } else {
-            return Err(PicoError::HeaderField("alpha".to_string()));
+            return Err(Pico1Error::HeaderField("alpha".to_string()));
         };
 
         let header = Header {

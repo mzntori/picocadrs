@@ -16,13 +16,8 @@
 //! This module also provides a wrapper struct for [`rotation`](Rotation) which implements some useful methods
 //! that only apply to rotation in picoCAD.
 
-use crate::assets::edge::Edge;
-
-use crate::{
-    assets::{Face, Point3D},
-    error::PicoError,
-    point,
-};
+use super::{super::error::Pico1Error, edge::Edge, Face, Point3D};
+use crate::point;
 
 #[cfg(feature = "svg")]
 use crate::assets::Point2D;
@@ -53,7 +48,7 @@ use svg::node::element::path::Data;
 /// # Example
 ///
 /// ```
-/// use picocadrs::assets::{Point3D, Rotation};
+/// use picocadrs::v1::assets::{Point3D, Rotation};
 /// use picocadrs::point;
 ///
 /// let rot = Rotation(point!(0.3, 0.2, 0.1));
@@ -66,7 +61,7 @@ use svg::node::element::path::Data;
 /// digit), normalizing and rounding fill not be enough in some rare cases.
 ///
 /// ```
-/// use picocadrs::assets::{Rotation, Point3D};
+/// use picocadrs::v1::assets::{Rotation, Point3D};
 /// use picocadrs::point;
 ///
 /// let mut rot = Rotation(point!(0.9999, 1.0, 0.0));
@@ -82,7 +77,7 @@ use svg::node::element::path::Data;
 /// This is what [`equal_rotation`](Rotation::equal_rotation) does:
 ///
 /// ```
-/// use picocadrs::assets::{Rotation, Point3D};
+/// use picocadrs::v1::assets::{Rotation, Point3D};
 /// use picocadrs::point;
 ///
 /// let mut rot = Rotation(point!(0.9999, 1.0, 0.0));
@@ -101,7 +96,7 @@ impl Rotation {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Rotation, Point3D};
+    /// use picocadrs::v1::assets::{Rotation, Point3D};
     /// use picocadrs::point;
     ///
     /// let mut rot = Rotation(point!(0.2423, 0.9999, 0.34));
@@ -125,7 +120,7 @@ impl Rotation {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Rotation, Point3D};
+    /// use picocadrs::v1::assets::{Rotation, Point3D};
     /// use picocadrs::point;
     ///
     /// let mut rot = Rotation(point!(2.24, -1.21, 0.34));
@@ -151,7 +146,7 @@ impl Rotation {
     /// # Examples
     ///
     /// ```
-    /// use picocadrs::assets::{Rotation, Point3D};
+    /// use picocadrs::v1::assets::{Rotation, Point3D};
     /// use picocadrs::point;
     ///
     /// let rot = Rotation(point!(2.0, 1.5, 0.0));
@@ -202,7 +197,7 @@ impl Mesh {
     /// # Example
     ///
     /// ```
-    /// use picocadrs::assets::{Mesh, Point3D};
+    /// use picocadrs::v1::assets::{Mesh, Point3D};
     /// use picocadrs::point;
     ///
     /// let mesh = Mesh::new("my_mesh".to_string());
@@ -289,7 +284,7 @@ impl Display for Mesh {
 }
 
 impl TryFrom<Table<'_>> for Mesh {
-    type Error = PicoError;
+    type Error = Pico1Error;
 
     fn try_from(value: Table<'_>) -> Result<Self, Self::Error> {
         let mut name = String::new();
@@ -306,21 +301,21 @@ impl TryFrom<Table<'_>> for Mesh {
                     name = if let Value::String(string) = value {
                         string.to_str()?.to_string()
                     } else {
-                        return Err(PicoError::MeshField("name".to_string()));
+                        return Err(Pico1Error::MeshField("name".to_string()));
                     }
                 }
                 "pos" => {
                     position = if let Value::Table(table) = value {
                         Point3D::try_from(table)?
                     } else {
-                        return Err(PicoError::MeshField("pos".to_string()));
+                        return Err(Pico1Error::MeshField("pos".to_string()));
                     }
                 }
                 "rot" => {
                     rotation = if let Value::Table(table) = value {
                         Rotation(Point3D::try_from(table)?)
                     } else {
-                        return Err(PicoError::MeshField("rot".to_string()));
+                        return Err(Pico1Error::MeshField("rot".to_string()));
                     }
                 }
                 "v" => {
@@ -329,7 +324,7 @@ impl TryFrom<Table<'_>> for Mesh {
                             vertices.push(Point3D::try_from(point?)?);
                         }
                     } else {
-                        return Err(PicoError::MeshField("rot".to_string()));
+                        return Err(Pico1Error::MeshField("rot".to_string()));
                     };
                 }
                 "f" => {
@@ -338,7 +333,7 @@ impl TryFrom<Table<'_>> for Mesh {
                             faces.push(Face::try_from(face?)?);
                         }
                     } else {
-                        return Err(PicoError::MeshField("rot".to_string()));
+                        return Err(Pico1Error::MeshField("rot".to_string()));
                     }
                 }
                 _ => {}
@@ -356,7 +351,7 @@ impl TryFrom<Table<'_>> for Mesh {
 }
 
 impl FromStr for Mesh {
-    type Err = PicoError;
+    type Err = Pico1Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut mesh = Ok(Mesh::new("mesh".to_string()));
@@ -367,7 +362,7 @@ impl FromStr for Mesh {
 
             mesh = match table_result {
                 Ok(table) => Mesh::try_from(table),
-                Err(err) => Err(PicoError::from(err)),
+                Err(err) => Err(Pico1Error::from(err)),
             }
         });
 
